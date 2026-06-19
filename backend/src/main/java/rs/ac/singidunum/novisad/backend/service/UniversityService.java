@@ -6,37 +6,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.academic.University;
-import rs.ac.singidunum.novisad.backend.repository.UniverzitetRepository;
+import rs.ac.singidunum.novisad.backend.repository.UniversityRepository;
 
 @Service
-public class UniverzitetService {
+public class UniversityService {
 	@Autowired
-	private UniverzitetRepository repository;
-	
+	private UniversityRepository repository;
+
 	public Iterable<University> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<University> findOne(Long id) {
 		return repository.findById(id);
 	}
 
-	
-	public University save(University novaUniverzitet) {
-		return repository.save(novaUniverzitet);
+
+	public University save(University newUniversity) {
+		return repository.save(newUniversity);
 	}
-	
+
 	public University update(University university) {
 		if(repository.findById(university.getId()).isPresent()) {
 			return repository.save(university);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
+
 	public void delete(University university) {
 		repository.delete(university);
 	}

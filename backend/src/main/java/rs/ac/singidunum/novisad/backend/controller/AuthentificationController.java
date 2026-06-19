@@ -24,7 +24,7 @@ import rs.ac.singidunum.novisad.backend.model.Permission;
 import rs.ac.singidunum.novisad.backend.model.PermissionEnum;
 import rs.ac.singidunum.novisad.backend.model.user.RegisteredUser;
 import rs.ac.singidunum.novisad.backend.repository.PermissionRepository;
-import rs.ac.singidunum.novisad.backend.repository.RegistrovaniKorisnikRepository;
+import rs.ac.singidunum.novisad.backend.repository.RegisteredUserRepository;
 import rs.ac.singidunum.novisad.backend.security.request.LoginRequest;
 import rs.ac.singidunum.novisad.backend.security.request.SignupRequest;
 import rs.ac.singidunum.novisad.backend.security.response.JwtResponse;
@@ -42,7 +42,7 @@ public class AuthentificationController {
   AuthenticationManager authenticationManager;
 
   @Autowired
-  RegistrovaniKorisnikRepository userRepository;
+  RegisteredUserRepository userRepository;
 
   @Autowired
   PermissionRepository roleRepository;
@@ -56,7 +56,7 @@ public class AuthentificationController {
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     try {
-    	System.out.println("proslo ");
+    	System.out.println("passed ");
     	System.out.println(loginRequest.getEmail() +" "+ loginRequest.getPassword());
       Authentication authentication = authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -75,14 +75,14 @@ public class AuthentificationController {
               roles, userDetails.getUserType()));
     } catch (BadCredentialsException ex) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-              .body(new MessageResponse("Pogrešna kombinacija korisničkog imena i lozinke."));
+              .body(new MessageResponse("Incorrect username or password combination."));
     }
   }
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
-    if (userRepository.existsRegistrovaniKorisnikByEmail(signUpRequest.getEmail())) {
+    if (userRepository.existsRegisteredUserByEmail(signUpRequest.getEmail())) {
       return ResponseEntity
           .badRequest()
           .body(new MessageResponse("Error: Email is already in use!"));
@@ -107,15 +107,15 @@ public class AuthentificationController {
 
           break;
         case "teacher":
-        	Permission nastavnikRole = roleRepository.findByName(PermissionEnum.TEACHER_PERMISSION)
+        	Permission teacherRole = roleRepository.findByName(PermissionEnum.TEACHER_PERMISSION)
               .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-          roles.add(nastavnikRole);
+          roles.add(teacherRole);
 
           break;
           case "studentskaSluzba":
-        	  Permission studentskaSluzba = roleRepository.findByName(PermissionEnum.STUDENT_AFFAIRS_PERMISSION)
+        	  Permission studentAffairsRole = roleRepository.findByName(PermissionEnum.STUDENT_AFFAIRS_PERMISSION)
                     .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-            roles.add(studentskaSluzba);
+            roles.add(studentAffairsRole);
 
             break;
           case "administrator":
@@ -125,9 +125,9 @@ public class AuthentificationController {
 
             break;
         default:
-        	Permission korisnikRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
+        	Permission userRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
               .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-          roles.add(korisnikRole);
+          roles.add(userRole);
         }
       });
     }

@@ -16,103 +16,103 @@ import rs.ac.singidunum.novisad.backend.model.user.RegisteredUser;
 import rs.ac.singidunum.novisad.backend.model.user.Student;
 import rs.ac.singidunum.novisad.backend.model.user.StudentAffairsOffice;
 import rs.ac.singidunum.novisad.backend.repository.PermissionRepository;
-import rs.ac.singidunum.novisad.backend.repository.RegistrovaniKorisnikRepository;
+import rs.ac.singidunum.novisad.backend.repository.RegisteredUserRepository;
 
 @Service
-public class RegistrovaniKorisnikService {
+public class RegisteredUserService {
 
 	@Autowired
-	private RegistrovaniKorisnikRepository repository;
-	
+	private RegisteredUserRepository repository;
+
 	@Autowired
 	private PermissionRepository permissionRepository;
-	
+
 	public Iterable<RegisteredUser> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<RegisteredUser> findOne(Long id) {
 		return repository.findById(id);
 	}
-	
+
 	public Optional<RegisteredUser> findByEmail(String email) {
 	    return repository.findByEmail(email);
 	}
 
-	public RegisteredUser save(RegisteredUser novaKorisnik) {
-		return repository.save(novaKorisnik);
+	public RegisteredUser save(RegisteredUser newUser) {
+		return repository.save(newUser);
 	}
-	
-	public RegisteredUser update(RegisteredUser korisnik) {
-		if(repository.findById(korisnik.getId()).isPresent()) {
-			return repository.save(korisnik);
+
+	public RegisteredUser update(RegisteredUser user) {
+		if(repository.findById(user.getId()).isPresent()) {
+			return repository.save(user);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
-	public void delete(RegisteredUser korisnik) {
-		repository.delete(korisnik);
-	}
-		
-	public boolean promeniTipKorisnika(long korisnikId, String tip) {
-		RegisteredUser korisnik = repository.findById(korisnikId).orElse(null);
 
-		if (korisnik == null) {
+	public void delete(RegisteredUser user) {
+		repository.delete(user);
+	}
+
+	public boolean changeUserType(long userId, String type) {
+		RegisteredUser user = repository.findById(userId).orElse(null);
+
+		if (user == null) {
 			return false;
 		}
-		if ("student_premission".equalsIgnoreCase(tip) && !(korisnik instanceof Student)) {
+		if ("student_premission".equalsIgnoreCase(type) && !(user instanceof Student)) {
 			Set<Permission> permissions = new HashSet<>();
 			Optional<Permission> studentRole = permissionRepository.findByName(PermissionEnum.STUDENT_PERMISSION);
 			permissions.add(studentRole.orElse(null));
 			Student student = new Student();
-			student.setUsername(korisnik.getUsername());
-			student.setEmail(korisnik.getEmail());
-			student.setPassword(korisnik.getPassword());
+			student.setUsername(user.getUsername());
+			student.setEmail(user.getEmail());
+			student.setPassword(user.getPassword());
 			student.setPermissions(permissions);
-			repository.delete(korisnik);
+			repository.delete(user);
 			repository.save(student);
 			return true;
 		}
-		else if ("nastavnik_premission".equalsIgnoreCase(tip) && !(korisnik instanceof Teacher)) {
+		else if ("nastavnik_premission".equalsIgnoreCase(type) && !(user instanceof Teacher)) {
 				Set<Permission> permissions = new HashSet<>();
-				Optional<Permission> profesorRole = permissionRepository.findByName(PermissionEnum.TEACHER_PERMISSION);
-				permissions.add(profesorRole.orElse(null));
-				Teacher profesor = new Teacher();
-				profesor.setFirstName(korisnik.getUsername());
-				profesor.setEmail(korisnik.getEmail());
-				profesor.setPassword(korisnik.getPassword());
-				profesor.setPermissions(permissions);
-				repository.delete(korisnik);
-				repository.save(profesor);
+				Optional<Permission> teacherRole = permissionRepository.findByName(PermissionEnum.TEACHER_PERMISSION);
+				permissions.add(teacherRole.orElse(null));
+				Teacher teacher = new Teacher();
+				teacher.setFirstName(user.getUsername());
+				teacher.setEmail(user.getEmail());
+				teacher.setPassword(user.getPassword());
+				teacher.setPermissions(permissions);
+				repository.delete(user);
+				repository.save(teacher);
 			 return true;
 		}
-		else if ("studentskaSluzba_premission".equalsIgnoreCase(tip) && !(korisnik instanceof StudentAffairsOffice)) {
+		else if ("studentskaSluzba_premission".equalsIgnoreCase(type) && !(user instanceof StudentAffairsOffice)) {
 			Set<Permission> permissions = new HashSet<>();
-			Optional<Permission> studentskasluzbaRole = permissionRepository.findByName(PermissionEnum.STUDENT_AFFAIRS_PERMISSION);
-			permissions.add(studentskasluzbaRole.orElse(null));
-			StudentAffairsOffice studentskaSluzba = new StudentAffairsOffice();
-			studentskaSluzba.setUsername(korisnik.getUsername());
-			studentskaSluzba.setEmail(korisnik.getEmail());
-			studentskaSluzba.setPassword(korisnik.getPassword());
-			studentskaSluzba.setPermissions(permissions);
-			repository.delete(korisnik);
-			repository.save(studentskaSluzba);
+			Optional<Permission> studentAffairsRole = permissionRepository.findByName(PermissionEnum.STUDENT_AFFAIRS_PERMISSION);
+			permissions.add(studentAffairsRole.orElse(null));
+			StudentAffairsOffice studentAffairsOffice = new StudentAffairsOffice();
+			studentAffairsOffice.setUsername(user.getUsername());
+			studentAffairsOffice.setEmail(user.getEmail());
+			studentAffairsOffice.setPassword(user.getPassword());
+			studentAffairsOffice.setPermissions(permissions);
+			repository.delete(user);
+			repository.save(studentAffairsOffice);
 			 return true;
 		}
-		else if ("administrator_premission".equalsIgnoreCase(tip) && !(korisnik instanceof Administrator)) {
+		else if ("administrator_premission".equalsIgnoreCase(type) && !(user instanceof Administrator)) {
 			Set<Permission> permissions = new HashSet<>();
 			Optional<Permission> administratorRole = permissionRepository.findByName(PermissionEnum.ADMINISTRATOR_PERMISSION);
 			permissions.add(administratorRole.orElse(null));
 			Administrator administrator = new Administrator();
-			administrator.setUsername(korisnik.getUsername());
-			administrator.setEmail(korisnik.getEmail());
-			administrator.setPassword(korisnik.getPassword());
+			administrator.setUsername(user.getUsername());
+			administrator.setEmail(user.getEmail());
+			administrator.setPassword(user.getPassword());
 			administrator.setPermissions(permissions);
-			repository.delete(korisnik);
+			repository.delete(user);
 			repository.save(administrator);
 			 return true;
 		}
@@ -121,29 +121,29 @@ public class RegistrovaniKorisnikService {
 			return false;
 		}
 	}
-	
-	public boolean upisStudenta (long korisnikId, StudentDTO dodatneInfStudent) {
-		
-		RegisteredUser korisnik = repository.findById(korisnikId).orElse(null);
-		if (korisnik == null) {
+
+	public boolean enrollStudent (long userId, StudentDTO additionalStudentInfo) {
+
+		RegisteredUser user = repository.findById(userId).orElse(null);
+		if (user == null) {
 			return false;
 			}
-		else if (!(korisnik instanceof Student)) {
+		else if (!(user instanceof Student)) {
 			Set<Permission> permissions = new HashSet<>();
 			Optional<Permission> studentRole = permissionRepository.findByName(PermissionEnum.STUDENT_PERMISSION);
 			permissions.add(studentRole.orElse(null));
-			
+
 			Student student = new Student();
-			
-			student.setEmail(dodatneInfStudent.getEmail());
-			student.setUsername(dodatneInfStudent.getUsername());
-			student.setIndexNumber(dodatneInfStudent.getIndexNumber());
-			student.setPassword(dodatneInfStudent.getPassword());
-			student.setFirstName(dodatneInfStudent.getFirstName());
-			student.setLastName(dodatneInfStudent.getLastName());
-			student.setFaculty(dodatneInfStudent.getFaculty());
+
+			student.setEmail(additionalStudentInfo.getEmail());
+			student.setUsername(additionalStudentInfo.getUsername());
+			student.setIndexNumber(additionalStudentInfo.getIndexNumber());
+			student.setPassword(additionalStudentInfo.getPassword());
+			student.setFirstName(additionalStudentInfo.getFirstName());
+			student.setLastName(additionalStudentInfo.getLastName());
+			student.setFaculty(additionalStudentInfo.getFaculty());
 			student.setPermissions(permissions);
-			repository.delete(korisnik);
+			repository.delete(user);
 			repository.save(student);
 			return true;
 		}

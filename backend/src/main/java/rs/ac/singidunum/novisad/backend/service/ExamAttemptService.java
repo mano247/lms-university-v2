@@ -8,41 +8,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.ExamAttempt;
-import rs.ac.singidunum.novisad.backend.repository.PolaganjeRepository;
+import rs.ac.singidunum.novisad.backend.repository.ExamAttemptRepository;
 
 
 
 @Service
-public class PolaganjeService {
+public class ExamAttemptService {
 	@Autowired
-	private PolaganjeRepository repository;
-	
+	private ExamAttemptRepository repository;
+
 	public Iterable<ExamAttempt> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<ExamAttempt> findOne(Long id) {
 		return repository.findById(id);
 	}
 
-	
-	public ExamAttempt save(ExamAttempt novaPokusajPolaganja) {
-		return repository.save(novaPokusajPolaganja);
+
+	public ExamAttempt save(ExamAttempt newExamAttempt) {
+		return repository.save(newExamAttempt);
 	}
-	
-	public ExamAttempt update(ExamAttempt pokusajPolaganja) {
-		if(repository.findById(pokusajPolaganja.getId()).isPresent()) {
-			return repository.save(pokusajPolaganja);
+
+	public ExamAttempt update(ExamAttempt examAttempt) {
+		if(repository.findById(examAttempt.getId()).isPresent()) {
+			return repository.save(examAttempt);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
-	public void delete(ExamAttempt pokusajPolaganja) {
-		repository.delete(pokusajPolaganja);
+
+	public void delete(ExamAttempt examAttempt) {
+		repository.delete(examAttempt);
 	}
 
 	public Iterable<ExamAttempt> findAllByStudent(Long id ) {
@@ -55,4 +55,3 @@ public class PolaganjeService {
 		return examAttempts;
 	}
 }
-
