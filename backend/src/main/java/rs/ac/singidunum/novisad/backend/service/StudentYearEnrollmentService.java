@@ -6,40 +6,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.StudentYearEnrollment;
-import rs.ac.singidunum.novisad.backend.repository.StudentNaGodiniRepository;
+import rs.ac.singidunum.novisad.backend.repository.StudentYearEnrollmentRepository;
 
 @Service
-public class StudentNaGodiniService {
-	
+public class StudentYearEnrollmentService {
+
 	@Autowired
-	private StudentNaGodiniRepository sngRepository;
-	
+	private StudentYearEnrollmentRepository repository;
+
 	public Iterable<StudentYearEnrollment> findAll() {
-		return sngRepository.findAll();
-	}
-	
-	public Optional<StudentYearEnrollment> findOne(Long id) {
-		return sngRepository.findById(id);
+		return repository.findAll();
 	}
 
-	
-	public StudentYearEnrollment save(StudentYearEnrollment noviStudentNaGodini) {
-		return sngRepository.save(noviStudentNaGodini);
+	public Optional<StudentYearEnrollment> findOne(Long id) {
+		return repository.findById(id);
 	}
-	
-	public StudentYearEnrollment update(StudentYearEnrollment studentNaGodini) {
-		if(sngRepository.findById(studentNaGodini.getId()).isPresent()) {
-			return sngRepository.save(studentNaGodini);
+
+
+	public StudentYearEnrollment save(StudentYearEnrollment newStudentYearEnrollment) {
+		return repository.save(newStudentYearEnrollment);
+	}
+
+	public StudentYearEnrollment update(StudentYearEnrollment studentYearEnrollment) {
+		if(repository.findById(studentYearEnrollment.getId()).isPresent()) {
+			return repository.save(studentYearEnrollment);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
-		sngRepository.deleteById(id);
+		repository.deleteById(id);
 	}
-	
-	public void delete(StudentYearEnrollment studentNaGodini) {
-		sngRepository.delete(studentNaGodini);
+
+	public void delete(StudentYearEnrollment studentYearEnrollment) {
+		repository.delete(studentYearEnrollment);
 	}
 
 }

@@ -8,18 +8,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import rs.ac.singidunum.novisad.backend.model.user.RegisteredUser;
-import rs.ac.singidunum.novisad.backend.repository.RegistrovaniKorisnikRepository;
+import rs.ac.singidunum.novisad.backend.repository.RegisteredUserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
   @Autowired
-  RegistrovaniKorisnikRepository userRepository;
+  RegisteredUserRepository userRepository;
 
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     RegisteredUser user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new UsernameNotFoundException("Ne postojeca mejl address: " + email));
+        .orElseThrow(() -> new UsernameNotFoundException("No such email address: " + email));
 
     return UserDetailsImpl.build(user);
   }

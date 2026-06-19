@@ -6,35 +6,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.StudyYear;
-import rs.ac.singidunum.novisad.backend.repository.GodinaStudijaRepository;
+import rs.ac.singidunum.novisad.backend.repository.StudyYearRepository;
 
 
 @Service
-public class GodinaStudijaService {
+public class StudyYearService {
 
 	@Autowired
-	private GodinaStudijaRepository godinaRepository;
-	
+	private StudyYearRepository repository;
+
 	public Iterable<StudyYear> findAll() {
-		return godinaRepository.findAll();
-	}
-	
-	public Optional<StudyYear> findOne(Long id) {
-		return godinaRepository.findById(id);
+		return repository.findAll();
 	}
 
-	public StudyYear save(StudyYear novaGodinaStudija) {
-		return godinaRepository.save(novaGodinaStudija);
+	public Optional<StudyYear> findOne(Long id) {
+		return repository.findById(id);
 	}
-	
+
+	public StudyYear save(StudyYear newStudyYear) {
+		return repository.save(newStudyYear);
+	}
+
 	public StudyYear update(StudyYear studyYear) {
-		if(godinaRepository.findById(studyYear.getId()).isPresent()) {
-			return godinaRepository.save(studyYear);
+		if(repository.findById(studyYear.getId()).isPresent()) {
+			return repository.save(studyYear);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
-		godinaRepository.deleteById(id);
+		repository.deleteById(id);
 	}
 }

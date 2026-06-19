@@ -22,8 +22,8 @@ public class StudentService {
 	}
 
 	
-	public Student save(Student novaStudent) {
-		return repository.save(novaStudent);
+	public Student save(Student newStudent) {
+		return repository.save(newStudent);
 	}
 	
 	public Student update(Student student) {

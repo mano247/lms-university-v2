@@ -6,40 +6,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.Announcement;
-import rs.ac.singidunum.novisad.backend.repository.ObavestenjeRepository;
+import rs.ac.singidunum.novisad.backend.repository.AnnouncementRepository;
 
 
 
 @Service
-public class ObavestenjaService {
+public class AnnouncementService {
 	@Autowired
-	private ObavestenjeRepository repository;
-	
+	private AnnouncementRepository repository;
+
 	public Iterable<Announcement> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<Announcement> findOne(Long id) {
 		return repository.findById(id);
 	}
 
-	
-	public Announcement save(Announcement novaObavestenja) {
-		return repository.save(novaObavestenja);
+
+	public Announcement save(Announcement newAnnouncement) {
+		return repository.save(newAnnouncement);
 	}
-	
-	public Announcement update(Announcement announcements) {
-		if(repository.findById(announcements.getId()).isPresent()) {
-			return repository.save(announcements);
+
+	public Announcement update(Announcement announcement) {
+		if(repository.findById(announcement.getId()).isPresent()) {
+			return repository.save(announcement);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
-	public void delete(Announcement announcements) {
-		repository.delete(announcements);
+
+	public void delete(Announcement announcement) {
+		repository.delete(announcement);
 	}
 }

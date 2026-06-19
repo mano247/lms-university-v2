@@ -6,41 +6,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.academic.TeachingMaterial;
-import rs.ac.singidunum.novisad.backend.repository.NastavniMaterijalRepository;
+import rs.ac.singidunum.novisad.backend.repository.TeachingMaterialRepository;
 
 
 
 @Service
-public class NastavniMaterijalService {
+public class TeachingMaterialService {
 	@Autowired
-	private NastavniMaterijalRepository repository;
-	
+	private TeachingMaterialRepository repository;
+
 	public Iterable<TeachingMaterial> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<TeachingMaterial> findOne(Long id) {
 		return repository.findById(id);
 	}
 
-	
-	public TeachingMaterial save(TeachingMaterial novaNastavniMaterijal) {
-		return repository.save(novaNastavniMaterijal);
+
+	public TeachingMaterial save(TeachingMaterial newTeachingMaterial) {
+		return repository.save(newTeachingMaterial);
 	}
-	
-	public TeachingMaterial update(TeachingMaterial teachingMaterials) {
-		if(repository.findById(teachingMaterials.getId()).isPresent()) {
-			return repository.save(teachingMaterials);
+
+	public TeachingMaterial update(TeachingMaterial teachingMaterial) {
+		if(repository.findById(teachingMaterial.getId()).isPresent()) {
+			return repository.save(teachingMaterial);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
-	public void delete(TeachingMaterial teachingMaterials) {
-		repository.delete(teachingMaterials);
+
+	public void delete(TeachingMaterial teachingMaterial) {
+		repository.delete(teachingMaterial);
 	}
-	
+
 }

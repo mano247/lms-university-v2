@@ -6,40 +6,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.user.Teacher;
-import rs.ac.singidunum.novisad.backend.repository.NastavnikRepository;
+import rs.ac.singidunum.novisad.backend.repository.TeacherRepository;
 
 
 
 @Service
-public class NastavnikService {
+public class TeacherService {
 	@Autowired
-	private NastavnikRepository repository;
-	
+	private TeacherRepository repository;
+
 	public Iterable<Teacher> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<Teacher> findOne(Long id) {
 		return repository.findById(id);
 	}
 
-	
-	public Teacher save(Teacher novaProfesor) {
-		return repository.save(novaProfesor);
+
+	public Teacher save(Teacher newTeacher) {
+		return repository.save(newTeacher);
 	}
-	
-	public Teacher update(Teacher profesor) {
-		if(repository.findById(profesor.getId()).isPresent()) {
-			return repository.save(profesor);
+
+	public Teacher update(Teacher teacher) {
+		if(repository.findById(teacher.getId()).isPresent()) {
+			return repository.save(teacher);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
-	public void delete(Teacher profesor) {
-		repository.delete(profesor);
+
+	public void delete(Teacher teacher) {
+		repository.delete(teacher);
 	}
 }
