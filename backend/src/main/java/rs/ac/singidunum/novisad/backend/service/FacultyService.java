@@ -8,44 +8,44 @@ import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.academic.Faculty;
 import rs.ac.singidunum.novisad.backend.model.academic.StudyProgram;
-import rs.ac.singidunum.novisad.backend.repository.FakultetRepository;
+import rs.ac.singidunum.novisad.backend.repository.FacultyRepository;
 
 @Service
-public class FakultetService {
+public class FacultyService {
 	@Autowired
-	private FakultetRepository repository;
-	
+	private FacultyRepository repository;
+
 	public Iterable<Faculty> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<Faculty> findOne(Long id) {
 		return repository.findById(id);
 	}
-	
-	public Optional<Faculty> findBySifra(String facultyCode) {
-		return repository.findBySifraFakulteta(facultyCode);
+
+	public Optional<Faculty> findByCode(String facultyCode) {
+		return repository.findByFacultyCode(facultyCode);
 	}
-	
-	public Faculty save(Faculty novaFakultet) {
-		return repository.save(novaFakultet);
+
+	public Faculty save(Faculty newFaculty) {
+		return repository.save(newFaculty);
 	}
-	
+
 	public Faculty update(Faculty faculty) {
 		if(repository.findById(faculty.getId()).isPresent()) {
 			return repository.save(faculty);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
+
 	public void delete(Faculty faculty) {
 		repository.delete(faculty);
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public Set<StudyProgram> getAllCoursesOfFaculty(Long id) {
 		return repository.getById(id).getStudyPrograms();

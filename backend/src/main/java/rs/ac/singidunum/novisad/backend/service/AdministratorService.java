@@ -24,8 +24,8 @@ public class AdministratorService {
 	}
 
 	
-	public Administrator save(Administrator novaAdministrator) {
-		return repository.save(novaAdministrator);
+	public Administrator save(Administrator newAdministrator) {
+		return repository.save(newAdministrator);
 	}
 	
 	public Administrator update(Administrator administrator) {

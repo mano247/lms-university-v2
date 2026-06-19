@@ -6,39 +6,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.CourseAnnouncement;
-import rs.ac.singidunum.novisad.backend.repository.PredmetnaObavestenjaRepository;
+import rs.ac.singidunum.novisad.backend.repository.CourseAnnouncementRepository;
 
 
 @Service
-public class PredmetnaObavestenjaService {
+public class CourseAnnouncementService {
 	@Autowired
-	private PredmetnaObavestenjaRepository repository;
-	
+	private CourseAnnouncementRepository repository;
+
 	public Iterable<CourseAnnouncement> findAll() {
 		return repository.findAll();
 	}
-	
+
 	public Optional<CourseAnnouncement> findOne(Long id) {
 		return repository.findById(id);
 	}
 
-	
-	public CourseAnnouncement save(CourseAnnouncement novaOpstaObavestenja) {
-		return repository.save(novaOpstaObavestenja);
+
+	public CourseAnnouncement save(CourseAnnouncement newCourseAnnouncement) {
+		return repository.save(newCourseAnnouncement);
 	}
-	
-	public CourseAnnouncement update(CourseAnnouncement opstaObavestenja) {
-		if(repository.findById(opstaObavestenja.getId()).isPresent()) {
-			return repository.save(opstaObavestenja);
+
+	public CourseAnnouncement update(CourseAnnouncement courseAnnouncement) {
+		if(repository.findById(courseAnnouncement.getId()).isPresent()) {
+			return repository.save(courseAnnouncement);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
-	
-	public void delete(CourseAnnouncement opstaObavestenja) {
-		repository.delete(opstaObavestenja);
+
+	public void delete(CourseAnnouncement courseAnnouncement) {
+		repository.delete(courseAnnouncement);
 	}
 }

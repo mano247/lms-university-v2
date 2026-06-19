@@ -6,38 +6,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.novisad.backend.model.FinalThesis;
-import rs.ac.singidunum.novisad.backend.repository.ZavrsniRadRepository;
+import rs.ac.singidunum.novisad.backend.repository.FinalThesisRepository;
 
 @Service
-public class ZavrsniRadService {
+public class FinalThesisService {
 	@Autowired
-	private ZavrsniRadRepository zrRepository;
-	
+	private FinalThesisRepository repository;
+
 	public Iterable<FinalThesis> findAll() {
-		return zrRepository.findAll();
-	}
-	
-	public Optional<FinalThesis> findOne(Long id) {
-		return zrRepository.findById(id);
+		return repository.findAll();
 	}
 
-	
-	public FinalThesis save(FinalThesis noviZavrsniRad) {
-		return zrRepository.save(noviZavrsniRad);
+	public Optional<FinalThesis> findOne(Long id) {
+		return repository.findById(id);
 	}
-	
-	public FinalThesis update(FinalThesis FinalThesis) {
-		if(zrRepository.findById(FinalThesis.getId()).isPresent()) {
-			return zrRepository.save(FinalThesis);
+
+
+	public FinalThesis save(FinalThesis newFinalThesis) {
+		return repository.save(newFinalThesis);
+	}
+
+	public FinalThesis update(FinalThesis finalThesis) {
+		if(repository.findById(finalThesis.getId()).isPresent()) {
+			return repository.save(finalThesis);
 		}
 		return null;
 	}
-	
+
 	public void delete(Long id) {
-		zrRepository.deleteById(id);
+		repository.deleteById(id);
 	}
-	
-	public void delete(FinalThesis FinalThesis) {
-		zrRepository.delete(FinalThesis);
+
+	public void delete(FinalThesis finalThesis) {
+		repository.delete(finalThesis);
 	}
 }

@@ -1,0 +1,24 @@
+# Claude Code fajlovi
+CLAUDE.md
+backend-analysis.md
+prompts.md
+
+# Java/Spring Boot
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.metadata/
+.idea/
+*.iml
+.vscode/
+
+# Frontend
+node_modules/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db

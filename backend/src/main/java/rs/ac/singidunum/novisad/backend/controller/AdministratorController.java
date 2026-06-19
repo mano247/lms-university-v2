@@ -27,11 +27,11 @@ public class AdministratorController {
 	
 	@RequestMapping(path = "", method = RequestMethod.GET)
 	public ResponseEntity<Iterable<Administrator>> getAll(){
-		HashSet<Administrator> administratori = new HashSet<Administrator>();
+		HashSet<Administrator> administrators = new HashSet<Administrator>();
 		for (Administrator a : service.findAll()) {
-			administratori.add(new Administrator(a.getId(),a.getFirstName(),a.getLastName(), a.getUsername(), a.getEmail(),a.getPassword(), a.getPermissions()));
+			administrators.add(new Administrator(a.getId(),a.getFirstName(),a.getLastName(), a.getUsername(), a.getEmail(),a.getPassword(), a.getPermissions()));
 		}
-		return new ResponseEntity<Iterable<Administrator>>(administratori, HttpStatus.OK);
+		return new ResponseEntity<Iterable<Administrator>>(administrators, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)

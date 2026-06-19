@@ -1,4 +1,4 @@
-package rs.ac.singidunum.novisad.backend .controller;
+package rs.ac.singidunum.novisad.backend.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,9 +33,9 @@ import rs.ac.singidunum.novisad.backend.model.academic.Course;
 import rs.ac.singidunum.novisad.backend.model.academic.StudyProgram;
 import rs.ac.singidunum.novisad.backend.model.user.Student;
 import rs.ac.singidunum.novisad.backend.security.services.UserDetailsImpl;
-import rs.ac.singidunum.novisad.backend.service.PolaganjeService;
+import rs.ac.singidunum.novisad.backend.service.ExamAttemptService;
 import rs.ac.singidunum.novisad.backend.service.StudentService;
-import rs.ac.singidunum.novisad.backend.service.StudijskiProgramService;
+import rs.ac.singidunum.novisad.backend.service.StudyProgramService;
 
 @Controller
 @RequestMapping(path = "/api/students")
@@ -43,12 +43,12 @@ import rs.ac.singidunum.novisad.backend.service.StudijskiProgramService;
 public class StudentController {
 		@Autowired
 		private StudentService service;
-		
-		@Autowired
-		private StudijskiProgramService spService;
 
 		@Autowired
-		private PolaganjeService polaganjaService;
+		private StudyProgramService spService;
+
+		@Autowired
+		private ExamAttemptService examAttemptService;
 
 		@Autowired
 		PasswordEncoder encoder;
@@ -92,16 +92,16 @@ public class StudentController {
 				Long userId = userDetails.getId();
 
 				if (id.equals(userId)) {
-					Student studentZaIzmenu = service.findOne(id).orElse(null);
-					if (studentZaIzmenu != null) {
-						studentZaIzmenu.setId(id);
-						studentZaIzmenu.setFirstName(student.getFirstName());
-						studentZaIzmenu.setLastName(student.getLastName());
-						studentZaIzmenu.setEmail(student.getEmail());
-						studentZaIzmenu.setPassword(studentZaIzmenu.getPassword());
-						studentZaIzmenu.setPermissions(studentZaIzmenu.getPermissions());
+					Student studentToUpdate = service.findOne(id).orElse(null);
+					if (studentToUpdate != null) {
+						studentToUpdate.setId(id);
+						studentToUpdate.setFirstName(student.getFirstName());
+						studentToUpdate.setLastName(student.getLastName());
+						studentToUpdate.setEmail(student.getEmail());
+						studentToUpdate.setPassword(studentToUpdate.getPassword());
+						studentToUpdate.setPermissions(studentToUpdate.getPermissions());
 
-						service.save(studentZaIzmenu);
+						service.save(studentToUpdate);
 						return new ResponseEntity<Student>(HttpStatus.OK);
 					}
 				}
@@ -109,12 +109,12 @@ public class StudentController {
 
 			return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
 		}
-		
+
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/{id}/polozeniIspiti", method = RequestMethod.GET)
-		public ResponseEntity<List<MyCoursesDTO>> getPolozeniIspiti(@PathVariable("id") Long id, Authentication authentication) {
+		public ResponseEntity<List<MyCoursesDTO>> getPassedExamAttempts(@PathVariable("id") Long id, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
-					Set<Course> praviPredmeti = service.findOne(id).get().getCourses();
+					Set<Course> actualCourses = service.findOne(id).get().getCourses();
 					service.findOne(id).get().getCourses()
 							.stream().map(p -> new CourseDTO(
 									p.getId(),
@@ -137,28 +137,28 @@ public class StudentController {
 													nm.getIssuedQuantity()
 											)).collect(Collectors.toSet()))).collect(Collectors.toSet());
 
-					List<MyCoursesDTO> prikaz = new ArrayList<>();
-					Iterable<ExamAttempt> examAttempts = polaganjaService.findAll();
-					for (Course p : praviPredmeti) {
+					List<MyCoursesDTO> result = new ArrayList<>();
+					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
 							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getFinalGrade() > 5 && pp.getFinalGrade() <=10) {
-								prikaz.add(new MyCoursesDTO(p.getId(), p.getName(), p.getDescription(), p.getSyllabus(),new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),
+								result.add(new MyCoursesDTO(p.getId(), p.getName(), p.getDescription(), p.getSyllabus(),new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),
 										pp.getPoints(), p.getEcts(), pp.getFinalGrade()));
 							}
 						}
 					}
 
 
-					return new ResponseEntity<List<MyCoursesDTO>>(prikaz, HttpStatus.OK);
+					return new ResponseEntity<List<MyCoursesDTO>>(result, HttpStatus.OK);
 				}
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/{id}/nepolozeniIspiti", method = RequestMethod.GET)
-		public ResponseEntity<List<MyCoursesDTO>> getNPIspiti(@PathVariable("id") Long id, Authentication authentication) {
+		public ResponseEntity<List<MyCoursesDTO>> getFailedExamAttempts(@PathVariable("id") Long id, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
-					Set<Course> praviPredmeti = service.findOne(id).get().getCourses();
+					Set<Course> actualCourses = service.findOne(id).get().getCourses();
 					service.findOne(id).get().getCourses()
 							.stream().map(p -> new CourseDTO(
 									p.getId(),
@@ -181,26 +181,26 @@ public class StudentController {
 													nm.getIssuedQuantity()
 											)).collect(Collectors.toSet()))).collect(Collectors.toSet());
 
-					List<MyCoursesDTO> prikaz = new ArrayList<>();
-					Iterable<ExamAttempt> examAttempts = polaganjaService.findAll();
-					for (Course p : praviPredmeti) {
+					List<MyCoursesDTO> result = new ArrayList<>();
+					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
 							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getFinalGrade() ==5) {
-								prikaz.add(new MyCoursesDTO(p.getId(),p.getName(), p.getDescription(), p.getSyllabus(),new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),
+								result.add(new MyCoursesDTO(p.getId(),p.getName(), p.getDescription(), p.getSyllabus(),new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),
 										pp.getPoints(), p.getEcts(), pp.getFinalGrade()));
 							}
 						}
 					}
 
 
-					return new ResponseEntity<List<MyCoursesDTO>>(prikaz, HttpStatus.OK);
+					return new ResponseEntity<List<MyCoursesDTO>>(result, HttpStatus.OK);
 				}
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/{id}/sviIspiti", method = RequestMethod.GET)
-		public ResponseEntity<Set<CourseDTO>> getSviPredmeti(@PathVariable("id") Long id, Authentication authentication) {
+		public ResponseEntity<Set<CourseDTO>> getAllCourses(@PathVariable("id") Long id, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
@@ -237,10 +237,10 @@ public class StudentController {
 			}
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		
+
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/{id}/sviAPredmeti", method = RequestMethod.GET)
-		public ResponseEntity<Set<CourseDTO>> getSviAktivniPredmeti(@PathVariable("id") Long id, Authentication authentication) {
+		public ResponseEntity<Set<CourseDTO>> getAllActiveCourses(@PathVariable("id") Long id, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
@@ -280,13 +280,13 @@ public class StudentController {
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/{id}/nepolozeniIspiti/{id_predmeta}", method = RequestMethod.GET)
-		public ResponseEntity<List<MyCoursesDTO>> getNepolozeniIspitiPoPredmetu(@PathVariable("id") Long id,@PathVariable("id_predmeta") Long id_predmta, Authentication authentication) {
+		public ResponseEntity<List<MyCoursesDTO>> getFailedExamAttemptsByCourse(@PathVariable("id") Long id,@PathVariable("id_predmeta") Long courseId, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
 
 				if (id.equals(userId)) {
-					Set<Course> praviPredmeti = service.findOne(id).get().getCourses();
+					Set<Course> actualCourses = service.findOne(id).get().getCourses();
 					service.findOne(id).get().getCourses()
 							.stream().map(p -> new CourseDTO(
 									p.getId(),
@@ -309,20 +309,20 @@ public class StudentController {
 													nm.getIssuedQuantity()
 											)).collect(Collectors.toSet()))).collect(Collectors.toSet());
 
-					List<MyCoursesDTO> prikaz = new ArrayList<>();
-					
-					Iterable<ExamAttempt> examAttempts = polaganjaService.findAll();
-					for (Course p : praviPredmeti) {
+					List<MyCoursesDTO> result = new ArrayList<>();
+
+					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
-							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getCourse().getId().equals(id_predmta) && pp.getFinalGrade() ==5) {
-								prikaz.add(new MyCoursesDTO(p.getId(),p.getName(), p.getDescription(), p.getSyllabus(), new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),
+							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getCourse().getId().equals(courseId) && pp.getFinalGrade() ==5) {
+								result.add(new MyCoursesDTO(p.getId(),p.getName(), p.getDescription(), p.getSyllabus(), new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),
 										pp.getPoints(), p.getEcts(), pp.getFinalGrade()));
 							}
 						}
 					}
 
 
-					return new ResponseEntity<List<MyCoursesDTO>>(prikaz, HttpStatus.OK);
+					return new ResponseEntity<List<MyCoursesDTO>>(result, HttpStatus.OK);
 				}
 			}
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -330,21 +330,21 @@ public class StudentController {
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION','ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/dsp/{smer_id}", method = RequestMethod.PUT)
-			public ResponseEntity<Student> DodaliStudentuPredmete(@PathVariable("smer_id") Long smer_id, @RequestBody Student student, Authentication authentication) {
+			public ResponseEntity<Student> assignCoursesToStudent(@PathVariable("smer_id") Long studyProgramId, @RequestBody Student student, Authentication authentication) {
 
-			if (authentication.isAuthenticated()) {	
+			if (authentication.isAuthenticated()) {
 				Student s = service.findOne(student.getId()).orElse(null);
-					Optional<StudyProgram> optionalStudijskiProgram = spService.findOne(smer_id);
-				    StudyProgram studyProgram = optionalStudijskiProgram.get();
+					Optional<StudyProgram> optionalStudyProgram = spService.findOne(studyProgramId);
+				    StudyProgram studyProgram = optionalStudyProgram.get();
 				    Set<Course> courses = new HashSet<>();
 				    for (Course p : studyProgram.getCourses()) {
 					    courses.add(p);
 				    }
-					
+
 					if (s != null) {
 							s.setId(student.getId());
 							s.setCourses(courses);
-		
+
 							service.save(s);
 							return new ResponseEntity<Student>(s,HttpStatus.OK);
 							}
@@ -353,17 +353,17 @@ public class StudentController {
 			return new ResponseEntity<Student>(HttpStatus.BAD_REQUEST);
 			}
 
-		
+
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION')")
 		@RequestMapping(path = "/{id}/ispitiZaPrijavu", method = RequestMethod.GET)
-		public ResponseEntity<List<CourseDTO>> getIspitiZaPrijavu(@PathVariable("id") Long id, Authentication authentication) {
+		public ResponseEntity<List<CourseDTO>> getAvailableExams(@PathVariable("id") Long id, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
 
 				if (id.equals(userId)) {
-					Set<Course> predmetiStudenta = service.findOne(id).get().getCourses();
-					
+					Set<Course> studentCourses = service.findOne(id).get().getCourses();
+
 					service.findOne(id).get().getCourses()
 							.stream().map(p -> new CourseDTO(
 									p.getId(),
@@ -386,23 +386,23 @@ public class StudentController {
 													nm.getIssuedQuantity()
 											)).collect(Collectors.toSet()))).collect(Collectors.toSet());
 
-					List<CourseDTO> prikaz = new ArrayList<>();
+					List<CourseDTO> result = new ArrayList<>();
 
-					Iterable<ExamAttempt> examAttempts = polaganjaService.findAll();
+					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
 
-					for (Course p : predmetiStudenta) {
-					    boolean polozenPredmet = false;
+					for (Course p : studentCourses) {
+					    boolean coursePassed = false;
 
 					    for (ExamAttempt pp : examAttempts) {
 					        if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId()) {
 					            if (pp.getFinalGrade() > 5) {
-					                polozenPredmet = true;
+					                coursePassed = true;
 					                break;
 					            }
 					        }
 					    }
-					    if (!polozenPredmet) {
-					        prikaz.add(new CourseDTO(p.getId(), p.getCourseCode(),
+					    if (!coursePassed) {
+					        result.add(new CourseDTO(p.getId(), p.getCourseCode(),
 					                new TeacherDTO(p.getTeacher().getId(), p.getTeacher().getFirstName(), p.getTeacher().getLastName()),
 					                new StudyProgramDTO(p.getStudyProgram().getId(), p.getStudyProgram().getProgramCode(), p.getStudyProgram().getName()),
 					                p.getName(), p.getEcts(), p.getDescription(), p.getSyllabus()));
@@ -410,7 +410,7 @@ public class StudentController {
 					}
 
 
-					return new ResponseEntity<List<CourseDTO>>(prikaz, HttpStatus.OK);
+					return new ResponseEntity<List<CourseDTO>>(result, HttpStatus.OK);
 				}
 			}
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
