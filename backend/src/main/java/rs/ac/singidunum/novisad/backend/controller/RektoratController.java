@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.RektoratDTO;
-import rs.ac.singidunum.novisad.backend.dto.UniverzitetDTO;
-import rs.ac.singidunum.novisad.backend.model.Rektorat;
+import rs.ac.singidunum.novisad.backend.dto.RectorateDTO;
+import rs.ac.singidunum.novisad.backend.dto.UniversityDTO;
+import rs.ac.singidunum.novisad.backend.model.Rectorate;
 import rs.ac.singidunum.novisad.backend.service.RektoratService;
 
 @Controller
@@ -29,61 +29,61 @@ public class RektoratController {
 	private RektoratService service;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<RektoratDTO>> getAll(){
-		HashSet<RektoratDTO> rektorat = new HashSet<RektoratDTO>();
-		for (Rektorat r : service.findAll()) {
-			Set<UniverzitetDTO> univerziteti = r.getUniverziteti().stream().
-					map(univerzitet -> new UniverzitetDTO(univerzitet.getId(), univerzitet.getNaziv(), univerzitet.getDatumOsnivanja(), univerzitet.getKontakt(), univerzitet.getAdresa() , univerzitet.getOpis(), univerzitet.getSlika())).
+	public ResponseEntity<Iterable<RectorateDTO>> getAll(){
+		HashSet<RectorateDTO> rectorate = new HashSet<RectorateDTO>();
+		for (Rectorate r : service.findAll()) {
+			Set<UniversityDTO> universities = r.getUniversities().stream().
+					map(university -> new UniversityDTO(university.getId(), university.getName(), university.getFoundingDate(), university.getContact(), university.getAddress() , university.getDescription(), university.getImage())).
 					collect(Collectors.toSet());
-			rektorat.add(new RektoratDTO(r.getId(), r.getNaziv(), r.getKontakt(), r.getSlika(), r.getAdresa(),r.getIme_rektora(), univerziteti));
+			rectorate.add(new RectorateDTO(r.getId(), r.getName(), r.getContact(), r.getImage(), r.getAddress(),r.getRectorName(), universities));
 		}
-		return new ResponseEntity<Iterable<RektoratDTO>>(rektorat, HttpStatus.OK);
+		return new ResponseEntity<Iterable<RectorateDTO>>(rectorate, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<RektoratDTO> get(@PathVariable("id") Long id){
-		Optional<Rektorat> r = service.findOne(id);
+	public ResponseEntity<RectorateDTO> get(@PathVariable("id") Long id){
+		Optional<Rectorate> r = service.findOne(id);
 		if(r.isPresent()) {
-			Set<UniverzitetDTO> univerziteti = r.get().getUniverziteti().stream().
-					map(univerzitet -> new UniverzitetDTO(univerzitet.getId(), univerzitet.getNaziv(), univerzitet.getDatumOsnivanja(), univerzitet.getKontakt(), univerzitet.getAdresa() , univerzitet.getOpis(), univerzitet.getSlika())).
+			Set<UniversityDTO> universities = r.get().getUniversities().stream().
+					map(university -> new UniversityDTO(university.getId(), university.getName(), university.getFoundingDate(), university.getContact(), university.getAddress() , university.getDescription(), university.getImage())).
 					collect(Collectors.toSet());
-			RektoratDTO dto = new RektoratDTO(r.get().getId(), r.get().getNaziv(), r.get().getKontakt(), r.get().getSlika(), r.get().getAdresa(),r.get().getIme_rektora(), univerziteti);
-			return new ResponseEntity<RektoratDTO>(dto, HttpStatus.OK);
+			RectorateDTO dto = new RectorateDTO(r.get().getId(), r.get().getName(), r.get().getContact(), r.get().getImage(), r.get().getAddress(),r.get().getRectorName(), universities);
+			return new ResponseEntity<RectorateDTO>(dto, HttpStatus.OK);
 		}
-		return new ResponseEntity<RektoratDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<RectorateDTO>(HttpStatus.NOT_FOUND);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Rektorat> create(@RequestBody Rektorat r){
+	public ResponseEntity<Rectorate> create(@RequestBody Rectorate r){
 		try {
 			service.save(r);
-			return new ResponseEntity<Rektorat>(r, HttpStatus.CREATED);
+			return new ResponseEntity<Rectorate>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<Rektorat>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<Rectorate>(HttpStatus.BAD_REQUEST);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Rektorat> update(@PathVariable("id") Long id, @RequestBody Rektorat rektorat){
-		Rektorat r = service.findOne(id).orElse(null);
+	public ResponseEntity<Rectorate> update(@PathVariable("id") Long id, @RequestBody Rectorate rectorate){
+		Rectorate r = service.findOne(id).orElse(null);
 		if(r != null) {
-			rektorat.setId(id);
-			rektorat = service.save(rektorat);
-			return new ResponseEntity<Rektorat>(rektorat, HttpStatus.OK);
+			rectorate.setId(id);
+			rectorate = service.save(rectorate);
+			return new ResponseEntity<Rectorate>(rectorate, HttpStatus.OK);
 		}
-		return new ResponseEntity<Rektorat>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Rectorate>(HttpStatus.NOT_FOUND);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Rektorat> delete(@PathVariable("id") Long id){
+	public ResponseEntity<Rectorate> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<Rektorat>(HttpStatus.OK);
+			return new ResponseEntity<Rectorate>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Rektorat>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Rectorate>(HttpStatus.NOT_FOUND);
 	}
 }

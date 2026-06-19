@@ -2,7 +2,7 @@ package rs.ac.singidunum.novisad.backend.security.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import rs.ac.singidunum.novisad.backend.model.user.RegistrovaniKorisnik;
+import rs.ac.singidunum.novisad.backend.model.user.RegisteredUser;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,22 +21,22 @@ public class UserDetailsImpl implements UserDetails {
 	  private String email;
 
 	  @JsonIgnore
-	  private String lozinka;
+	  private String password;
 
 	  private String userType;
 
 	  private Collection<? extends GrantedAuthority> authorities;
 
-	  public UserDetailsImpl(Long id, String email, String lozinka,
+	  public UserDetailsImpl(Long id, String email, String password,
 	      Collection<? extends GrantedAuthority> authorities, String userType) {
 	    this.id = id;
 	    this.email = email;
-	    this.lozinka = lozinka;
+	    this.password = password;
 	    this.authorities = authorities;
 	    this.userType = userType;
 	  }
 
-	  public static UserDetailsImpl build(RegistrovaniKorisnik korisnik) {
+	  public static UserDetailsImpl build(RegisteredUser korisnik) {
 	    List<GrantedAuthority> authorities = korisnik.getPermissions().stream()
 	        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
 	        .collect(Collectors.toList());
@@ -44,7 +44,7 @@ public class UserDetailsImpl implements UserDetails {
 	    return new UserDetailsImpl(
 	            korisnik.getId(),
 	            korisnik.getEmail(),
-	            korisnik.getLozinka(),
+	            korisnik.getPassword(),
 		        authorities, 
 		        korisnik.getClass().getSimpleName());
 	  }
@@ -64,7 +64,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	  @Override
 	  public String getPassword() {
-	    return lozinka;
+	    return password;
 	  }
 
 	  @Override

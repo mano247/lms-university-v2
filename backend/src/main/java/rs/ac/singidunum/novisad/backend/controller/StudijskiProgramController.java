@@ -17,119 +17,119 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.FakultetDTO;
-import rs.ac.singidunum.novisad.backend.dto.StudijskiProgramDTO;
-import rs.ac.singidunum.novisad.backend.model.academic.StudijskiProgram;
+import rs.ac.singidunum.novisad.backend.dto.FacultyDTO;
+import rs.ac.singidunum.novisad.backend.dto.StudyProgramDTO;
+import rs.ac.singidunum.novisad.backend.model.academic.StudyProgram;
 import rs.ac.singidunum.novisad.backend.service.StudijskiProgramService;
 
 
 @Controller
-@RequestMapping(path = "/api/studijskiProgrami")
+@RequestMapping(path = "/api/studyPrograms")
 @CrossOrigin(origins = "http://localhost:4200")
 public class StudijskiProgramController {
 	@Autowired
 	private StudijskiProgramService service;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<StudijskiProgramDTO>> getAll(){
-		List<StudijskiProgramDTO> studijskiProgrami = new ArrayList<StudijskiProgramDTO>();
-		for (StudijskiProgram sp : service.findAll()) {
-			if(sp.getFakultet()!=null) {
-				Set<String> Predmeti = sp.getPredmeti()
+	public ResponseEntity<Iterable<StudyProgramDTO>> getAll(){
+		List<StudyProgramDTO> studyPrograms = new ArrayList<StudyProgramDTO>();
+		for (StudyProgram sp : service.findAll()) {
+			if(sp.getFaculty()!=null) {
+				Set<String> Courses = sp.getCourses()
 	                    .stream()
-	                    .map(predmet -> predmet.getSifraPredmeta())
+	                    .map(course -> course.getCourseCode())
 	                    .collect(Collectors.toSet());
-				StudijskiProgramDTO programDTO = new StudijskiProgramDTO(sp.getId(), sp.getSifraSP(), sp.getOpis(), sp.getNaziv(),  sp.getRukovodilac(),  new FakultetDTO(sp.getFakultet().getId(),sp.getFakultet().getSifraFakulteta(),sp.getFakultet().getNaziv()), Predmeti);
+				StudyProgramDTO programDTO = new StudyProgramDTO(sp.getId(), sp.getProgramCode(), sp.getDescription(), sp.getName(),  sp.getProgramDirector(),  new FacultyDTO(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()), Courses);
 	
-				studijskiProgrami.add(programDTO);
+				studyPrograms.add(programDTO);
 			}else {
-				Set<String> Predmeti = sp.getPredmeti()
+				Set<String> Courses = sp.getCourses()
 	                    .stream()
-	                    .map(predmet -> predmet.getSifraPredmeta())
+	                    .map(course -> course.getCourseCode())
 	                    .collect(Collectors.toSet());
-				StudijskiProgramDTO programDTO = new StudijskiProgramDTO(sp.getId(), sp.getSifraSP(), sp.getOpis(), sp.getNaziv(),  sp.getRukovodilac(), null, Predmeti);
+				StudyProgramDTO programDTO = new StudyProgramDTO(sp.getId(), sp.getProgramCode(), sp.getDescription(), sp.getName(),  sp.getProgramDirector(), null, Courses);
 	
-				studijskiProgrami.add(programDTO);
+				studyPrograms.add(programDTO);
 		}
 			}
 		
-		return new ResponseEntity<Iterable<StudijskiProgramDTO>>(studijskiProgrami, HttpStatus.OK);
+		return new ResponseEntity<Iterable<StudyProgramDTO>>(studyPrograms, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<StudijskiProgramDTO> get(@PathVariable("id") Long id){
-		Optional<StudijskiProgram> sp = service.findOne(id);
-		if(sp.isPresent() && sp.get().getFakultet()!= null) {
-			Set<String> Predmeti = sp.get().getPredmeti()
+	public ResponseEntity<StudyProgramDTO> get(@PathVariable("id") Long id){
+		Optional<StudyProgram> sp = service.findOne(id);
+		if(sp.isPresent() && sp.get().getFaculty()!= null) {
+			Set<String> Courses = sp.get().getCourses()
                     .stream()
-                    .map(predmet -> predmet.getSifraPredmeta())
+                    .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudijskiProgramDTO dto = new StudijskiProgramDTO(sp.get().getId(),sp.get().getSifraSP(), sp.get().getOpis(), sp.get().getNaziv(), sp.get().getRukovodilac(), new FakultetDTO(sp.get().getFakultet().getId(),sp.get().getFakultet().getSifraFakulteta(),sp.get().getFakultet().getNaziv()), Predmeti);
-			return new ResponseEntity<StudijskiProgramDTO>(dto, HttpStatus.OK);
+			StudyProgramDTO dto = new StudyProgramDTO(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(), new FacultyDTO(sp.get().getFaculty().getId(),sp.get().getFaculty().getFacultyCode(),sp.get().getFaculty().getName()), Courses);
+			return new ResponseEntity<StudyProgramDTO>(dto, HttpStatus.OK);
 		}else if(sp.isPresent()) {
-			Set<String> Predmeti = sp.get().getPredmeti()
+			Set<String> Courses = sp.get().getCourses()
                     .stream()
-                    .map(predmet -> predmet.getSifraPredmeta())
+                    .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudijskiProgramDTO dto = new StudijskiProgramDTO(sp.get().getId(),sp.get().getSifraSP(), sp.get().getOpis(), sp.get().getNaziv(), sp.get().getRukovodilac(), null, Predmeti);
-			return new ResponseEntity<StudijskiProgramDTO>(dto, HttpStatus.OK);
+			StudyProgramDTO dto = new StudyProgramDTO(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(), null, Courses);
+			return new ResponseEntity<StudyProgramDTO>(dto, HttpStatus.OK);
 		}
-		return new ResponseEntity<StudijskiProgramDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudyProgramDTO>(HttpStatus.NOT_FOUND);
 	}
 	
-	@RequestMapping(path = "/s/{sifraSP}", method = RequestMethod.GET)
-	public ResponseEntity<StudijskiProgramDTO> get(@PathVariable("sifraSP") String sifraSP){
-		Optional<StudijskiProgram> sp = service.findBySifraSP(sifraSP);
-		if(sp.isPresent() && sp.get().getFakultet()!=null) {
-			Set<String> Predmeti = sp.get().getPredmeti()
+	@RequestMapping(path = "/s/{programCode}", method = RequestMethod.GET)
+	public ResponseEntity<StudyProgramDTO> get(@PathVariable("programCode") String programCode){
+		Optional<StudyProgram> sp = service.findBySifraSP(programCode);
+		if(sp.isPresent() && sp.get().getFaculty()!=null) {
+			Set<String> Courses = sp.get().getCourses()
                     .stream()
-                    .map(predmet -> predmet.getSifraPredmeta())
+                    .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudijskiProgramDTO dto = new StudijskiProgramDTO(sp.get().getId(),sp.get().getSifraSP(), sp.get().getOpis(), sp.get().getNaziv(), sp.get().getRukovodilac(), new FakultetDTO(sp.get().getFakultet().getId(),sp.get().getFakultet().getSifraFakulteta(),sp.get().getFakultet().getNaziv()), Predmeti);
-			return new ResponseEntity<StudijskiProgramDTO>(dto, HttpStatus.OK);
+			StudyProgramDTO dto = new StudyProgramDTO(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(), new FacultyDTO(sp.get().getFaculty().getId(),sp.get().getFaculty().getFacultyCode(),sp.get().getFaculty().getName()), Courses);
+			return new ResponseEntity<StudyProgramDTO>(dto, HttpStatus.OK);
 		}else if(sp.isPresent()) {
-			Set<String> Predmeti = sp.get().getPredmeti()
+			Set<String> Courses = sp.get().getCourses()
                     .stream()
-                    .map(predmet -> predmet.getSifraPredmeta())
+                    .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudijskiProgramDTO dto = new StudijskiProgramDTO(sp.get().getId(),sp.get().getSifraSP(), sp.get().getOpis(), sp.get().getNaziv(), sp.get().getRukovodilac(),null , Predmeti);
-			return new ResponseEntity<StudijskiProgramDTO>(dto, HttpStatus.OK);
+			StudyProgramDTO dto = new StudyProgramDTO(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(),null , Courses);
+			return new ResponseEntity<StudyProgramDTO>(dto, HttpStatus.OK);
 		}
-		return new ResponseEntity<StudijskiProgramDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudyProgramDTO>(HttpStatus.NOT_FOUND);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<StudijskiProgram> create(@RequestBody StudijskiProgram r){
+	public ResponseEntity<StudyProgram> create(@RequestBody StudyProgram r){
 		try {
 			service.save(r);
-			return new ResponseEntity<StudijskiProgram>(r, HttpStatus.CREATED);
+			return new ResponseEntity<StudyProgram>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<StudijskiProgram>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<StudyProgram>(HttpStatus.BAD_REQUEST);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<StudijskiProgram> update(@PathVariable("id") Long id, @RequestBody StudijskiProgram sp){
-		StudijskiProgram u = service.findOne(id).orElse(null);
+	public ResponseEntity<StudyProgram> update(@PathVariable("id") Long id, @RequestBody StudyProgram sp){
+		StudyProgram u = service.findOne(id).orElse(null);
 		if(u != null) {
 			sp.setId(id);
 			sp = service.save(sp);
-			return new ResponseEntity<StudijskiProgram>(HttpStatus.OK);
+			return new ResponseEntity<StudyProgram>(HttpStatus.OK);
 		}
-		return new ResponseEntity<StudijskiProgram>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudyProgram>(HttpStatus.NOT_FOUND);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<StudijskiProgram> delete(@PathVariable("id") Long id){
+	public ResponseEntity<StudyProgram> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<StudijskiProgram>(HttpStatus.OK);
+			return new ResponseEntity<StudyProgram>(HttpStatus.OK);
 		}
-		return new ResponseEntity<StudijskiProgram>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudyProgram>(HttpStatus.NOT_FOUND);
 	}
 }
 

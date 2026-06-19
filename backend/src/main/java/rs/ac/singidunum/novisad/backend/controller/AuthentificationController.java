@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rs.ac.singidunum.novisad.backend.model.Permission;
 import rs.ac.singidunum.novisad.backend.model.PermissionEnum;
-import rs.ac.singidunum.novisad.backend.model.user.RegistrovaniKorisnik;
+import rs.ac.singidunum.novisad.backend.model.user.RegisteredUser;
 import rs.ac.singidunum.novisad.backend.repository.PermissionRepository;
 import rs.ac.singidunum.novisad.backend.repository.RegistrovaniKorisnikRepository;
 import rs.ac.singidunum.novisad.backend.security.request.LoginRequest;
@@ -57,9 +57,9 @@ public class AuthentificationController {
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     try {
     	System.out.println("proslo ");
-    	System.out.println(loginRequest.getEmail() +" "+ loginRequest.getLozinka());
+    	System.out.println(loginRequest.getEmail() +" "+ loginRequest.getPassword());
       Authentication authentication = authenticationManager.authenticate(
-              new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getLozinka()));
+              new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
       SecurityContextHolder.getContext().setAuthentication(authentication);
       String jwt = jwtUtils.generateJwtToken(authentication);
@@ -88,13 +88,13 @@ public class AuthentificationController {
           .body(new MessageResponse("Error: Email is already in use!"));
     }
 
-    RegistrovaniKorisnik user = new RegistrovaniKorisnik(signUpRequest.getEmail(), encoder.encode(signUpRequest.getLozinka()), signUpRequest.getKorisnickoIme());
+    RegisteredUser user = new RegisteredUser(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()), signUpRequest.getUsername());
 
     Set<String> strRoles = signUpRequest.getPermission();
     Set<Permission> roles = new HashSet<>();
 
     if (strRoles == null) {
-    	Permission userRole = roleRepository.findByName(PermissionEnum.KORISNIK_PERMISSION)
+    	Permission userRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
           .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
       roles.add(userRole);
     } else {
@@ -106,14 +106,14 @@ public class AuthentificationController {
           roles.add(studentRole);
 
           break;
-        case "nastavnik":
-        	Permission nastavnikRole = roleRepository.findByName(PermissionEnum.NASTAVNIK_PERMISSION)
+        case "teacher":
+        	Permission nastavnikRole = roleRepository.findByName(PermissionEnum.TEACHER_PERMISSION)
               .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
           roles.add(nastavnikRole);
 
           break;
           case "studentskaSluzba":
-        	  Permission studentskaSluzba = roleRepository.findByName(PermissionEnum.STUDENTSKASLUZBA_PERMISSION)
+        	  Permission studentskaSluzba = roleRepository.findByName(PermissionEnum.STUDENT_AFFAIRS_PERMISSION)
                     .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
             roles.add(studentskaSluzba);
 
@@ -125,7 +125,7 @@ public class AuthentificationController {
 
             break;
         default:
-        	Permission korisnikRole = roleRepository.findByName(PermissionEnum.KORISNIK_PERMISSION)
+        	Permission korisnikRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
               .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
           roles.add(korisnikRole);
         }

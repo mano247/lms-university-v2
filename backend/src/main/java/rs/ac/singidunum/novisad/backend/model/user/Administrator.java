@@ -6,17 +6,17 @@ import jakarta.persistence.Entity;
 import rs.ac.singidunum.novisad.backend.model.Permission;
 
 	@Entity
-	public class Administrator extends RegistrovaniKorisnik{
-		
+	public class Administrator extends RegisteredUser{
+
 		public Administrator() {
 			super();
 		}
 
-		public Administrator(Long id, String korisnickoIme, String lozinka, String email, Set<Permission> permissions) {
-			super(id, korisnickoIme, lozinka, email, permissions);
+		public Administrator(Long id, String username, String password, String email, Set<Permission> permissions) {
+			super(id, username, password, email, permissions);
 		}
-		
-		public Administrator(Long id, String ime, String prezime,String korisnickoIme, String email, String lozinka, Set<Permission> permissions) {
-			super(id,ime, prezime, korisnickoIme, email, lozinka, permissions);
+
+		public Administrator(Long id, String firstName, String lastName,String username, String email, String password, Set<Permission> permissions) {
+			super(id,firstName, lastName, username, email, password, permissions);
 		}
 }

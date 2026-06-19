@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import rs.ac.singidunum.novisad.backend.dto.AdministratorDTO;
-import rs.ac.singidunum.novisad.backend.dto.NastavnikDTO;
-import rs.ac.singidunum.novisad.backend.dto.RegistrovaniKorisnikDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeacherDTO;
+import rs.ac.singidunum.novisad.backend.dto.RegisteredUserDTO;
 import rs.ac.singidunum.novisad.backend.dto.StudentDTO;
-import rs.ac.singidunum.novisad.backend.dto.StudentskaSluzbaDTO;
+import rs.ac.singidunum.novisad.backend.dto.StudentAffairsOfficeDTO;
 import rs.ac.singidunum.novisad.backend.model.user.Administrator;
-import rs.ac.singidunum.novisad.backend.model.user.Nastavnik;
-import rs.ac.singidunum.novisad.backend.model.user.RegistrovaniKorisnik;
+import rs.ac.singidunum.novisad.backend.model.user.Teacher;
+import rs.ac.singidunum.novisad.backend.model.user.RegisteredUser;
 import rs.ac.singidunum.novisad.backend.model.user.Student;
-import rs.ac.singidunum.novisad.backend.model.user.StudentskaSluzba;
+import rs.ac.singidunum.novisad.backend.model.user.StudentAffairsOffice;
 import rs.ac.singidunum.novisad.backend.repository.PermissionRepository;
 import rs.ac.singidunum.novisad.backend.security.services.UserDetailsImpl;
 import rs.ac.singidunum.novisad.backend.service.RegistrovaniKorisnikService;
@@ -46,84 +46,84 @@ public class RegistrovaniKorisnikController {
 	
 	
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Set<RegistrovaniKorisnikDTO>> getAll() {
-		HashSet<RegistrovaniKorisnik> korisnici = new HashSet<RegistrovaniKorisnik>();
-		HashSet<RegistrovaniKorisnikDTO> response = new HashSet<>();
-		for (RegistrovaniKorisnik k : service.findAll()) {
-			korisnici.add(new RegistrovaniKorisnik(k.getKorisnickoIme(),k.getIme(),k.getPrezime(), k.getEmail(), k.getLozinka()));
-			response.add(new RegistrovaniKorisnikDTO(k.getClass().getSimpleName(), k.getId(), k.getKorisnickoIme(), k.getEmail(), k.getLozinka(), k.getPermissions(),k.getIme(),k.getPrezime()));
+	public ResponseEntity<Set<RegisteredUserDTO>> getAll() {
+		HashSet<RegisteredUser> korisnici = new HashSet<RegisteredUser>();
+		HashSet<RegisteredUserDTO> response = new HashSet<>();
+		for (RegisteredUser k : service.findAll()) {
+			korisnici.add(new RegisteredUser(k.getUsername(),k.getFirstName(),k.getLastName(), k.getEmail(), k.getPassword()));
+			response.add(new RegisteredUserDTO(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getEmail(), k.getPassword(), k.getPermissions(),k.getFirstName(),k.getLastName()));
 		}
-		return new ResponseEntity<Set<RegistrovaniKorisnikDTO>>(response, HttpStatus.OK);
+		return new ResponseEntity<Set<RegisteredUserDTO>>(response, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'STUDENT_PERMISSION', 'NASTAVNIK_PERMISSION', 'KORISNIK_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'USER_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getOne(@PathVariable("id") Long id) {
-		RegistrovaniKorisnik k = service.findOne(id).orElse(null);
+		RegisteredUser k = service.findOne(id).orElse(null);
 				if (k != null) {
 
 					if (k instanceof Student) {
-						String brojIndeksa = ((Student) k).getBrojIndeksa();
-						StudentDTO student = new StudentDTO(k.getId(), k.getClass().getSimpleName(), k.getIme(), k.getPrezime(), k.getEmail(), k.getLozinka(), k.getPermissions(), brojIndeksa, k.getKorisnickoIme());
+						String indexNumber = ((Student) k).getIndexNumber();
+						StudentDTO student = new StudentDTO(k.getId(), k.getClass().getSimpleName(), k.getFirstName(), k.getLastName(), k.getEmail(), k.getPassword(), k.getPermissions(), indexNumber, k.getUsername());
 						return new ResponseEntity<StudentDTO>(student, HttpStatus.OK);
-					} else if (k instanceof Nastavnik) {
-						NastavnikDTO nastavnik = new NastavnikDTO(k.getClass().getSimpleName(), k.getId(), k.getKorisnickoIme(), k.getEmail(), k.getLozinka(),k.getIme(),k.getPrezime());
-						return new ResponseEntity<NastavnikDTO>(nastavnik, HttpStatus.OK);
+					} else if (k instanceof Teacher) {
+						TeacherDTO teacher = new TeacherDTO(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getEmail(), k.getPassword(),k.getFirstName(),k.getLastName());
+						return new ResponseEntity<TeacherDTO>(teacher, HttpStatus.OK);
 					} else if (k instanceof Administrator) {
-						AdministratorDTO admin = new AdministratorDTO(k.getClass().getSimpleName(), k.getId(), k.getKorisnickoIme(), k.getLozinka(), k.getEmail(),k.getIme(),k.getPrezime());
+						AdministratorDTO admin = new AdministratorDTO(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getPassword(), k.getEmail(),k.getFirstName(),k.getLastName());
 						return new ResponseEntity<AdministratorDTO>(admin, HttpStatus.OK);
 					}
-					else if (k instanceof StudentskaSluzba) {
-						StudentskaSluzbaDTO ss = new StudentskaSluzbaDTO(k.getId(), k.getClass().getSimpleName(), k.getKorisnickoIme(), k.getEmail(), k.getLozinka(),k.getIme(),k.getPrezime());
-						return new ResponseEntity<StudentskaSluzbaDTO>(ss, HttpStatus.OK);
+					else if (k instanceof StudentAffairsOffice) {
+						StudentAffairsOfficeDTO ss = new StudentAffairsOfficeDTO(k.getId(), k.getClass().getSimpleName(), k.getUsername(), k.getEmail(), k.getPassword(),k.getFirstName(),k.getLastName());
+						return new ResponseEntity<StudentAffairsOfficeDTO>(ss, HttpStatus.OK);
 					}
-					RegistrovaniKorisnikDTO korisnik = new RegistrovaniKorisnikDTO(k.getClass().getSimpleName(), k.getId(), k.getKorisnickoIme(), k.getEmail(), k.getLozinka(), k.getPermissions(),k.getIme(),k.getPrezime());
-					return new ResponseEntity<RegistrovaniKorisnikDTO>(korisnik, HttpStatus.OK);
+					RegisteredUserDTO korisnik = new RegisteredUserDTO(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getEmail(), k.getPassword(), k.getPermissions(),k.getFirstName(),k.getLastName());
+					return new ResponseEntity<RegisteredUserDTO>(korisnik, HttpStatus.OK);
 
 		}
-		return new ResponseEntity<RegistrovaniKorisnikDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<RegisteredUserDTO>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<RegistrovaniKorisnik> create(@RequestBody RegistrovaniKorisnik r) {
+	public ResponseEntity<RegisteredUser> create(@RequestBody RegisteredUser r) {
 		try {
 			service.save(r);
-			return new ResponseEntity<RegistrovaniKorisnik>(r, HttpStatus.CREATED);
+			return new ResponseEntity<RegisteredUser>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<RegistrovaniKorisnik>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<RegisteredUser>(HttpStatus.BAD_REQUEST);
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'STUDENT_PERMISSION', 'NASTAVNIK_PERMISSION', 'KORISNIK_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'USER_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<RegistrovaniKorisnik> update(@PathVariable("id") Long id, @RequestBody RegistrovaniKorisnik korisnik, Authentication authentication) {
+	public ResponseEntity<RegisteredUser> update(@PathVariable("id") Long id, @RequestBody RegisteredUser korisnik, Authentication authentication) {
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
 
 			if (id.equals(userId)) {
-				RegistrovaniKorisnik u = service.findOne(id).orElse(null);
+				RegisteredUser u = service.findOne(id).orElse(null);
 				if (u != null) {
 					korisnik.setId(id);
-					korisnik.setLozinka(korisnik.getLozinka());
+					korisnik.setPassword(korisnik.getPassword());
 					korisnik.setPermissions(u.getPermissions());
 					korisnik = service.save(korisnik);
-					return new ResponseEntity<RegistrovaniKorisnik>(korisnik, HttpStatus.OK);
+					return new ResponseEntity<RegisteredUser>(korisnik, HttpStatus.OK);
 				}
-				return new ResponseEntity<RegistrovaniKorisnik>(HttpStatus.NOT_FOUND);
+				return new ResponseEntity<RegisteredUser>(HttpStatus.NOT_FOUND);
 			}
 		}
-		return new ResponseEntity<RegistrovaniKorisnik>(HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<RegisteredUser>(HttpStatus.UNAUTHORIZED);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<RegistrovaniKorisnik> delete(@PathVariable("id") Long id) {
+	public ResponseEntity<RegisteredUser> delete(@PathVariable("id") Long id) {
 		if (service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<RegistrovaniKorisnik>(HttpStatus.OK);
+			return new ResponseEntity<RegisteredUser>(HttpStatus.OK);
 		}
-		return new ResponseEntity<RegistrovaniKorisnik>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<RegisteredUser>(HttpStatus.NOT_FOUND);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
@@ -139,14 +139,14 @@ public class RegistrovaniKorisnikController {
 		}
 	}
 	
-	@PreAuthorize("hasAnyAuthority('STUDENTSKASLUZBA_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path="/{id}/dodeliStudenta", method = RequestMethod.PUT)
 	public ResponseEntity<String> dodelaStudenta(@PathVariable("id") long korisnikId, @RequestBody StudentDTO noveInfStudneta) {
 		boolean uspesno = false; 
 		
-		RegistrovaniKorisnik k = service.findOne(korisnikId).orElse(null);
+		RegisteredUser k = service.findOne(korisnikId).orElse(null);
 		if (k != null) {
-			if (k instanceof RegistrovaniKorisnik) {
+			if (k instanceof RegisteredUser) {
 				uspesno = service.upisStudenta(korisnikId, noveInfStudneta);
 			}}
 		if (uspesno) {

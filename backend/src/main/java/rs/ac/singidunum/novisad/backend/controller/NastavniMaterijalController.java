@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.NastavniMaterijalDTO;
-import rs.ac.singidunum.novisad.backend.model.academic.NastavniMaterijal;
+import rs.ac.singidunum.novisad.backend.dto.TeachingMaterialDTO;
+import rs.ac.singidunum.novisad.backend.model.academic.TeachingMaterial;
 import rs.ac.singidunum.novisad.backend.service.NastavniMaterijalService;
 
 @Controller
@@ -25,74 +25,74 @@ public class NastavniMaterijalController {
 	private NastavniMaterijalService service;
 	
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<NastavniMaterijalDTO>> getAll(){
-		HashSet<NastavniMaterijalDTO> nastavniMaterijal = new HashSet<NastavniMaterijalDTO>();
-		for (NastavniMaterijal nm : service.findAll()) {
-			nastavniMaterijal.add(new NastavniMaterijalDTO(
+	public ResponseEntity<Iterable<TeachingMaterialDTO>> getAll(){
+		HashSet<TeachingMaterialDTO> teachingMaterials = new HashSet<TeachingMaterialDTO>();
+		for (TeachingMaterial nm : service.findAll()) {
+			teachingMaterials.add(new TeachingMaterialDTO(
 					nm.getId(), 
-					nm.getNaslov(), 
-					nm.getAutori(), 
-					nm.getGodinaIzdavanja(), 
-					nm.getIzdavac(), 
-					nm.getOpis(), 
+					nm.getTitle(), 
+					nm.getAuthors(), 
+					nm.getPublicationYear(), 
+					nm.getPublisher(), 
+					nm.getDescription(), 
 					nm.getUrl(), 
-					nm.getIshod(),
-					nm.getKolicina(),
-					nm.getIzdato()));
+					nm.getOutcome(),
+					nm.getQuantity(),
+					nm.getIssuedQuantity()));
 			
 		}
-		return new ResponseEntity<Iterable<NastavniMaterijalDTO>>(nastavniMaterijal, HttpStatus.OK);
+		return new ResponseEntity<Iterable<TeachingMaterialDTO>>(teachingMaterials, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<NastavniMaterijalDTO> get(@PathVariable("id") Long id){
-		Optional<NastavniMaterijal> nm = service.findOne(id);
+	public ResponseEntity<TeachingMaterialDTO> get(@PathVariable("id") Long id){
+		Optional<TeachingMaterial> nm = service.findOne(id);
 		if(nm.isPresent()) {
-			NastavniMaterijalDTO dto = new  NastavniMaterijalDTO(
+			TeachingMaterialDTO dto = new  TeachingMaterialDTO(
 					nm.get().getId(), 
-					nm.get().getNaslov(), 
-					nm.get().getAutori(), 
-					nm.get().getGodinaIzdavanja(), 
-					nm.get().getIzdavac(), 
-					nm.get().getOpis(), 
+					nm.get().getTitle(), 
+					nm.get().getAuthors(), 
+					nm.get().getPublicationYear(), 
+					nm.get().getPublisher(), 
+					nm.get().getDescription(), 
 					nm.get().getUrl(), 
-					nm.get().getIshod(),
-					nm.get().getKolicina(),
-					nm.get().getIzdato());
-			return new ResponseEntity<NastavniMaterijalDTO>(dto, HttpStatus.OK);
+					nm.get().getOutcome(),
+					nm.get().getQuantity(),
+					nm.get().getIssuedQuantity());
+			return new ResponseEntity<TeachingMaterialDTO>(dto, HttpStatus.OK);
 		}
-		return new ResponseEntity<NastavniMaterijalDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TeachingMaterialDTO>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<NastavniMaterijal> create(@RequestBody NastavniMaterijal r){
+	public ResponseEntity<TeachingMaterial> create(@RequestBody TeachingMaterial r){
 		try {
 			service.save(r);
-			return new ResponseEntity<NastavniMaterijal>(r, HttpStatus.CREATED);
+			return new ResponseEntity<TeachingMaterial>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<NastavniMaterijal>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<TeachingMaterial>(HttpStatus.BAD_REQUEST);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<NastavniMaterijal> update(@PathVariable("id") Long id, @RequestBody NastavniMaterijal NastavniMaterijal){
-		NastavniMaterijal u = service.findOne(id).orElse(null);
+	public ResponseEntity<TeachingMaterial> update(@PathVariable("id") Long id, @RequestBody TeachingMaterial TeachingMaterial){
+		TeachingMaterial u = service.findOne(id).orElse(null);
 		if(u != null) {
-			NastavniMaterijal.setId(id);
-			NastavniMaterijal = service.save(NastavniMaterijal);
-			return new ResponseEntity<NastavniMaterijal>(NastavniMaterijal, HttpStatus.OK);
+			TeachingMaterial.setId(id);
+			TeachingMaterial = service.save(TeachingMaterial);
+			return new ResponseEntity<TeachingMaterial>(TeachingMaterial, HttpStatus.OK);
 		}
-		return new ResponseEntity<NastavniMaterijal>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TeachingMaterial>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<NastavniMaterijal> delete(@PathVariable("id") Long id){
+	public ResponseEntity<TeachingMaterial> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<NastavniMaterijal>(HttpStatus.OK);
+			return new ResponseEntity<TeachingMaterial>(HttpStatus.OK);
 		}
-		return new ResponseEntity<NastavniMaterijal>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TeachingMaterial>(HttpStatus.NOT_FOUND);
 	}
 }
 

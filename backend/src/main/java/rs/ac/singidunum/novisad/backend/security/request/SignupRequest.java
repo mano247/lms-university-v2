@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public class SignupRequest {
 	
-  private String korisnickoIme;
+  private String username;
 	
   @NotBlank
   @Email
@@ -15,16 +15,16 @@ public class SignupRequest {
   private Set<String> permission;
 
   @NotBlank
-  private String lozinka;
+  private String password;
 
  
  
-  public String getKorisnickoIme() {
-	return korisnickoIme;
+  public String getUsername() {
+	return username;
 }
 
-public void setKorisnickoIme(String korisnickoIme) {
-	this.korisnickoIme = korisnickoIme;
+public void setUsername(String username) {
+	this.username = username;
 }
 
 public Set<String> getPermission() {
@@ -45,11 +45,11 @@ public String getEmail() {
 
   
 
-  public String getLozinka() {
-    return lozinka;
+  public String getPassword() {
+    return password;
   }
 
-  public void setLozinka(String lozinka) {
-    this.lozinka = lozinka;
+  public void setPassword(String password) {
+    this.password = password;
   }
 }

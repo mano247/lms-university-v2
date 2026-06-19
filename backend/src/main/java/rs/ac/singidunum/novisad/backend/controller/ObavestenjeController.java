@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.model.Obavestenje;
-import rs.ac.singidunum.novisad.backend.model.PredmetnaObavestenja;
+import rs.ac.singidunum.novisad.backend.model.Announcement;
+import rs.ac.singidunum.novisad.backend.model.CourseAnnouncement;
 import rs.ac.singidunum.novisad.backend.service.ObavestenjaService;
 
 @Controller
-@RequestMapping(path = "/api/obavestenja")
+@RequestMapping(path = "/api/announcements")
 @CrossOrigin(origins = "http://localhost:4200")
 public class ObavestenjeController {
 
@@ -28,64 +28,64 @@ public class ObavestenjeController {
 	private ObavestenjaService service;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Obavestenje>> getAll(){
-		ArrayList<Obavestenje> obavestenja = new ArrayList<Obavestenje>();
-		for (Obavestenje o : service.findAll()) {
+	public ResponseEntity<Iterable<Announcement>> getAll(){
+		ArrayList<Announcement> announcements = new ArrayList<Announcement>();
+		for (Announcement o : service.findAll()) {
 
-			if(!(o instanceof PredmetnaObavestenja)) {
-				obavestenja.add(new Obavestenje(o.getId(), o.getNaslov(), o.getSadrzaj(), o.getDatum(), o.getSlika(), o.getVremePocetka(), o.getVremeKraja()));
+			if(!(o instanceof CourseAnnouncement)) {
+				announcements.add(new Announcement(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), o.getStartDate(), o.getEndDate()));
 			}
 		}
-		return new ResponseEntity<Iterable<Obavestenje>>(obavestenja, HttpStatus.OK);
+		return new ResponseEntity<Iterable<Announcement>>(announcements, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Obavestenje> get(@PathVariable("id") Long id){
-		Optional<Obavestenje> o = service.findOne(id);
+	public ResponseEntity<Announcement> get(@PathVariable("id") Long id){
+		Optional<Announcement> o = service.findOne(id);
 		if(o.isPresent()) {
 			
-			Obavestenje obavestenje = new Obavestenje(o.get().getId(), o.get().getNaslov(), o.get().getSadrzaj(), o.get().getDatum(), o.get().getSlika(), o.get().getVremePocetka(), o.get().getVremeKraja());
-			return new ResponseEntity<Obavestenje>(obavestenje, HttpStatus.OK);
+			Announcement announcement = new Announcement(o.get().getId(), o.get().getTitle(), o.get().getContent(), o.get().getDate(), o.get().getImage(), o.get().getStartDate(), o.get().getEndDate());
+			return new ResponseEntity<Announcement>(announcement, HttpStatus.OK);
 		}
-		return new ResponseEntity<Obavestenje>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Announcement>(HttpStatus.NOT_FOUND);
 	}
 
-	@PreAuthorize("hasAnyAuthority('STUDENTSKASLUZBA_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Obavestenje> create(@RequestBody Obavestenje r){
+	public ResponseEntity<Announcement> create(@RequestBody Announcement r){
 		try {
-			r.setDatum(LocalDateTime.now());
+			r.setDate(LocalDateTime.now());
 			service.save(r);
-			return new ResponseEntity<Obavestenje>(r, HttpStatus.CREATED);
+			return new ResponseEntity<Announcement>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<Obavestenje>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<Announcement>(HttpStatus.BAD_REQUEST);
 	}
 
-	@PreAuthorize("hasAnyAuthority('STUDENTSKASLUZBA_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Obavestenje> update(@PathVariable("id") Long id, @RequestBody Obavestenje obavestenja){
-		Obavestenje r = service.findOne(id).orElse(null);
+	public ResponseEntity<Announcement> update(@PathVariable("id") Long id, @RequestBody Announcement announcements){
+		Announcement r = service.findOne(id).orElse(null);
 		if(r != null) {
-			obavestenja.setId(id);
-			if(obavestenja.getSlika() == null || obavestenja.getSlika() == "") {
-				obavestenja.setSlika(r.getSlika());
+			announcements.setId(id);
+			if(announcements.getImage() == null || announcements.getImage() == "") {
+				announcements.setImage(r.getImage());
 			}
-			obavestenja.setDatum(LocalDateTime.now());
-			obavestenja = service.save(obavestenja);
-			return new ResponseEntity<Obavestenje>(obavestenja, HttpStatus.OK);
+			announcements.setDate(LocalDateTime.now());
+			announcements = service.save(announcements);
+			return new ResponseEntity<Announcement>(announcements, HttpStatus.OK);
 		}
-		return new ResponseEntity<Obavestenje>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Announcement>(HttpStatus.NOT_FOUND);
 	}
 
-	@PreAuthorize("hasAnyAuthority('STUDENTSKASLUZBA_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Obavestenje> delete(@PathVariable("id") Long id){
+	public ResponseEntity<Announcement> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<Obavestenje>(HttpStatus.OK);
+			return new ResponseEntity<Announcement>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Obavestenje>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Announcement>(HttpStatus.NOT_FOUND);
 	}
 }

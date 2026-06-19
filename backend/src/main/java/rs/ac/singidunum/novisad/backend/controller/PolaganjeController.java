@@ -18,24 +18,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.DodajOcenuDTO;
-import rs.ac.singidunum.novisad.backend.dto.NastavniMaterijalDTO;
-import rs.ac.singidunum.novisad.backend.dto.NastavnikDTO;
-import rs.ac.singidunum.novisad.backend.dto.PolaganjeDTO;
-import rs.ac.singidunum.novisad.backend.dto.PredmetDTO;
+import rs.ac.singidunum.novisad.backend.dto.AddGradeDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeachingMaterialDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeacherDTO;
+import rs.ac.singidunum.novisad.backend.dto.ExamAttemptDTO;
+import rs.ac.singidunum.novisad.backend.dto.CourseDTO;
 import rs.ac.singidunum.novisad.backend.dto.StudentDTO;
-import rs.ac.singidunum.novisad.backend.dto.StudijskiProgramDTO;
-import rs.ac.singidunum.novisad.backend.dto.SviStudentiNastavnikaDTO;
-import rs.ac.singidunum.novisad.backend.model.Polaganje;
-import rs.ac.singidunum.novisad.backend.model.academic.Predmet;
-import rs.ac.singidunum.novisad.backend.model.user.Nastavnik;
+import rs.ac.singidunum.novisad.backend.dto.StudyProgramDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeacherStudentsDTO;
+import rs.ac.singidunum.novisad.backend.model.ExamAttempt;
+import rs.ac.singidunum.novisad.backend.model.academic.Course;
+import rs.ac.singidunum.novisad.backend.model.user.Teacher;
 import rs.ac.singidunum.novisad.backend.model.user.Student;
 import rs.ac.singidunum.novisad.backend.security.services.UserDetailsImpl;
 import rs.ac.singidunum.novisad.backend.service.NastavnikService;
 import rs.ac.singidunum.novisad.backend.service.PolaganjeService;
 
 @Controller
-@RequestMapping(path = "/api/polaganja")
+@RequestMapping(path = "/api/examAttempts")
 @CrossOrigin(origins = "http://localhost:4200")
 public class PolaganjeController {
 
@@ -46,100 +46,100 @@ public class PolaganjeController {
 	private NastavnikService profesorService;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<PolaganjeDTO>> getAll() {
-		ArrayList<PolaganjeDTO> pokusaji = new ArrayList<PolaganjeDTO>();
-		for (Polaganje pp : service.findAll()) {
-			Predmet p = pp.getPredmet();
+	public ResponseEntity<Iterable<ExamAttemptDTO>> getAll() {
+		ArrayList<ExamAttemptDTO> pokusaji = new ArrayList<ExamAttemptDTO>();
+		for (ExamAttempt pp : service.findAll()) {
+			Course p = pp.getCourse();
 			Student s = pp.getStudent();
-			Nastavnik n = pp.getNastavnik();
+			Teacher n = pp.getTeacher();
 			
-			Set<NastavniMaterijalDTO> nastavniMaterijal = p.getNastavniMaterijal().stream().map(nm -> new NastavniMaterijalDTO(
-					nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getBrojStrana(), nm.getIzdavac(), nm.getOpis(),
-					nm.getKolicina(),
-					nm.getIzdato()
+			Set<TeachingMaterialDTO> teachingMaterials = p.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDTO(
+					nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
+					nm.getQuantity(),
+					nm.getIssuedQuantity()
 			)).collect(Collectors.toSet());
-			PredmetDTO predmet = new PredmetDTO(p.getId(),p.getSifraPredmeta(), new NastavnikDTO(p.getNastavnik().getId(),p.getNastavnik().getIme(),p.getNastavnik().getPrezime()),new StudijskiProgramDTO(p.getStudijskiProgram().getId(),p.getStudijskiProgram().getSifraSP(),p.getStudijskiProgram().getNaziv()), p.getNaziv(), p.getEspb(), p.getOpis(), p.getSilabus(), nastavniMaterijal);
-			StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getIme(), s.getPrezime(), s.getEmail(), s.getLozinka(), s.getPermissions(), s.getBrojIndeksa(), s.getKorisnickoIme());
-			NastavnikDTO nastavnik = new NastavnikDTO(n.getId(), n.getClass().getSimpleName(), n.getIme(), n.getPrezime(), n.getEmail(), n.getLozinka());
+			CourseDTO course = new CourseDTO(p.getId(),p.getCourseCode(), new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()),new StudyProgramDTO(p.getStudyProgram().getId(),p.getStudyProgram().getProgramCode(),p.getStudyProgram().getName()), p.getName(), p.getEcts(), p.getDescription(), p.getSyllabus(), teachingMaterials);
+			StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getFirstName(), s.getLastName(), s.getEmail(), s.getPassword(), s.getPermissions(), s.getIndexNumber(), s.getUsername());
+			TeacherDTO teacher = new TeacherDTO(n.getId(), n.getClass().getSimpleName(), n.getFirstName(), n.getLastName(), n.getEmail(), n.getPassword());
 
 
-			pokusaji.add(new PolaganjeDTO(pp.getId(), pp.getBodovi(), pp.getKonacnaOcena(), pp.getPocetak(), pp.getKraj(), pp.getNapomena(),student, predmet, nastavnik));
+			pokusaji.add(new ExamAttemptDTO(pp.getId(), pp.getPoints(), pp.getFinalGrade(), pp.getStartTime(), pp.getEndTime(), pp.getNote(),student, course, teacher));
 		}
-		return new ResponseEntity<Iterable<PolaganjeDTO>>(pokusaji, HttpStatus.OK);
+		return new ResponseEntity<Iterable<ExamAttemptDTO>>(pokusaji, HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<PolaganjeDTO> get(@PathVariable("id") Long id) {
-		Optional<Polaganje> pp = service.findOne(id);
+	public ResponseEntity<ExamAttemptDTO> get(@PathVariable("id") Long id) {
+		Optional<ExamAttempt> pp = service.findOne(id);
 		if (pp.isPresent()) {
-			Predmet p = pp.get().getPredmet();
+			Course p = pp.get().getCourse();
 			Student s = pp.get().getStudent();
-			Nastavnik n = pp.get().getNastavnik();
-			Set<NastavniMaterijalDTO> nastavniMaterijal = p.getNastavniMaterijal().stream().map(nm -> new NastavniMaterijalDTO(
-					nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getBrojStrana(), nm.getIzdavac(), nm.getOpis(),
-					nm.getKolicina(),
-					nm.getIzdato()
+			Teacher n = pp.get().getTeacher();
+			Set<TeachingMaterialDTO> teachingMaterials = p.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDTO(
+					nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
+					nm.getQuantity(),
+					nm.getIssuedQuantity()
 			)).collect(Collectors.toSet());
-			PredmetDTO predmet = new PredmetDTO(p.getId(),p.getSifraPredmeta(),  new NastavnikDTO(p.getNastavnik().getId(),p.getNastavnik().getIme(),p.getNastavnik().getPrezime()), new StudijskiProgramDTO(p.getStudijskiProgram().getId(),p.getStudijskiProgram().getSifraSP(),p.getStudijskiProgram().getNaziv()), p.getNaziv(), p.getEspb(), p.getOpis(), p.getSilabus(), nastavniMaterijal);
-			StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getIme(), s.getPrezime(), s.getEmail(), s.getLozinka(), s.getPermissions(), s.getBrojIndeksa(), s.getKorisnickoIme());
-			NastavnikDTO nastavnik = new NastavnikDTO(n.getId(), n.getClass().getSimpleName(), n.getIme(), n.getPrezime(), n.getEmail(), n.getLozinka());
+			CourseDTO course = new CourseDTO(p.getId(),p.getCourseCode(),  new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()), new StudyProgramDTO(p.getStudyProgram().getId(),p.getStudyProgram().getProgramCode(),p.getStudyProgram().getName()), p.getName(), p.getEcts(), p.getDescription(), p.getSyllabus(), teachingMaterials);
+			StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getFirstName(), s.getLastName(), s.getEmail(), s.getPassword(), s.getPermissions(), s.getIndexNumber(), s.getUsername());
+			TeacherDTO teacher = new TeacherDTO(n.getId(), n.getClass().getSimpleName(), n.getFirstName(), n.getLastName(), n.getEmail(), n.getPassword());
 			
-			PolaganjeDTO pokusaj = new PolaganjeDTO(pp.get().getId(), pp.get().getBodovi(), pp.get().getKonacnaOcena(),pp.get().getPocetak(),pp.get().getKraj(),pp.get().getNapomena(),student, predmet,  nastavnik);
-			return new ResponseEntity<PolaganjeDTO>(pokusaj, HttpStatus.OK);
+			ExamAttemptDTO pokusaj = new ExamAttemptDTO(pp.get().getId(), pp.get().getPoints(), pp.get().getFinalGrade(),pp.get().getStartTime(),pp.get().getEndTime(),pp.get().getNote(),student, course,  teacher);
+			return new ResponseEntity<ExamAttemptDTO>(pokusaj, HttpStatus.OK);
 		}
-		return new ResponseEntity<PolaganjeDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<ExamAttemptDTO>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION')")
 	@RequestMapping(path = "/c", method = RequestMethod.POST)
-	public ResponseEntity<Polaganje> create(@RequestBody Polaganje p){
+	public ResponseEntity<ExamAttempt> create(@RequestBody ExamAttempt p){
 		try {
 			service.save(p);
-			return new ResponseEntity<Polaganje>(p, HttpStatus.CREATED);
+			return new ResponseEntity<ExamAttempt>(p, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<Polaganje>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<ExamAttempt>(HttpStatus.BAD_REQUEST);
 	}
 	
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Polaganje> update(@PathVariable("id") Long id, @RequestBody Polaganje pokusajPolaganja) {
+	public ResponseEntity<ExamAttempt> update(@PathVariable("id") Long id, @RequestBody ExamAttempt pokusajPolaganja) {
 
-		Polaganje u = service.findOne(id).orElse(null);
+		ExamAttempt u = service.findOne(id).orElse(null);
 		if (u != null) {
 
 			pokusajPolaganja.setId(id);
-			if (pokusajPolaganja.getBodovi() == 0) {
-				pokusajPolaganja.setBodovi(u.getBodovi());
+			if (pokusajPolaganja.getPoints() == 0) {
+				pokusajPolaganja.setPoints(u.getPoints());
 			}
-			if(pokusajPolaganja.getKonacnaOcena() == 0) {
-				pokusajPolaganja.setKonacnaOcena(u.getKonacnaOcena());
+			if(pokusajPolaganja.getFinalGrade() == 0) {
+				pokusajPolaganja.setFinalGrade(u.getFinalGrade());
 			}
-			pokusajPolaganja.setPredmet(u.getPredmet());
+			pokusajPolaganja.setCourse(u.getCourse());
 			pokusajPolaganja.setStudent(u.getStudent());
-			pokusajPolaganja.setNastavnik(u.getNastavnik());
+			pokusajPolaganja.setTeacher(u.getTeacher());
 			service.save(pokusajPolaganja);
 
-			return new ResponseEntity<Polaganje> (HttpStatus.OK);
+			return new ResponseEntity<ExamAttempt> (HttpStatus.OK);
 				}
 
-		return new ResponseEntity<Polaganje>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<ExamAttempt>(HttpStatus.NOT_FOUND);
 	}
 
-	@PreAuthorize("hasAnyAuthority('STUDENTSKASLUZBA_PERMISSION','ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION','ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Polaganje> delete(@PathVariable("id") Long id) {
+	public ResponseEntity<ExamAttempt> delete(@PathVariable("id") Long id) {
 		if (service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<Polaganje>(HttpStatus.OK);
+			return new ResponseEntity<ExamAttempt>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Polaganje>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<ExamAttempt>(HttpStatus.NOT_FOUND);
 	}
 
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
 	@RequestMapping(path = "/dobaviNastavniku/{idNastavnika}", method = RequestMethod.GET)
-	public ResponseEntity<List<DodajOcenuDTO>> getPredmeteProfesora(
+	public ResponseEntity<List<AddGradeDTO>> getPredmeteProfesora(
 			@PathVariable("idNastavnika") Long idProfesora,
 			Authentication authentication
 	) {
@@ -149,20 +149,20 @@ public class PolaganjeController {
 
 			if (idProfesora.equals(userId)) {
 
-				Set<Predmet> profesoroviPredmeti = profesorService.findOne(idProfesora).get().getPredmeti();
+				Set<Course> profesoroviPredmeti = profesorService.findOne(idProfesora).get().getCourses();
 
-				List<DodajOcenuDTO> response = new ArrayList<>();
-				for(Predmet p : profesoroviPredmeti) {
+				List<AddGradeDTO> response = new ArrayList<>();
+				for(Course p : profesoroviPredmeti) {
 
-					List<SviStudentiNastavnikaDTO>  studenti = new ArrayList<SviStudentiNastavnikaDTO>();
-					for(Student s : p.getStudenti()) {
+					List<TeacherStudentsDTO>  students = new ArrayList<TeacherStudentsDTO>();
+					for(Student s : p.getStudents()) {
 
-						for(Polaganje pp : service.findAll()) {
+						for(ExamAttempt pp : service.findAll()) {
 
-							if(pp.getPredmet().getId().equals(p.getId()) && pp.getStudent().getId() == s.getId()) {
+							if(pp.getCourse().getId().equals(p.getId()) && pp.getStudent().getId() == s.getId()) {
 
-								SviStudentiNastavnikaDTO student = new SviStudentiNastavnikaDTO(s.getId(), pp.getId(), s.getIme(), s.getPrezime(), s.getBrojIndeksa(), pp.getBodovi(), pp.getKonacnaOcena());
-								studenti.add(student);
+								TeacherStudentsDTO student = new TeacherStudentsDTO(s.getId(), pp.getId(), s.getFirstName(), s.getLastName(), s.getIndexNumber(), pp.getPoints(), pp.getFinalGrade());
+								students.add(student);
 								break;
 
 							}
@@ -170,65 +170,65 @@ public class PolaganjeController {
 
 
 					}
-					if(studenti.size() > 0 ) {
-						response.add(new DodajOcenuDTO(
-								p.getId(), p.getNaziv(), p.getEspb(), p.getSilabus(), studenti));
+					if(students.size() > 0 ) {
+						response.add(new AddGradeDTO(
+								p.getId(), p.getName(), p.getEcts(), p.getSyllabus(), students));
 					}
 				}
-				return new ResponseEntity<List<DodajOcenuDTO>>(response, HttpStatus.OK);
+				return new ResponseEntity<List<AddGradeDTO>>(response, HttpStatus.OK);
 
 			}
 		}
 
-		return new ResponseEntity<List<DodajOcenuDTO>>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<List<AddGradeDTO>>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "prijavljeni/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<PolaganjeDTO>> getPrijavljeniIspiti(@PathVariable("id") Long id) {
-		ArrayList<PolaganjeDTO> pokusaji = new ArrayList<PolaganjeDTO>();
-		for (Polaganje pp : service.findAll()) {
-			if(pp.getKonacnaOcena()==0 && pp.getBodovi()==0.0 && pp.getStudent().getId()==id) {
-				Predmet p = pp.getPredmet();
+	public ResponseEntity<Iterable<ExamAttemptDTO>> getPrijavljeniIspiti(@PathVariable("id") Long id) {
+		ArrayList<ExamAttemptDTO> pokusaji = new ArrayList<ExamAttemptDTO>();
+		for (ExamAttempt pp : service.findAll()) {
+			if(pp.getFinalGrade()==0 && pp.getPoints()==0.0 && pp.getStudent().getId()==id) {
+				Course p = pp.getCourse();
 				Student s = pp.getStudent();
-				Nastavnik n = pp.getNastavnik();
+				Teacher n = pp.getTeacher();
 				
-				Set<NastavniMaterijalDTO> nastavniMaterijal = p.getNastavniMaterijal().stream().map(nm -> new NastavniMaterijalDTO(
-						nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getBrojStrana(), nm.getIzdavac(), nm.getOpis(),
-						nm.getKolicina(),
-						nm.getIzdato()
+				Set<TeachingMaterialDTO> teachingMaterials = p.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDTO(
+						nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
+						nm.getQuantity(),
+						nm.getIssuedQuantity()
 				)).collect(Collectors.toSet());
-				PredmetDTO predmet = new PredmetDTO(p.getId(),p.getSifraPredmeta(),  new NastavnikDTO(p.getNastavnik().getId(),p.getNastavnik().getIme(),p.getNastavnik().getPrezime()), new StudijskiProgramDTO(p.getStudijskiProgram().getId(),p.getStudijskiProgram().getSifraSP(),p.getStudijskiProgram().getNaziv()), p.getNaziv(), p.getEspb(), p.getOpis(), p.getSilabus(), nastavniMaterijal);
-				StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getIme(), s.getPrezime(), s.getEmail(), s.getLozinka(), s.getPermissions(), s.getBrojIndeksa(), s.getKorisnickoIme());
-				NastavnikDTO nastavnik = new NastavnikDTO(n.getId(), n.getClass().getSimpleName(), n.getIme(), n.getPrezime(), n.getEmail(), n.getLozinka());
+				CourseDTO course = new CourseDTO(p.getId(),p.getCourseCode(),  new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()), new StudyProgramDTO(p.getStudyProgram().getId(),p.getStudyProgram().getProgramCode(),p.getStudyProgram().getName()), p.getName(), p.getEcts(), p.getDescription(), p.getSyllabus(), teachingMaterials);
+				StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getFirstName(), s.getLastName(), s.getEmail(), s.getPassword(), s.getPermissions(), s.getIndexNumber(), s.getUsername());
+				TeacherDTO teacher = new TeacherDTO(n.getId(), n.getClass().getSimpleName(), n.getFirstName(), n.getLastName(), n.getEmail(), n.getPassword());
 	
 	
-				pokusaji.add(new PolaganjeDTO(pp.getId(), pp.getBodovi(), pp.getKonacnaOcena(), pp.getPocetak(), pp.getKraj(), pp.getNapomena(),student, predmet, nastavnik));
+				pokusaji.add(new ExamAttemptDTO(pp.getId(), pp.getPoints(), pp.getFinalGrade(), pp.getStartTime(), pp.getEndTime(), pp.getNote(),student, course, teacher));
 		}}
-		return new ResponseEntity<Iterable<PolaganjeDTO>>(pokusaji, HttpStatus.OK);
+		return new ResponseEntity<Iterable<ExamAttemptDTO>>(pokusaji, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "prijavljeniPoPredmetu/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<PolaganjeDTO>> getPrijavljeniIspitiPoPredmetu(@PathVariable("id") Long id) {
-		ArrayList<PolaganjeDTO> pokusaji = new ArrayList<PolaganjeDTO>();
-		for (Polaganje pp : service.findAll()) {
-			if(pp.getKonacnaOcena()==0 && pp.getBodovi()==0.0 && pp.getPredmet().getId().equals(id)) {
-				Predmet p = pp.getPredmet();
+	public ResponseEntity<Iterable<ExamAttemptDTO>> getPrijavljeniIspitiPoPredmetu(@PathVariable("id") Long id) {
+		ArrayList<ExamAttemptDTO> pokusaji = new ArrayList<ExamAttemptDTO>();
+		for (ExamAttempt pp : service.findAll()) {
+			if(pp.getFinalGrade()==0 && pp.getPoints()==0.0 && pp.getCourse().getId().equals(id)) {
+				Course p = pp.getCourse();
 				Student s = pp.getStudent();
-				Nastavnik n = pp.getNastavnik();
+				Teacher n = pp.getTeacher();
 				
-				Set<NastavniMaterijalDTO> nastavniMaterijal = p.getNastavniMaterijal().stream().map(nm -> new NastavniMaterijalDTO(
-						nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getBrojStrana(), nm.getIzdavac(), nm.getOpis(),
-						nm.getKolicina(),
-						nm.getIzdato()
+				Set<TeachingMaterialDTO> teachingMaterials = p.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDTO(
+						nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
+						nm.getQuantity(),
+						nm.getIssuedQuantity()
 				)).collect(Collectors.toSet());
-				PredmetDTO predmet = new PredmetDTO(p.getId(),p.getSifraPredmeta(),  new NastavnikDTO(p.getNastavnik().getId(),p.getNastavnik().getIme(),p.getNastavnik().getPrezime()), new StudijskiProgramDTO(p.getStudijskiProgram().getId(),p.getStudijskiProgram().getSifraSP(),p.getStudijskiProgram().getNaziv()), p.getNaziv(), p.getEspb(), p.getOpis(), p.getSilabus(), nastavniMaterijal);
-				StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getIme(), s.getPrezime(), s.getEmail(), s.getLozinka(), s.getPermissions(), s.getBrojIndeksa(), s.getKorisnickoIme());
-				NastavnikDTO nastavnik = new NastavnikDTO(n.getId(), n.getClass().getSimpleName(), n.getIme(), n.getPrezime(), n.getEmail(), n.getLozinka());
+				CourseDTO course = new CourseDTO(p.getId(),p.getCourseCode(),  new TeacherDTO(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName()), new StudyProgramDTO(p.getStudyProgram().getId(),p.getStudyProgram().getProgramCode(),p.getStudyProgram().getName()), p.getName(), p.getEcts(), p.getDescription(), p.getSyllabus(), teachingMaterials);
+				StudentDTO student = new StudentDTO(s.getId(), s.getClass().getSimpleName(), s.getFirstName(), s.getLastName(), s.getEmail(), s.getPassword(), s.getPermissions(), s.getIndexNumber(), s.getUsername());
+				TeacherDTO teacher = new TeacherDTO(n.getId(), n.getClass().getSimpleName(), n.getFirstName(), n.getLastName(), n.getEmail(), n.getPassword());
 	
 	
-				pokusaji.add(new PolaganjeDTO(pp.getId(), pp.getBodovi(), pp.getKonacnaOcena(), pp.getPocetak(), pp.getKraj(), pp.getNapomena(),student, predmet, nastavnik));
+				pokusaji.add(new ExamAttemptDTO(pp.getId(), pp.getPoints(), pp.getFinalGrade(), pp.getStartTime(), pp.getEndTime(), pp.getNote(),student, course, teacher));
 		}}
-		return new ResponseEntity<Iterable<PolaganjeDTO>>(pokusaji, HttpStatus.OK);
+		return new ResponseEntity<Iterable<ExamAttemptDTO>>(pokusaji, HttpStatus.OK);
 	}
 	
 }

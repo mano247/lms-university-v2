@@ -5,16 +5,16 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import rs.ac.singidunum.novisad.backend.model.academic.Fakultet;
+import rs.ac.singidunum.novisad.backend.model.academic.Faculty;
 
 
 
 @Repository
-public interface FakultetRepository extends JpaRepository<Fakultet, Long>{
+public interface FakultetRepository extends JpaRepository<Faculty, Long>{
 	
-//	Optional<Fakultet> findOne(Long Id);
+//	Optional<Faculty> findOne(Long Id);
 
-	Optional<Fakultet> findBySifraFakulteta(String sifraFakulteta);
+	Optional<Faculty> findBySifraFakulteta(String facultyCode);
 
 }
 

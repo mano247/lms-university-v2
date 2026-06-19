@@ -8,115 +8,115 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import rs.ac.singidunum.novisad.backend.model.GodinaStudija;
+import rs.ac.singidunum.novisad.backend.model.StudyYear;
 import rs.ac.singidunum.novisad.backend.model.Permission;
-import rs.ac.singidunum.novisad.backend.model.Polaganje;
-import rs.ac.singidunum.novisad.backend.model.academic.Fakultet;
-import rs.ac.singidunum.novisad.backend.model.academic.Predmet;
+import rs.ac.singidunum.novisad.backend.model.ExamAttempt;
+import rs.ac.singidunum.novisad.backend.model.academic.Faculty;
+import rs.ac.singidunum.novisad.backend.model.academic.Course;
 
 @Entity
-public class Student extends RegistrovaniKorisnik{
-	private String brojIndeksa;
-	
+public class Student extends RegisteredUser{
+	private String indexNumber;
+
 	@ManyToOne
 	@JoinColumn(name="fakultet_id")
-	Fakultet fakultet;
+	Faculty faculty;
 
 	@ManyToMany
 	@JoinTable(
-	  name = "studentNaGodini", 
-	  joinColumns = @JoinColumn(name = "student_id"), 
+	  name = "studentNaGodini",
+	  joinColumns = @JoinColumn(name = "student_id"),
 	  inverseJoinColumns = @JoinColumn(name = "godinaStudija_id"))
-	Set<GodinaStudija> godinaStudija;
-	
+	Set<StudyYear> studyYears;
+
 	@OneToMany(mappedBy = "student")
-	private Set<Polaganje> polaganja;
-	
+	private Set<ExamAttempt> examAttempts;
+
 	@ManyToMany
     @JoinTable(
         name = "studentiPredmeti",
         joinColumns = @JoinColumn(name = "student_id"),
         inverseJoinColumns = @JoinColumn(name = "predmet_id"))
-    private Set<Predmet> predmet;
-	
-	
+    private Set<Course> courses;
+
+
 	public Student() {
 		super();
 	}
-	
-	public Student(Long id, String korisnickoIme, String email, String lozinka, Set<Permission> permissions, String brojIndeksa, Fakultet fakultet) {
-		super(id, korisnickoIme, email, lozinka, permissions);
-		this.brojIndeksa = brojIndeksa;
-		this.fakultet = fakultet;
-	}
-	
-	public Student(Long id, String ime, String prezime, String email, String lozinka, Set<Permission> permissions, String brojIndeksa, Set<Predmet> predmet, Fakultet fakultet) {
-		super(id, ime, prezime, email, lozinka, permissions);
-		this.brojIndeksa = brojIndeksa;
-		this.fakultet = fakultet;
-		this.predmet = predmet;
+
+	public Student(Long id, String username, String email, String password, Set<Permission> permissions, String indexNumber, Faculty faculty) {
+		super(id, username, email, password, permissions);
+		this.indexNumber = indexNumber;
+		this.faculty = faculty;
 	}
 
-	public Student(Long id, String ime, String prezime, String email, String lozinka, Set<Permission> permissions, String brojIndeksa, Set<Predmet> predmet, Set<Polaganje> polaganja, Fakultet fakultet) {
-		super(id, ime, prezime, email, lozinka, permissions);
-		this.brojIndeksa = brojIndeksa;
-		this.fakultet = fakultet;
-		this.predmet = predmet;
-		this.polaganja = polaganja;
-	}
-	
-	public Student(Long id, String ime, String prezime, String email, String lozinka, Set<Permission> permissions, String brojIndeksa, Set<Predmet> predmet, Set<Polaganje> polaganja, Set<GodinaStudija> godinaStudija, Fakultet fakultet) {
-		super(id, ime, prezime, email, lozinka, permissions);
-		this.brojIndeksa = brojIndeksa;
-		this.fakultet = fakultet;
-		this.predmet = predmet;
-		this.polaganja = polaganja;
-		this.godinaStudija = godinaStudija;
+	public Student(Long id, String firstName, String lastName, String email, String password, Set<Permission> permissions, String indexNumber, Set<Course> courses, Faculty faculty) {
+		super(id, firstName, lastName, email, password, permissions);
+		this.indexNumber = indexNumber;
+		this.faculty = faculty;
+		this.courses = courses;
 	}
 
-	public String getBrojIndeksa() {
-		return brojIndeksa;
+	public Student(Long id, String firstName, String lastName, String email, String password, Set<Permission> permissions, String indexNumber, Set<Course> courses, Set<ExamAttempt> examAttempts, Faculty faculty) {
+		super(id, firstName, lastName, email, password, permissions);
+		this.indexNumber = indexNumber;
+		this.faculty = faculty;
+		this.courses = courses;
+		this.examAttempts = examAttempts;
 	}
 
-	public void setBrojIndeksa(String brojIndeksa) {
-		this.brojIndeksa = brojIndeksa;
+	public Student(Long id, String firstName, String lastName, String email, String password, Set<Permission> permissions, String indexNumber, Set<Course> courses, Set<ExamAttempt> examAttempts, Set<StudyYear> studyYears, Faculty faculty) {
+		super(id, firstName, lastName, email, password, permissions);
+		this.indexNumber = indexNumber;
+		this.faculty = faculty;
+		this.courses = courses;
+		this.examAttempts = examAttempts;
+		this.studyYears = studyYears;
 	}
 
-	public Set<GodinaStudija> getGodinaStudija() {
-		return godinaStudija;
+	public String getIndexNumber() {
+		return indexNumber;
 	}
 
-	public void setGodinaStudija(Set<GodinaStudija> godinaStudija) {
-		this.godinaStudija = godinaStudija;
+	public void setIndexNumber(String indexNumber) {
+		this.indexNumber = indexNumber;
 	}
 
-	public Set<Polaganje> getPolaganja() {
-		return polaganja;
+	public Set<StudyYear> getStudyYears() {
+		return studyYears;
 	}
 
-	public void setPolaganja(Set<Polaganje> polaganja) {
-		this.polaganja = polaganja;
+	public void setStudyYears(Set<StudyYear> studyYears) {
+		this.studyYears = studyYears;
 	}
 
-	public Set<Predmet> getPredmet() {
-		return predmet;
+	public Set<ExamAttempt> getExamAttempts() {
+		return examAttempts;
 	}
 
-	public void setPredmet(Set<Predmet> predmet) {
-		this.predmet = predmet;
-	}
-	
-	public Fakultet getFakultet() {
-		return fakultet;
+	public void setExamAttempts(Set<ExamAttempt> examAttempts) {
+		this.examAttempts = examAttempts;
 	}
 
-	public void setFakultet(Fakultet fakultet) {
-		this.fakultet = fakultet;
+	public Set<Course> getCourses() {
+		return courses;
+	}
+
+	public void setCourses(Set<Course> courses) {
+		this.courses = courses;
+	}
+
+	public Faculty getFaculty() {
+		return faculty;
+	}
+
+	public void setFaculty(Faculty faculty) {
+		this.faculty = faculty;
 	}
 
 	@Override
 	public String toString() {
-		return "Student [brojIndeksa=" + brojIndeksa + ", fakultet=" + fakultet + ", godinaStudija=" + godinaStudija
-				+ ", polaganja=" + polaganja + ", predmet=" + predmet + "]";
+		return "Student [indexNumber=" + indexNumber + ", faculty=" + faculty + ", studyYears=" + studyYears
+				+ ", examAttempts=" + examAttempts + ", courses=" + courses + "]";
 	}
 }

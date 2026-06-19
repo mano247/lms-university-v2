@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.FakultetDTO;
-import rs.ac.singidunum.novisad.backend.dto.GodinaStudijaDTO;
+import rs.ac.singidunum.novisad.backend.dto.FacultyDTO;
+import rs.ac.singidunum.novisad.backend.dto.StudyYearDTO;
 import rs.ac.singidunum.novisad.backend.dto.StudentDTO;
-import rs.ac.singidunum.novisad.backend.dto.StudentNaGodiniDTO;
-import rs.ac.singidunum.novisad.backend.dto.StudijskiProgramDTO;
-import rs.ac.singidunum.novisad.backend.model.GodinaStudija;
-import rs.ac.singidunum.novisad.backend.model.StudentNaGodini;
-import rs.ac.singidunum.novisad.backend.model.academic.StudijskiProgram;
+import rs.ac.singidunum.novisad.backend.dto.StudentYearEnrollmentDTO;
+import rs.ac.singidunum.novisad.backend.dto.StudyProgramDTO;
+import rs.ac.singidunum.novisad.backend.model.StudyYear;
+import rs.ac.singidunum.novisad.backend.model.StudentYearEnrollment;
+import rs.ac.singidunum.novisad.backend.model.academic.StudyProgram;
 import rs.ac.singidunum.novisad.backend.model.user.Student;
 import rs.ac.singidunum.novisad.backend.service.StudentNaGodiniService;
 
@@ -32,92 +32,92 @@ public class StudentNaGodiniController {
 	private StudentNaGodiniService service;
 	
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<StudentNaGodiniDTO>> getAll(){
-		HashSet<StudentNaGodiniDTO> sng = new HashSet<StudentNaGodiniDTO>();
-		for (StudentNaGodini s : service.findAll()) {
-			GodinaStudija gs = s.getGodinaStudija();
+	public ResponseEntity<Iterable<StudentYearEnrollmentDTO>> getAll(){
+		HashSet<StudentYearEnrollmentDTO> sng = new HashSet<StudentYearEnrollmentDTO>();
+		for (StudentYearEnrollment s : service.findAll()) {
+			StudyYear gs = s.getStudyYear();
 			Student st = s.getStudent();
-			StudijskiProgram sp = s.getStudijskiProgram();
+			StudyProgram sp = s.getStudyProgram();
 			
-			GodinaStudijaDTO godinaStudija = new GodinaStudijaDTO(gs.getId(),gs.getGodina());
-			StudentDTO student = new StudentDTO(st.getId(),st.getIme(),st.getPrezime(),st.getEmail(),st.getLozinka(),st.getBrojIndeksa(),st.getKorisnickoIme());
-			StudijskiProgramDTO sProgram = new StudijskiProgramDTO(sp.getId(),sp.getSifraSP(),sp.getOpis(),sp.getNaziv(),sp.getRukovodilac(),new FakultetDTO(sp.getFakultet().getId(),sp.getFakultet().getSifraFakulteta(),sp.getFakultet().getNaziv()));
+			StudyYearDTO studyYear = new StudyYearDTO(gs.getId(),gs.getYear());
+			StudentDTO student = new StudentDTO(st.getId(),st.getFirstName(),st.getLastName(),st.getEmail(),st.getPassword(),st.getIndexNumber(),st.getUsername());
+			StudyProgramDTO sProgram = new StudyProgramDTO(sp.getId(),sp.getProgramCode(),sp.getDescription(),sp.getName(),sp.getProgramDirector(),new FacultyDTO(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()));
 			
 			
-			sng.add(new StudentNaGodiniDTO(s.getId(),s.getDatumUpisa(),godinaStudija,student,sProgram));
+			sng.add(new StudentYearEnrollmentDTO(s.getId(),s.getEnrollmentDate(),studyYear,student,sProgram));
 		}
-		return new ResponseEntity<Iterable<StudentNaGodiniDTO>>(sng, HttpStatus.OK);
+		return new ResponseEntity<Iterable<StudentYearEnrollmentDTO>>(sng, HttpStatus.OK);
 		}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<StudentNaGodiniDTO> get(@PathVariable("id") Long id) {
-		Optional<StudentNaGodini> s = service.findOne(id);
+	public ResponseEntity<StudentYearEnrollmentDTO> get(@PathVariable("id") Long id) {
+		Optional<StudentYearEnrollment> s = service.findOne(id);
 		if(s.isPresent()) {
-			GodinaStudija gs = s.get().getGodinaStudija();
+			StudyYear gs = s.get().getStudyYear();
 			Student st = s.get().getStudent();
-			StudijskiProgram sp = s.get().getStudijskiProgram();
+			StudyProgram sp = s.get().getStudyProgram();
 			
-			GodinaStudijaDTO godinaStudija = new GodinaStudijaDTO(gs.getId(),gs.getGodina());
-			StudentDTO student = new StudentDTO(st.getId(),st.getIme(),st.getPrezime(),st.getEmail(),st.getLozinka(),st.getBrojIndeksa(),st.getKorisnickoIme());
-			StudijskiProgramDTO sProgram = new StudijskiProgramDTO(sp.getId(),sp.getSifraSP(),sp.getOpis(),sp.getNaziv(),sp.getRukovodilac(),new FakultetDTO(sp.getFakultet().getId(),sp.getFakultet().getSifraFakulteta(),sp.getFakultet().getNaziv()));
+			StudyYearDTO studyYear = new StudyYearDTO(gs.getId(),gs.getYear());
+			StudentDTO student = new StudentDTO(st.getId(),st.getFirstName(),st.getLastName(),st.getEmail(),st.getPassword(),st.getIndexNumber(),st.getUsername());
+			StudyProgramDTO sProgram = new StudyProgramDTO(sp.getId(),sp.getProgramCode(),sp.getDescription(),sp.getName(),sp.getProgramDirector(),new FacultyDTO(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()));
 			
-			StudentNaGodiniDTO sng = new StudentNaGodiniDTO(s.get().getId(),s.get().getDatumUpisa(),godinaStudija,student,sProgram);
-			return new ResponseEntity<StudentNaGodiniDTO>(sng, HttpStatus.OK);
+			StudentYearEnrollmentDTO sng = new StudentYearEnrollmentDTO(s.get().getId(),s.get().getEnrollmentDate(),studyYear,student,sProgram);
+			return new ResponseEntity<StudentYearEnrollmentDTO>(sng, HttpStatus.OK);
 		}
-		return new ResponseEntity<StudentNaGodiniDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudentYearEnrollmentDTO>(HttpStatus.NOT_FOUND);
 
 	}
 	
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<StudentNaGodini> create(@RequestBody StudentNaGodini sng){
+	public ResponseEntity<StudentYearEnrollment> create(@RequestBody StudentYearEnrollment sng){
 		try {
 			service.save(sng);
-			return new ResponseEntity<StudentNaGodini>(sng, HttpStatus.CREATED);
+			return new ResponseEntity<StudentYearEnrollment>(sng, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<StudentNaGodini>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<StudentYearEnrollment>(HttpStatus.BAD_REQUEST);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<StudentNaGodini> delete(@PathVariable("id") Long id){
+	public ResponseEntity<StudentYearEnrollment> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<StudentNaGodini>(HttpStatus.OK);
+			return new ResponseEntity<StudentYearEnrollment>(HttpStatus.OK);
 		}
-		return new ResponseEntity<StudentNaGodini>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudentYearEnrollment>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<StudentNaGodini> update(@PathVariable("id") Long id, @RequestBody StudentNaGodini studentNaGodini){
-		StudentNaGodini sng = service.findOne(id).orElse(null);
+	public ResponseEntity<StudentYearEnrollment> update(@PathVariable("id") Long id, @RequestBody StudentYearEnrollment studentNaGodini){
+		StudentYearEnrollment sng = service.findOne(id).orElse(null);
 
 		if(sng != null) {
 			studentNaGodini.setId(id);
 			studentNaGodini = service.save(studentNaGodini);
-			return new ResponseEntity<StudentNaGodini>(studentNaGodini, HttpStatus.OK);
+			return new ResponseEntity<StudentYearEnrollment>(studentNaGodini, HttpStatus.OK);
 				}
-		return new ResponseEntity<StudentNaGodini>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudentYearEnrollment>(HttpStatus.NOT_FOUND);
 	}
 
 	@RequestMapping(path = "/fbs/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<StudentNaGodiniDTO>> getByStudentId(@PathVariable("id") Long id){
-		HashSet<StudentNaGodiniDTO> sng = new HashSet<StudentNaGodiniDTO>();
-		for (StudentNaGodini s : service.findAll()) {
+	public ResponseEntity<Iterable<StudentYearEnrollmentDTO>> getByStudentId(@PathVariable("id") Long id){
+		HashSet<StudentYearEnrollmentDTO> sng = new HashSet<StudentYearEnrollmentDTO>();
+		for (StudentYearEnrollment s : service.findAll()) {
 			Student st = s.getStudent();
 			if (id == st.getId()) {
-				GodinaStudija gs = s.getGodinaStudija();
-				StudijskiProgram sp = s.getStudijskiProgram();
+				StudyYear gs = s.getStudyYear();
+				StudyProgram sp = s.getStudyProgram();
 				
-				GodinaStudijaDTO godinaStudija = new GodinaStudijaDTO(gs.getId(),gs.getGodina());
-				StudentDTO student = new StudentDTO(st.getId(),st.getIme(),st.getPrezime(),st.getEmail(),st.getLozinka(),st.getBrojIndeksa(),st.getKorisnickoIme());
-				StudijskiProgramDTO sProgram = new StudijskiProgramDTO(sp.getId(),sp.getSifraSP(),sp.getOpis(),sp.getNaziv(),sp.getRukovodilac(),new FakultetDTO(sp.getFakultet().getId(),sp.getFakultet().getSifraFakulteta(),sp.getFakultet().getNaziv()));
+				StudyYearDTO studyYear = new StudyYearDTO(gs.getId(),gs.getYear());
+				StudentDTO student = new StudentDTO(st.getId(),st.getFirstName(),st.getLastName(),st.getEmail(),st.getPassword(),st.getIndexNumber(),st.getUsername());
+				StudyProgramDTO sProgram = new StudyProgramDTO(sp.getId(),sp.getProgramCode(),sp.getDescription(),sp.getName(),sp.getProgramDirector(),new FacultyDTO(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()));
 				
 				
-				sng.add(new StudentNaGodiniDTO(s.getId(),s.getDatumUpisa(),godinaStudija,student,sProgram));
+				sng.add(new StudentYearEnrollmentDTO(s.getId(),s.getEnrollmentDate(),studyYear,student,sProgram));
 			}
 		}
-		return new ResponseEntity<Iterable<StudentNaGodiniDTO>>(sng, HttpStatus.OK);
+		return new ResponseEntity<Iterable<StudentYearEnrollmentDTO>>(sng, HttpStatus.OK);
 		}
 }
 

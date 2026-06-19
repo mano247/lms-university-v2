@@ -29,7 +29,7 @@ public class AdministratorController {
 	public ResponseEntity<Iterable<Administrator>> getAll(){
 		HashSet<Administrator> administratori = new HashSet<Administrator>();
 		for (Administrator a : service.findAll()) {
-			administratori.add(new Administrator(a.getId(),a.getIme(),a.getPrezime(), a.getKorisnickoIme(), a.getEmail(),a.getLozinka(), a.getPermissions()));
+			administratori.add(new Administrator(a.getId(),a.getFirstName(),a.getLastName(), a.getUsername(), a.getEmail(),a.getPassword(), a.getPermissions()));
 		}
 		return new ResponseEntity<Iterable<Administrator>>(administratori, HttpStatus.OK);
 	}
@@ -38,11 +38,11 @@ public class AdministratorController {
 	public ResponseEntity<Administrator> get(@PathVariable("id") Long id){
 		Optional<Administrator> a = service.findOne(id);
 		if(a.isPresent()) {
-			Administrator administrator = new Administrator(a.get().getId(), a.get().getIme(),
-					a.get().getPrezime(),
-					a.get().getKorisnickoIme(),
+			Administrator administrator = new Administrator(a.get().getId(), a.get().getFirstName(),
+					a.get().getLastName(),
+					a.get().getUsername(),
 					a.get().getEmail(),
-					a.get().getLozinka(),   
+					a.get().getPassword(),   
 					a.get().getPermissions());
 			return new ResponseEntity<Administrator>(administrator, HttpStatus.OK);
 		}
@@ -69,7 +69,7 @@ public class AdministratorController {
 				Administrator u = service.findOne(id).orElse(null);
 				if(u != null) {
 					administrator.setId(id);
-					administrator.setLozinka(u.getLozinka());
+					administrator.setPassword(u.getPassword());
 					administrator.setPermissions(u.getPermissions());
 					administrator = service.save(administrator);
 					return new ResponseEntity<Administrator>(administrator, HttpStatus.OK);

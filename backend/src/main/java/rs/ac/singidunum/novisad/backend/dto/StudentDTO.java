@@ -4,19 +4,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import rs.ac.singidunum.novisad.backend.model.Permission;
-import rs.ac.singidunum.novisad.backend.model.academic.Fakultet;
+import rs.ac.singidunum.novisad.backend.model.academic.Faculty;
 
 public class StudentDTO {
 	
-	private String tipZaIzmenu;
+	private String userType;
 	private Long id;
 	private String email;
-	private String korisnickoIme;
-	private String brojIndeksa;
-	private String lozinka;
-    private String ime;
-    private String prezime;
-    private Fakultet fakultet;
+	private String username;
+	private String indexNumber;
+	private String password;
+    private String firstName;
+    private String lastName;
+    private Faculty faculty;
 	private Set<Permission> permission = new HashSet<>();
 
 
@@ -24,97 +24,97 @@ public class StudentDTO {
 		super();
 	}
 	
-	public StudentDTO(Long id, String email, String korisnickoIme, String brojIndeksa, String ime, String prezime,
-			Fakultet fakultet) {
+	public StudentDTO(Long id, String email, String username, String indexNumber, String firstName, String lastName,
+			Faculty faculty) {
 		super();
 		this.id = id;
 		this.email = email;
-		this.korisnickoIme = korisnickoIme;
-		this.brojIndeksa = brojIndeksa;
-		this.ime = ime;
-		this.prezime = prezime;
-		this.fakultet = fakultet;
+		this.username = username;
+		this.indexNumber = indexNumber;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.faculty = faculty;
 	}
 
 
-	public StudentDTO(Long id, String tipZaIzmenu, String email, String lozinka, String korisnickoIme, String brojIndeksa,
+	public StudentDTO(Long id, String userType, String email, String password, String username, String indexNumber,
 			Set<Permission> permission) {
 		super();
 
 		this.id = id;
-		this.tipZaIzmenu = tipZaIzmenu;
+		this.userType = userType;
 		this.email = email;
-		this.korisnickoIme = korisnickoIme;
-		this.brojIndeksa = brojIndeksa;
+		this.username = username;
+		this.indexNumber = indexNumber;
 		this.permission = permission;
-		this.lozinka = lozinka;
+		this.password = password;
 	}
 	
-	public StudentDTO(Long id, String ime, String prezime, String email, String lozinka, String brojIndeksa, String korisnickoIme) {
+	public StudentDTO(Long id, String firstName, String lastName, String email, String password, String indexNumber, String username) {
 		super();
 		this.id = id;
-		this.ime = ime;
-		this.prezime = prezime;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.email = email;
-		this.lozinka = lozinka;
-		this.brojIndeksa = brojIndeksa;
-		this.korisnickoIme = korisnickoIme;
-
-	}
-	
-	public StudentDTO(Long id, String tipZaIzmenu, String ime, String prezime, String email, String lozinka, Set<Permission> permission, String brojIndeksa, String korisnickoIme) {
-		super();
-		this.id = id;
-		this.tipZaIzmenu = tipZaIzmenu;
-		this.ime = ime;
-		this.prezime = prezime;
-		this.email = email;
-		this.lozinka = lozinka;
-		this.brojIndeksa = brojIndeksa;
-		this.permission = permission;
-		this.korisnickoIme = korisnickoIme;
+		this.password = password;
+		this.indexNumber = indexNumber;
+		this.username = username;
 
 	}
 	
-	public StudentDTO(Long id, String tipZaIzmenu, String ime, String prezime, String email, String lozinka, Set<Permission> permission, String brojIndeksa, String korisnickoIme,Fakultet fakultet) {
+	public StudentDTO(Long id, String userType, String firstName, String lastName, String email, String password, Set<Permission> permission, String indexNumber, String username) {
 		super();
 		this.id = id;
-		this.tipZaIzmenu = tipZaIzmenu;
-		this.ime = ime;
-		this.prezime = prezime;
+		this.userType = userType;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.email = email;
-		this.lozinka = lozinka;
-		this.brojIndeksa = brojIndeksa;
+		this.password = password;
+		this.indexNumber = indexNumber;
 		this.permission = permission;
-		this.korisnickoIme = korisnickoIme;
-		this.fakultet = fakultet;
+		this.username = username;
+
+	}
+	
+	public StudentDTO(Long id, String userType, String firstName, String lastName, String email, String password, Set<Permission> permission, String indexNumber, String username,Faculty faculty) {
+		super();
+		this.id = id;
+		this.userType = userType;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.email = email;
+		this.password = password;
+		this.indexNumber = indexNumber;
+		this.permission = permission;
+		this.username = username;
+		this.faculty = faculty;
 
 	}
 
-	public Fakultet getFakultet() {
-		return fakultet;
+	public Faculty getFaculty() {
+		return faculty;
 	}
 
-	public void setFakultet(Fakultet fakultet) {
-		this.fakultet = fakultet;
+	public void setFaculty(Faculty faculty) {
+		this.faculty = faculty;
 	}
 
-	public String getBrojIndeksa() {
-		return brojIndeksa;
-	}
-
-
-	public void setBrojIndeksa(String brojIndeksa) {
-		this.brojIndeksa = brojIndeksa;
+	public String getIndexNumber() {
+		return indexNumber;
 	}
 
 
-	public String getTipZaIzmenu() {
-		return tipZaIzmenu;
+	public void setIndexNumber(String indexNumber) {
+		this.indexNumber = indexNumber;
 	}
 
-	public void setTipZaIzmenu(String tipZaIzmenu) {
-		this.tipZaIzmenu = tipZaIzmenu;
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 
 	public Long getId() {
@@ -133,12 +133,12 @@ public class StudentDTO {
 		this.email = email;
 	}
 
-	public String getKorisnickoIme() {
-		return korisnickoIme;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setKorisnickoIme(String korisnickoIme) {
-		this.korisnickoIme = korisnickoIme;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public Set<Permission> getPermission() {
@@ -149,27 +149,27 @@ public class StudentDTO {
 		this.permission = permission;
 	}
 	
-	public String getLozinka() {
-		return lozinka;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setLozinka(String lozinka) {
-		this.lozinka = lozinka;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
-	public String getIme() {
-		return ime;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setIme(String ime) {
-		this.ime = ime;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
-	public String getPrezime() {
-		return prezime;
+	public String getLastName() {
+		return lastName;
 	}
 
-	public void setPrezime(String prezime) {
-		this.prezime = prezime;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 }

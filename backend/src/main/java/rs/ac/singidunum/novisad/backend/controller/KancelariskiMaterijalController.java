@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.KancelariskiMaterijalDTO;
-import rs.ac.singidunum.novisad.backend.model.KancelariskiMaterijal;
+import rs.ac.singidunum.novisad.backend.dto.OfficeSupplyDTO;
+import rs.ac.singidunum.novisad.backend.model.OfficeSupply;
 import rs.ac.singidunum.novisad.backend.service.KancelariskiMaterialService;
 
 @Controller
@@ -25,53 +25,53 @@ public class KancelariskiMaterijalController {
 	private KancelariskiMaterialService service;
 	
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<KancelariskiMaterijalDTO>> getAll(){
-		HashSet<KancelariskiMaterijalDTO> kancelariskiaMaterial = new HashSet<KancelariskiMaterijalDTO>();
-		for (KancelariskiMaterijal k : service.findAll()) {
-			kancelariskiaMaterial.add(new KancelariskiMaterijalDTO(k.getId(),k.getNaziv(),k.getKolicina(),k.getIzdato()));
+	public ResponseEntity<Iterable<OfficeSupplyDTO>> getAll(){
+		HashSet<OfficeSupplyDTO> kancelariskiaMaterial = new HashSet<OfficeSupplyDTO>();
+		for (OfficeSupply k : service.findAll()) {
+			kancelariskiaMaterial.add(new OfficeSupplyDTO(k.getId(),k.getName(),k.getQuantity(),k.getIssuedQuantity()));
 		}
-		return new ResponseEntity<Iterable<KancelariskiMaterijalDTO>>(kancelariskiaMaterial, HttpStatus.OK);
+		return new ResponseEntity<Iterable<OfficeSupplyDTO>>(kancelariskiaMaterial, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<KancelariskiMaterijalDTO> get(@PathVariable("id") Long id){
-		Optional<KancelariskiMaterijal> k = service.findOne(id);
+	public ResponseEntity<OfficeSupplyDTO> get(@PathVariable("id") Long id){
+		Optional<OfficeSupply> k = service.findOne(id);
 		if(k.isPresent()) {
-			KancelariskiMaterijalDTO dto = new KancelariskiMaterijalDTO(k.get().getId(),k.get().getNaziv(),k.get().getKolicina(),k.get().getIzdato());
-			return new ResponseEntity<KancelariskiMaterijalDTO>(dto, HttpStatus.OK);
+			OfficeSupplyDTO dto = new OfficeSupplyDTO(k.get().getId(),k.get().getName(),k.get().getQuantity(),k.get().getIssuedQuantity());
+			return new ResponseEntity<OfficeSupplyDTO>(dto, HttpStatus.OK);
 		}
-		return new ResponseEntity<KancelariskiMaterijalDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<OfficeSupplyDTO>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<KancelariskiMaterijal> create(@RequestBody KancelariskiMaterijal kr){
+	public ResponseEntity<OfficeSupply> create(@RequestBody OfficeSupply kr){
 		try {
 			service.save(kr);
-			return new ResponseEntity<KancelariskiMaterijal>(kr, HttpStatus.CREATED);
+			return new ResponseEntity<OfficeSupply>(kr, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<KancelariskiMaterijal>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<OfficeSupply>(HttpStatus.BAD_REQUEST);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<KancelariskiMaterijal> update(@PathVariable("id") Long id, @RequestBody KancelariskiMaterijal kancelariskiMaterijal){
-		KancelariskiMaterijal u = service.findOne(id).orElse(null);
+	public ResponseEntity<OfficeSupply> update(@PathVariable("id") Long id, @RequestBody OfficeSupply kancelariskiMaterijal){
+		OfficeSupply u = service.findOne(id).orElse(null);
 		
 		if(u != null) {
 			kancelariskiMaterijal.setId(id);
 			kancelariskiMaterijal = service.save(kancelariskiMaterijal);
-			return new ResponseEntity<KancelariskiMaterijal>(kancelariskiMaterijal, HttpStatus.OK);
+			return new ResponseEntity<OfficeSupply>(kancelariskiMaterijal, HttpStatus.OK);
 		}
-		return new ResponseEntity<KancelariskiMaterijal>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<OfficeSupply>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<KancelariskiMaterijal> delete(@PathVariable("id") Long id){
+	public ResponseEntity<OfficeSupply> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<KancelariskiMaterijal>(HttpStatus.OK);
+			return new ResponseEntity<OfficeSupply>(HttpStatus.OK);
 		}
-		return new ResponseEntity<KancelariskiMaterijal>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<OfficeSupply>(HttpStatus.NOT_FOUND);
 	}
 }

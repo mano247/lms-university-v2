@@ -2,31 +2,31 @@ package rs.ac.singidunum.novisad.backend.dto;
 
 public class AdministratorDTO {
 	
-	private String tipZaIzmenu;
+	private String userType;
 	private Long id;
-	private String korisnickoIme, lozinka, email, ime, prezime;
+	private String username, password, email, firstName, lastName;
 	
 	public AdministratorDTO() {
 		super();
 	}
 
-	public AdministratorDTO(String tipZaIzmenu, Long id, String korisnickoIme, String lozinka, String email,String ime,String prezime) {
+	public AdministratorDTO(String userType, Long id, String username, String password, String email,String firstName,String lastName) {
 		super();
-		this.tipZaIzmenu = tipZaIzmenu;
+		this.userType = userType;
 		this.id = id;
-		this.korisnickoIme = korisnickoIme;
-		this.lozinka = lozinka;
+		this.username = username;
+		this.password = password;
 		this.email = email;
-		this.ime = ime;
-		this.prezime = prezime;
+		this.firstName = firstName;
+		this.lastName = lastName;
 	}
 
-	public String getDtype() {
-		return tipZaIzmenu;
+	public String getUserType() {
+		return userType;
 	}
 
-	public void setDtype(String dtype) {
-		this.tipZaIzmenu = dtype;
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 
 	public Long getId() {
@@ -37,20 +37,20 @@ public class AdministratorDTO {
 		this.id = id;
 	}
 
-	public String getKorisnickoIme() {
-		return korisnickoIme;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setKorisnickoIme(String korisnickoIme) {
-		this.korisnickoIme = korisnickoIme;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
-	public String getLozinka() {
-		return lozinka;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setLozinka(String lozinka) {
-		this.lozinka = lozinka;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getEmail() {
@@ -61,20 +61,20 @@ public class AdministratorDTO {
 		this.email = email;
 	}
 
-	public String getIme() {
-		return ime;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setIme(String ime) {
-		this.ime = ime;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
-	public String getPrezime() {
-		return prezime;
+	public String getLastName() {
+		return lastName;
 	}
 
-	public void setPrezime(String prezime) {
-		this.prezime = prezime;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 	
 	

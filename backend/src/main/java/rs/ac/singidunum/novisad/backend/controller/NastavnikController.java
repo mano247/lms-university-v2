@@ -17,119 +17,119 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.NastavniMaterijalDTO;
-import rs.ac.singidunum.novisad.backend.dto.NastavnikDTO;
-import rs.ac.singidunum.novisad.backend.dto.PredmetProfesoraDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeachingMaterialDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeacherDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeacherCourseDTO;
 import rs.ac.singidunum.novisad.backend.dto.StudentDTO;
-import rs.ac.singidunum.novisad.backend.model.academic.Predmet;
-import rs.ac.singidunum.novisad.backend.model.user.Nastavnik;
+import rs.ac.singidunum.novisad.backend.model.academic.Course;
+import rs.ac.singidunum.novisad.backend.model.user.Teacher;
 import rs.ac.singidunum.novisad.backend.security.services.UserDetailsImpl;
 import rs.ac.singidunum.novisad.backend.service.NastavnikService;
 
 @Controller
-@RequestMapping(path = "/api/nastavnici")
+@RequestMapping(path = "/api/teachers")
 @CrossOrigin(origins = "http://localhost:4200")
 public class NastavnikController {
 	@Autowired
 	private NastavnikService service;
 	
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<NastavnikDTO>> getAll(){
-		ArrayList<NastavnikDTO> profesori = new ArrayList<NastavnikDTO>();
-		for (Nastavnik p : service.findAll()) {
-			profesori.add(new NastavnikDTO(p.getClass().getSimpleName(), p.getId(), p.getKorisnickoIme(),  p.getEmail(), p.getLozinka(),p.getIme(), p.getPrezime()));
+	public ResponseEntity<Iterable<TeacherDTO>> getAll(){
+		ArrayList<TeacherDTO> profesori = new ArrayList<TeacherDTO>();
+		for (Teacher p : service.findAll()) {
+			profesori.add(new TeacherDTO(p.getClass().getSimpleName(), p.getId(), p.getUsername(),  p.getEmail(), p.getPassword(),p.getFirstName(), p.getLastName()));
 		}
-		return new ResponseEntity<Iterable<NastavnikDTO>>(profesori, HttpStatus.OK);
+		return new ResponseEntity<Iterable<TeacherDTO>>(profesori, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<NastavnikDTO> get(@PathVariable("id") Long id){
-		Optional<Nastavnik> p = service.findOne(id);
+	public ResponseEntity<TeacherDTO> get(@PathVariable("id") Long id){
+		Optional<Teacher> p = service.findOne(id);
 		if(p.isPresent()) {
-			NastavnikDTO profesor = new NastavnikDTO(p.get().getClass().getSimpleName(), p.get().getId() ,p.get().getKorisnickoIme(), p.get().getEmail(), p.get().getLozinka(), p.get().getIme(), p.get().getPrezime());
-			return new ResponseEntity<NastavnikDTO>(profesor, HttpStatus.OK);
+			TeacherDTO profesor = new TeacherDTO(p.get().getClass().getSimpleName(), p.get().getId() ,p.get().getUsername(), p.get().getEmail(), p.get().getPassword(), p.get().getFirstName(), p.get().getLastName());
+			return new ResponseEntity<TeacherDTO>(profesor, HttpStatus.OK);
 		}
-		return new ResponseEntity<NastavnikDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TeacherDTO>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Nastavnik> create(@RequestBody Nastavnik r){
+	public ResponseEntity<Teacher> create(@RequestBody Teacher r){
 		try {
 			service.save(r);
-			return new ResponseEntity<Nastavnik>(r, HttpStatus.CREATED);
+			return new ResponseEntity<Teacher>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<Nastavnik>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<Teacher>(HttpStatus.BAD_REQUEST);
 	}
 
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Nastavnik> update(@PathVariable("id") Long id, @RequestBody Nastavnik profesor, Authentication authentication){
+	public ResponseEntity<Teacher> update(@PathVariable("id") Long id, @RequestBody Teacher profesor, Authentication authentication){
 		if(authentication.isAuthenticated()) {
 		
-				Nastavnik u = service.findOne(id).orElse(null);
-				if(u != null && u.getUniverzitet()!= null) {
+				Teacher u = service.findOne(id).orElse(null);
+				if(u != null && u.getUniversity()!= null) {
 					profesor.setId(id);
-					profesor.setUniverzitet(u.getUniverzitet());
-					profesor.setLozinka(u.getLozinka());
+					profesor.setUniversity(u.getUniversity());
+					profesor.setPassword(u.getPassword());
 					profesor.setPermissions(u.getPermissions());
 					profesor = service.save(profesor);
-					return new ResponseEntity<Nastavnik>(HttpStatus.OK);
+					return new ResponseEntity<Teacher>(HttpStatus.OK);
 				}else if (u != null) {
 					profesor.setId(id);
-					profesor.setLozinka(u.getLozinka());
+					profesor.setPassword(u.getPassword());
 					profesor.setPermissions(u.getPermissions());
 					profesor = service.save(profesor);
-					return new ResponseEntity<Nastavnik>(HttpStatus.OK);
+					return new ResponseEntity<Teacher>(HttpStatus.OK);
 				}
 
 		}
-		return  new ResponseEntity<Nastavnik>(HttpStatus.NOT_FOUND);
+		return  new ResponseEntity<Teacher>(HttpStatus.NOT_FOUND);
 	}
 	
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Nastavnik> delete(@PathVariable("id") Long id){
+	public ResponseEntity<Teacher> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
 			service.delete(id);
-			return new ResponseEntity<Nastavnik>(HttpStatus.OK);
+			return new ResponseEntity<Teacher>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Nastavnik>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Teacher>(HttpStatus.NOT_FOUND);
 	}
 	
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
 	@RequestMapping(path = "/{id}/mojiPredmeti", method = RequestMethod.GET)
-	public ResponseEntity<Set<PredmetProfesoraDTO>> getMojiPredmeti(@PathVariable("id") Long id, Authentication authentication){
+	public ResponseEntity<Set<TeacherCourseDTO>> getMojiPredmeti(@PathVariable("id") Long id, Authentication authentication){
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
 
 			if(id.equals(userId)) {
-				Optional<Nastavnik> p = service.findOne(id);
-				Set<Predmet> predmeti = p.get().getPredmeti();
+				Optional<Teacher> p = service.findOne(id);
+				Set<Course> courses = p.get().getCourses();
 				
 				if(p.isPresent()) {
-					Set<PredmetProfesoraDTO> profPredmeti = predmeti.stream().map(pr -> new PredmetProfesoraDTO(
+					Set<TeacherCourseDTO> profPredmeti = courses.stream().map(pr -> new TeacherCourseDTO(
 							pr.getId(),
-							pr.getSifraPredmeta(),  
-							pr.getSilabus(), 
-							pr.getNaziv(),
-							pr.getEspb(),
-							new NastavnikDTO(pr.getNastavnik().getId(),pr.getNastavnik().getIme(),pr.getNastavnik().getPrezime()),
-							pr.getVremePocetka(),
-							pr.getVremeKraja(),
-							pr.getOpis(),
-							pr.getStudijskiProgram().getNaziv(),
-							pr.getNastavniMaterijal().stream().map(nm -> new NastavniMaterijalDTO(nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getBrojStrana(), nm.getIzdavac(), nm.getOpis(),nm.getKolicina(),nm.getIzdato())).collect(Collectors.toSet()),
-							pr.getStudenti().stream().map(st -> new StudentDTO(st.getId(),st.getEmail(),st.getKorisnickoIme(),st.getBrojIndeksa(),st.getIme(),st.getPrezime(),st.getFakultet())).collect(Collectors.toSet())
+							pr.getCourseCode(),  
+							pr.getSyllabus(), 
+							pr.getName(),
+							pr.getEcts(),
+							new TeacherDTO(pr.getTeacher().getId(),pr.getTeacher().getFirstName(),pr.getTeacher().getLastName()),
+							pr.getStartDate(),
+							pr.getEndDate(),
+							pr.getDescription(),
+							pr.getStudyProgram().getName(),
+							pr.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDTO(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),nm.getQuantity(),nm.getIssuedQuantity())).collect(Collectors.toSet()),
+							pr.getStudents().stream().map(st -> new StudentDTO(st.getId(),st.getEmail(),st.getUsername(),st.getIndexNumber(),st.getFirstName(),st.getLastName(),st.getFaculty())).collect(Collectors.toSet())
 					)).collect(Collectors.toSet());
 
 
-					return new ResponseEntity<Set<PredmetProfesoraDTO>>(profPredmeti, HttpStatus.OK);
+					return new ResponseEntity<Set<TeacherCourseDTO>>(profPredmeti, HttpStatus.OK);
 				}
 			}
 
 		}
-		return new ResponseEntity<Set<PredmetProfesoraDTO>>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Set<TeacherCourseDTO>>(HttpStatus.NOT_FOUND);
 	}
 }

@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import rs.ac.singidunum.novisad.backend.dto.NastavniMaterijalDTO;
-import rs.ac.singidunum.novisad.backend.dto.NastavnikDTO;
-import rs.ac.singidunum.novisad.backend.dto.PredmetDTO;
-import rs.ac.singidunum.novisad.backend.dto.PredmetnaObavestenjaDTO;
-import rs.ac.singidunum.novisad.backend.dto.StudijskiProgramDTO;
-import rs.ac.singidunum.novisad.backend.model.academic.Predmet;
-import rs.ac.singidunum.novisad.backend.model.PredmetnaObavestenja;
+import rs.ac.singidunum.novisad.backend.dto.TeachingMaterialDTO;
+import rs.ac.singidunum.novisad.backend.dto.TeacherDTO;
+import rs.ac.singidunum.novisad.backend.dto.CourseDTO;
+import rs.ac.singidunum.novisad.backend.dto.CourseAnnouncementDTO;
+import rs.ac.singidunum.novisad.backend.dto.StudyProgramDTO;
+import rs.ac.singidunum.novisad.backend.model.academic.Course;
+import rs.ac.singidunum.novisad.backend.model.CourseAnnouncement;
 import rs.ac.singidunum.novisad.backend.model.user.Student;
 import rs.ac.singidunum.novisad.backend.security.services.UserDetailsImpl;
 import rs.ac.singidunum.novisad.backend.service.PredmetService;
@@ -41,177 +41,177 @@ public class PredmetnaObavestenjaController {
 	private PredmetService predmetService;
 
 	
-	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'NASTAVNIK_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<PredmetnaObavestenjaDTO>> getAll(Authentication authentication){
+	public ResponseEntity<Iterable<CourseAnnouncementDTO>> getAll(Authentication authentication){
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
 			 
-			ArrayList<PredmetnaObavestenjaDTO> predmetnaObavestenja = new ArrayList<PredmetnaObavestenjaDTO>();
-			for (PredmetnaObavestenja o : service.findAll()) {
+			ArrayList<CourseAnnouncementDTO> predmetnaObavestenja = new ArrayList<CourseAnnouncementDTO>();
+			for (CourseAnnouncement o : service.findAll()) {
 		
-				PredmetDTO predmet = new PredmetDTO(o.getPredmet().getId(),o.getPredmet().getSifraPredmeta(), o.getPredmet().getSilabus(), o.getPredmet().getNaziv(), o.getPredmet().getEspb(),
-						new NastavnikDTO(o.getPredmet().getNastavnik().getId(),o.getPredmet().getNastavnik().getIme(),o.getPredmet().getNastavnik().getPrezime()), o.getPredmet().getVremePocetka(), o.getPredmet().getVremeKraja(),
-						o.getPredmet().getOpis(), o.getPredmet().getNastavniMaterijal().stream().map(
-								nm -> new NastavniMaterijalDTO(nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getGodinaIzdavanja(), nm.getIzdavac(), nm.getOpis(), nm.getUrl(), nm.getIshod(), nm.getKolicina(), nm.getIzdato()
+				CourseDTO course = new CourseDTO(o.getCourse().getId(),o.getCourse().getCourseCode(), o.getCourse().getSyllabus(), o.getCourse().getName(), o.getCourse().getEcts(),
+						new TeacherDTO(o.getCourse().getTeacher().getId(),o.getCourse().getTeacher().getFirstName(),o.getCourse().getTeacher().getLastName()), o.getCourse().getStartDate(), o.getCourse().getEndDate(),
+						o.getCourse().getDescription(), o.getCourse().getTeachingMaterials().stream().map(
+								nm -> new TeachingMaterialDTO(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPublicationYear(), nm.getPublisher(), nm.getDescription(), nm.getUrl(), nm.getOutcome(), nm.getQuantity(), nm.getIssuedQuantity()
 								)).collect(Collectors.toSet()));
 			
-				Optional<Predmet> pr = predmetService.findOne(o.getPredmet().getId());
+				Optional<Course> pr = predmetService.findOne(o.getCourse().getId());
 				List<Long> id = new ArrayList<>();
-				for(Student s: pr.get().getStudenti()) {
+				for(Student s: pr.get().getStudents()) {
 					id.add(s.getId());
 				}
 
 				if (id.contains(userId)) {
 					
-					predmetnaObavestenja.add(new PredmetnaObavestenjaDTO(o.getId(), o.getNaslov(), o.getSadrzaj(), o.getDatum(), o.getSlika(), predmet, o.getVremePocetka(), o.getVremeKraja()));
-				}else if(pr.get().getNastavnik().getId() == userId) {
-					predmetnaObavestenja.add(new PredmetnaObavestenjaDTO(o.getId(), o.getNaslov(), o.getSadrzaj(), o.getDatum(), o.getSlika(), predmet, o.getVremePocetka(), o.getVremeKraja()));
+					predmetnaObavestenja.add(new CourseAnnouncementDTO(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
+				}else if(pr.get().getTeacher().getId() == userId) {
+					predmetnaObavestenja.add(new CourseAnnouncementDTO(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
 
 				}
 				
 			}
-			return new ResponseEntity<Iterable<PredmetnaObavestenjaDTO>>(predmetnaObavestenja, HttpStatus.OK);
+			return new ResponseEntity<Iterable<CourseAnnouncementDTO>>(predmetnaObavestenja, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		
 	}
 	
-	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'NASTAVNIK_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<PredmetnaObavestenjaDTO> get(@PathVariable("id") Long id){
-		Optional<PredmetnaObavestenja> o = service.findOne(id);
+	public ResponseEntity<CourseAnnouncementDTO> get(@PathVariable("id") Long id){
+		Optional<CourseAnnouncement> o = service.findOne(id);
 		if(o.isPresent()) {
-			PredmetDTO predmet = new PredmetDTO(
-					o.get().getPredmet().getId(),
-					o.get().getPredmet().getSifraPredmeta(),
-					new StudijskiProgramDTO(o.get().getPredmet().getStudijskiProgram().getId(),o.get().getPredmet().getStudijskiProgram().getSifraSP(),o.get().getPredmet().getStudijskiProgram().getNaziv()),
-					o.get().getPredmet().getSilabus(),
-					o.get().getPredmet().getNaziv(),
-					o.get().getPredmet().getEspb(),
-					new NastavnikDTO(o.get().getPredmet().getNastavnik().getId(),o.get().getPredmet().getNastavnik().getIme(),o.get().getPredmet().getNastavnik().getPrezime()),
-					o.get().getPredmet().getVremePocetka(), 
-					o.get().getPredmet().getVremeKraja(), 
-					o.get().getPredmet().getOpis(), 
-					o.get().getPredmet().getNastavniMaterijal().stream().map(nm -> new NastavniMaterijalDTO(nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getGodinaIzdavanja(), nm.getIzdavac(), nm.getOpis(), nm.getUrl(), nm.getIshod(), nm.getKolicina(), nm.getIzdato()
+			CourseDTO course = new CourseDTO(
+					o.get().getCourse().getId(),
+					o.get().getCourse().getCourseCode(),
+					new StudyProgramDTO(o.get().getCourse().getStudyProgram().getId(),o.get().getCourse().getStudyProgram().getProgramCode(),o.get().getCourse().getStudyProgram().getName()),
+					o.get().getCourse().getSyllabus(),
+					o.get().getCourse().getName(),
+					o.get().getCourse().getEcts(),
+					new TeacherDTO(o.get().getCourse().getTeacher().getId(),o.get().getCourse().getTeacher().getFirstName(),o.get().getCourse().getTeacher().getLastName()),
+					o.get().getCourse().getStartDate(), 
+					o.get().getCourse().getEndDate(), 
+					o.get().getCourse().getDescription(), 
+					o.get().getCourse().getTeachingMaterials().stream().map(nm -> new TeachingMaterialDTO(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPublicationYear(), nm.getPublisher(), nm.getDescription(), nm.getUrl(), nm.getOutcome(), nm.getQuantity(), nm.getIssuedQuantity()
 									)).collect(Collectors.toSet()));
 
-			PredmetnaObavestenjaDTO obavestenje = new PredmetnaObavestenjaDTO(o.get().getId(), o.get().getNaslov(), o.get().getSadrzaj(), o.get().getDatum(), o.get().getSlika(), predmet, o.get().getVremePocetka(), o.get().getVremeKraja());
-			return new ResponseEntity<PredmetnaObavestenjaDTO>(obavestenje, HttpStatus.OK);
+			CourseAnnouncementDTO announcement = new CourseAnnouncementDTO(o.get().getId(), o.get().getTitle(), o.get().getContent(), o.get().getDate(), o.get().getImage(), course, o.get().getStartDate(), o.get().getEndDate());
+			return new ResponseEntity<CourseAnnouncementDTO>(announcement, HttpStatus.OK);
 		}
-		return new ResponseEntity<PredmetnaObavestenjaDTO>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<CourseAnnouncementDTO>(HttpStatus.NOT_FOUND);
 	}
 	
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<PredmetnaObavestenja> create(@RequestBody PredmetnaObavestenja r, Authentication authentication){
+	public ResponseEntity<CourseAnnouncement> create(@RequestBody CourseAnnouncement r, Authentication authentication){
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
 
-				Optional<Predmet> p = predmetService.findOne(r.getPredmet().getId());
+				Optional<Course> p = predmetService.findOne(r.getCourse().getId());
 
-				if(p.get().getNastavnik().getId().equals(userId)) {
-					r.setSlika("");
-					r.setDatum(LocalDateTime.now());
+				if(p.get().getTeacher().getId().equals(userId)) {
+					r.setImage("");
+					r.setDate(LocalDateTime.now());
 					service.save(r);
-					return new ResponseEntity<PredmetnaObavestenja>(r, HttpStatus.CREATED);
+					return new ResponseEntity<CourseAnnouncement>(r, HttpStatus.CREATED);
 				}
 			}
-		return new ResponseEntity<PredmetnaObavestenja>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<CourseAnnouncement>(HttpStatus.BAD_REQUEST);
 	}
 	
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<PredmetnaObavestenja> update(@PathVariable("id") Long id, @RequestBody PredmetnaObavestenja predmetnaObavestenja, Authentication authentication){
+	public ResponseEntity<CourseAnnouncement> update(@PathVariable("id") Long id, @RequestBody CourseAnnouncement predmetnaObavestenja, Authentication authentication){
 
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
 
-			Optional<Predmet> p = predmetService.findOne(service.findOne(id).get().getPredmet().getId());
+			Optional<Course> p = predmetService.findOne(service.findOne(id).get().getCourse().getId());
 
-			if (p.get().getNastavnik().getId().equals(userId)) {
-				PredmetnaObavestenja obavestenjeZaIzmenu = service.findOne(id).orElse(null);
+			if (p.get().getTeacher().getId().equals(userId)) {
+				CourseAnnouncement obavestenjeZaIzmenu = service.findOne(id).orElse(null);
 				if(obavestenjeZaIzmenu != null) {
 					obavestenjeZaIzmenu.setId(id);
-					obavestenjeZaIzmenu.setNaslov(predmetnaObavestenja.getNaslov());
-					obavestenjeZaIzmenu.setSadrzaj(predmetnaObavestenja.getSadrzaj());
-					obavestenjeZaIzmenu.setDatum(LocalDateTime.now());
-					obavestenjeZaIzmenu.setSlika("");
-					obavestenjeZaIzmenu.setPredmet(obavestenjeZaIzmenu.getPredmet());
+					obavestenjeZaIzmenu.setTitle(predmetnaObavestenja.getTitle());
+					obavestenjeZaIzmenu.setContent(predmetnaObavestenja.getContent());
+					obavestenjeZaIzmenu.setDate(LocalDateTime.now());
+					obavestenjeZaIzmenu.setImage("");
+					obavestenjeZaIzmenu.setCourse(obavestenjeZaIzmenu.getCourse());
 					@SuppressWarnings("unused")
-					PredmetnaObavestenja izmenjenoObavestenje = service.save(obavestenjeZaIzmenu);
-					return new ResponseEntity<PredmetnaObavestenja>(HttpStatus.OK);
+					CourseAnnouncement izmenjenoObavestenje = service.save(obavestenjeZaIzmenu);
+					return new ResponseEntity<CourseAnnouncement>(HttpStatus.OK);
 				}
 			}
 		}
-		return new ResponseEntity<PredmetnaObavestenja>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<CourseAnnouncement>(HttpStatus.NOT_FOUND);
 	}
 
-	@PreAuthorize("hasAnyAuthority('NASTAVNIK_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<PredmetnaObavestenja> delete(@PathVariable("id") Long id, Authentication authentication) {
+	public ResponseEntity<CourseAnnouncement> delete(@PathVariable("id") Long id, Authentication authentication) {
 
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
 
-			Optional<Predmet> p = predmetService.findOne(service.findOne(id).get().getPredmet().getId());
+			Optional<Course> p = predmetService.findOne(service.findOne(id).get().getCourse().getId());
 
-			if(p.get().getNastavnik().getId().equals(userId)) {
+			if(p.get().getTeacher().getId().equals(userId)) {
 
 				if (service.findOne(id).isPresent()) {
 					service.delete(id);
-					return new ResponseEntity<PredmetnaObavestenja>(HttpStatus.OK);
+					return new ResponseEntity<CourseAnnouncement>(HttpStatus.OK);
 				}
 			}
 
 
 		}
-		return new ResponseEntity<PredmetnaObavestenja>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<CourseAnnouncement>(HttpStatus.NOT_FOUND);
 	}
 
-@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENTSKASLUZBA_PERMISSION', 'NASTAVNIK_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
+@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 @RequestMapping(path = "gbp/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<PredmetnaObavestenjaDTO>> getByPredmet(@PathVariable("id") Long id, Authentication authentication){
+	public ResponseEntity<Iterable<CourseAnnouncementDTO>> getByPredmet(@PathVariable("id") Long id, Authentication authentication){
 
 		 
-		ArrayList<PredmetnaObavestenjaDTO> predmetnaObavestenja = new ArrayList<PredmetnaObavestenjaDTO>();
-		for (PredmetnaObavestenja o : service.findAll()) {
+		ArrayList<CourseAnnouncementDTO> predmetnaObavestenja = new ArrayList<CourseAnnouncementDTO>();
+		for (CourseAnnouncement o : service.findAll()) {
 			
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
-				if (o.getPredmet().getId().equals(id)) {
-					PredmetDTO predmet = new PredmetDTO(
-							o.getPredmet().getId(),
-							o.getPredmet().getSifraPredmeta(), 
-							o.getPredmet().getSilabus(), 
-							o.getPredmet().getNaziv(), 
-							o.getPredmet().getEspb(),
-							new NastavnikDTO(o.getPredmet().getNastavnik().getId(),o.getPredmet().getNastavnik().getIme(),o.getPredmet().getNastavnik().getPrezime()), o.getPredmet().getVremePocetka(), o.getPredmet().getVremeKraja(),
-							o.getPredmet().getOpis(), 
-							o.getPredmet().getNastavniMaterijal()
+				if (o.getCourse().getId().equals(id)) {
+					CourseDTO course = new CourseDTO(
+							o.getCourse().getId(),
+							o.getCourse().getCourseCode(), 
+							o.getCourse().getSyllabus(), 
+							o.getCourse().getName(), 
+							o.getCourse().getEcts(),
+							new TeacherDTO(o.getCourse().getTeacher().getId(),o.getCourse().getTeacher().getFirstName(),o.getCourse().getTeacher().getLastName()), o.getCourse().getStartDate(), o.getCourse().getEndDate(),
+							o.getCourse().getDescription(), 
+							o.getCourse().getTeachingMaterials()
 							.stream()
-							.map( nm -> new NastavniMaterijalDTO(nm.getId(), nm.getNaslov(), nm.getAutori(), nm.getGodinaIzdavanja(), nm.getIzdavac(), nm.getOpis(), nm.getUrl(), nm.getIshod(), nm.getKolicina(), nm.getIzdato()
+							.map( nm -> new TeachingMaterialDTO(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPublicationYear(), nm.getPublisher(), nm.getDescription(), nm.getUrl(), nm.getOutcome(), nm.getQuantity(), nm.getIssuedQuantity()
 									)).collect(Collectors.toSet()));
 				
-					Optional<Predmet> pr = predmetService.findOne(o.getPredmet().getId());
+					Optional<Course> pr = predmetService.findOne(o.getCourse().getId());
 					List<Long> idlist = new ArrayList<>();
-					for(Student s: pr.get().getStudenti()) {
+					for(Student s: pr.get().getStudents()) {
 						idlist.add(s.getId());
 					}
 		
 					if (idlist.contains(userId)) {
-						predmetnaObavestenja.add(new PredmetnaObavestenjaDTO(o.getId(), o.getNaslov(), o.getSadrzaj(), o.getDatum(), o.getSlika(), predmet, o.getVremePocetka(), o.getVremeKraja()));
-					}else if(pr.get().getNastavnik().getId() == userId) {
-						predmetnaObavestenja.add(new PredmetnaObavestenjaDTO(o.getId(), o.getNaslov(), o.getSadrzaj(), o.getDatum(), o.getSlika(), predmet, o.getVremePocetka(), o.getVremeKraja()));
+						predmetnaObavestenja.add(new CourseAnnouncementDTO(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
+					}else if(pr.get().getTeacher().getId() == userId) {
+						predmetnaObavestenja.add(new CourseAnnouncementDTO(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
 					}
 		}
 				}
-		return new ResponseEntity<Iterable<PredmetnaObavestenjaDTO>>(predmetnaObavestenja, HttpStatus.OK);
+		return new ResponseEntity<Iterable<CourseAnnouncementDTO>>(predmetnaObavestenja, HttpStatus.OK);
 }	
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);	
 }

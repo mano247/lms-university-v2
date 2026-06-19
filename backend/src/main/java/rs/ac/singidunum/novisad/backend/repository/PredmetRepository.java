@@ -5,13 +5,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import rs.ac.singidunum.novisad.backend.model.academic.Predmet;
+import rs.ac.singidunum.novisad.backend.model.academic.Course;
 
 
 @Repository
-public interface PredmetRepository extends JpaRepository<Predmet, Long>{
+public interface PredmetRepository extends JpaRepository<Course, Long>{
 
-	Optional<Predmet> findBysifraPredmeta(String sifraPredmet);
+	Optional<Course> findBysifraPredmeta(String sifraPredmet);
 
 }
 
