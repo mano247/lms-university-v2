@@ -10,17 +10,34 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import com.lmsuniversity.rectorate.University;
 import com.lmsuniversity.studyprogram.StudyProgram;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-public class Faculty{
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Faculty {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
+	@NotBlank
 	@Column(nullable = false, unique = true)
 	private String facultyCode;
 
+	@NotBlank
 	private String name;
 	private String contact;
 
@@ -31,110 +48,11 @@ public class Faculty{
 	private String image;
 	private String address;
 
+	@NotNull
 	@ManyToOne
-	@JoinColumn(name = "univerzitet_id", nullable = false)
+	@JoinColumn(name = "university_id", nullable = false)
 	private University university;
 
 	@OneToMany(mappedBy = "faculty")
 	private Set<StudyProgram> studyPrograms;
-
-	public Faculty() {
-		super();
-	}
-
-	public Faculty(Long id,String facultyCode, String name, String contact, String description, String dean, String image,
-			String address, University university, Set<StudyProgram> studyPrograms) {
-		super();
-		this.id = id;
-		this.setFacultyCode(facultyCode);
-		this.name = name;
-		this.contact = contact;
-		this.description = description;
-		this.dean = dean;
-		this.image = image;
-		this.address = address;
-		this.university = university;
-		this.studyPrograms = studyPrograms;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getContact() {
-		return contact;
-	}
-
-	public void setContact(String contact) {
-		this.contact = contact;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDean() {
-		return dean;
-	}
-
-	public void setDean(String dean) {
-		this.dean = dean;
-	}
-
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public University getUniversity() {
-		return university;
-	}
-
-	public void setUniversity(University university) {
-		this.university = university;
-	}
-
-	public Set<StudyProgram> getStudyPrograms() {
-		return studyPrograms;
-	}
-
-	public void setStudyPrograms(Set<StudyProgram> studyPrograms) {
-		this.studyPrograms = studyPrograms;
-	}
-
-	public String getFacultyCode() {
-		return facultyCode;
-	}
-
-	public void setFacultyCode(String facultyCode) {
-		this.facultyCode = facultyCode;
-	}
-
 }

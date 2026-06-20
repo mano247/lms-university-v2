@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,7 +22,6 @@ import com.lmsuniversity.faculty.FacultyDto;
 
 @Controller
 @RequestMapping(path = "/api/studyPrograms")
-@CrossOrigin(origins = "http://localhost:4200")
 public class StudyProgramController {
 	@Autowired
 	private StudyProgramService service;
@@ -36,7 +35,15 @@ public class StudyProgramController {
 	                    .stream()
 	                    .map(course -> course.getCourseCode())
 	                    .collect(Collectors.toSet());
-				StudyProgramDto programDTO = new StudyProgramDto(sp.getId(), sp.getProgramCode(), sp.getDescription(), sp.getName(),  sp.getProgramDirector(),  new FacultyDto(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()), courseCodes);
+				StudyProgramDto programDTO = StudyProgramDto.builder()
+						.id(sp.getId())
+						.programCode(sp.getProgramCode())
+						.description(sp.getDescription())
+						.name(sp.getName())
+						.programDirector(sp.getProgramDirector())
+						.faculty(FacultyDto.builder().id(sp.getFaculty().getId()).facultyCode(sp.getFaculty().getFacultyCode()).name(sp.getFaculty().getName()).build())
+						.courses(courseCodes)
+						.build();
 	
 				studyPrograms.add(programDTO);
 			}else {
@@ -44,7 +51,15 @@ public class StudyProgramController {
 	                    .stream()
 	                    .map(course -> course.getCourseCode())
 	                    .collect(Collectors.toSet());
-				StudyProgramDto programDTO = new StudyProgramDto(sp.getId(), sp.getProgramCode(), sp.getDescription(), sp.getName(),  sp.getProgramDirector(), null, courseCodes);
+				StudyProgramDto programDTO = StudyProgramDto.builder()
+						.id(sp.getId())
+						.programCode(sp.getProgramCode())
+						.description(sp.getDescription())
+						.name(sp.getName())
+						.programDirector(sp.getProgramDirector())
+						.faculty(null)
+						.courses(courseCodes)
+						.build();
 	
 				studyPrograms.add(programDTO);
 		}
@@ -61,20 +76,36 @@ public class StudyProgramController {
                     .stream()
                     .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudyProgramDto dto = new StudyProgramDto(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(), new FacultyDto(sp.get().getFaculty().getId(),sp.get().getFaculty().getFacultyCode(),sp.get().getFaculty().getName()), courseCodes);
+			StudyProgramDto dto = StudyProgramDto.builder()
+					.id(sp.get().getId())
+					.programCode(sp.get().getProgramCode())
+					.description(sp.get().getDescription())
+					.name(sp.get().getName())
+					.programDirector(sp.get().getProgramDirector())
+					.faculty(FacultyDto.builder().id(sp.get().getFaculty().getId()).facultyCode(sp.get().getFaculty().getFacultyCode()).name(sp.get().getFaculty().getName()).build())
+					.courses(courseCodes)
+					.build();
 			return new ResponseEntity<StudyProgramDto>(dto, HttpStatus.OK);
 		}else if(sp.isPresent()) {
 			Set<String> courseCodes = sp.get().getCourses()
                     .stream()
                     .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudyProgramDto dto = new StudyProgramDto(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(), null, courseCodes);
+			StudyProgramDto dto = StudyProgramDto.builder()
+					.id(sp.get().getId())
+					.programCode(sp.get().getProgramCode())
+					.description(sp.get().getDescription())
+					.name(sp.get().getName())
+					.programDirector(sp.get().getProgramDirector())
+					.faculty(null)
+					.courses(courseCodes)
+					.build();
 			return new ResponseEntity<StudyProgramDto>(dto, HttpStatus.OK);
 		}
 		return new ResponseEntity<StudyProgramDto>(HttpStatus.NOT_FOUND);
 	}
-	
-	@RequestMapping(path = "/s/{programCode}", method = RequestMethod.GET)
+
+	@RequestMapping(path = "/code/{programCode}", method = RequestMethod.GET)
 	public ResponseEntity<StudyProgramDto> get(@PathVariable("programCode") String programCode){
 		Optional<StudyProgram> sp = service.findByProgramCode(programCode);
 		if(sp.isPresent() && sp.get().getFaculty()!=null) {
@@ -82,14 +113,30 @@ public class StudyProgramController {
                     .stream()
                     .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudyProgramDto dto = new StudyProgramDto(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(), new FacultyDto(sp.get().getFaculty().getId(),sp.get().getFaculty().getFacultyCode(),sp.get().getFaculty().getName()), courseCodes);
+			StudyProgramDto dto = StudyProgramDto.builder()
+					.id(sp.get().getId())
+					.programCode(sp.get().getProgramCode())
+					.description(sp.get().getDescription())
+					.name(sp.get().getName())
+					.programDirector(sp.get().getProgramDirector())
+					.faculty(FacultyDto.builder().id(sp.get().getFaculty().getId()).facultyCode(sp.get().getFaculty().getFacultyCode()).name(sp.get().getFaculty().getName()).build())
+					.courses(courseCodes)
+					.build();
 			return new ResponseEntity<StudyProgramDto>(dto, HttpStatus.OK);
 		}else if(sp.isPresent()) {
 			Set<String> courseCodes = sp.get().getCourses()
                     .stream()
                     .map(course -> course.getCourseCode())
                     .collect(Collectors.toSet());
-			StudyProgramDto dto = new StudyProgramDto(sp.get().getId(),sp.get().getProgramCode(), sp.get().getDescription(), sp.get().getName(), sp.get().getProgramDirector(),null , courseCodes);
+			StudyProgramDto dto = StudyProgramDto.builder()
+					.id(sp.get().getId())
+					.programCode(sp.get().getProgramCode())
+					.description(sp.get().getDescription())
+					.name(sp.get().getName())
+					.programDirector(sp.get().getProgramDirector())
+					.faculty(null)
+					.courses(courseCodes)
+					.build();
 			return new ResponseEntity<StudyProgramDto>(dto, HttpStatus.OK);
 		}
 		return new ResponseEntity<StudyProgramDto>(HttpStatus.NOT_FOUND);
@@ -97,7 +144,7 @@ public class StudyProgramController {
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<StudyProgram> create(@RequestBody StudyProgram r){
+	public ResponseEntity<StudyProgram> create(@Valid @RequestBody StudyProgram r){
 		try {
 			service.save(r);
 			return new ResponseEntity<StudyProgram>(r, HttpStatus.CREATED);
@@ -109,7 +156,7 @@ public class StudyProgramController {
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<StudyProgram> update(@PathVariable("id") Long id, @RequestBody StudyProgram sp){
+	public ResponseEntity<StudyProgram> update(@PathVariable("id") Long id, @Valid @RequestBody StudyProgram sp){
 		StudyProgram u = service.findOne(id).orElse(null);
 		if(u != null) {
 			sp.setId(id);

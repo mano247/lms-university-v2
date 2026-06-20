@@ -1,22 +1,17 @@
 package com.lmsuniversity.user;
 
-import java.util.Set;
-
 import jakarta.persistence.Entity;
-import com.lmsuniversity.permission.Permission;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-public class StudentAffairsOffice extends RegisteredUser{
-
-	public StudentAffairsOffice() {
-		super();
-	}
-
-	public StudentAffairsOffice(Long id, String firstName, String lastName,String username, String email, String password, Set<Permission> permissions) {
-		super(id, firstName, lastName, username, email, password, permissions);
-	}
-
-	public StudentAffairsOffice(String username, String password, String email) {
-		super(username, password, email);
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+public class StudentAffairsOffice extends RegisteredUser {
 }

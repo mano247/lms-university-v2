@@ -1,55 +1,25 @@
 package com.lmsuniversity.security.request;
-import java.util.Set;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import com.lmsuniversity.security.validation.StrongPassword;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 public class SignupRequest {
-	
-  private String username;
-	
-  @NotBlank
-  @Email
-  private String email;
 
-  private Set<String> permission;
+	@NotBlank
+	private String username;
 
-  @NotBlank
-  private String password;
+	@NotBlank
+	@Email
+	private String email;
 
- 
- 
-  public String getUsername() {
-	return username;
-}
-
-public void setUsername(String username) {
-	this.username = username;
-}
-
-public Set<String> getPermission() {
-	return permission;
-}
-
-public void setPermission(Set<String> permission) {
-	this.permission = permission;
-}
-
-public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
+	@NotBlank
+	@Size(min = 8, max = 100)
+	@StrongPassword
+	private String password;
 }

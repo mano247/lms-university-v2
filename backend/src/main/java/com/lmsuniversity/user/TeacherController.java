@@ -10,9 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,16 +25,18 @@ import com.lmsuniversity.security.services.UserDetailsImpl;
 
 @Controller
 @RequestMapping(path = "/api/teachers")
-@CrossOrigin(origins = "http://localhost:4200")
 public class TeacherController {
 	@Autowired
 	private TeacherService service;
+
+	@Autowired
+	private PasswordEncoder encoder;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
 	public ResponseEntity<Iterable<TeacherDto>> getAll(){
 		ArrayList<TeacherDto> teachers = new ArrayList<TeacherDto>();
 		for (Teacher p : service.findAll()) {
-			teachers.add(new TeacherDto(p.getClass().getSimpleName(), p.getId(), p.getUsername(),  p.getEmail(), p.getPassword(),p.getFirstName(), p.getLastName()));
+			teachers.add(TeacherDto.builder().userType(p.getClass().getSimpleName()).id(p.getId()).username(p.getUsername()).email(p.getEmail()).firstName(p.getFirstName()).lastName(p.getLastName()).build());
 		}
 		return new ResponseEntity<Iterable<TeacherDto>>(teachers, HttpStatus.OK);
 	}
@@ -42,15 +45,17 @@ public class TeacherController {
 	public ResponseEntity<TeacherDto> get(@PathVariable("id") Long id){
 		Optional<Teacher> p = service.findOne(id);
 		if(p.isPresent()) {
-			TeacherDto teacher = new TeacherDto(p.get().getClass().getSimpleName(), p.get().getId() ,p.get().getUsername(), p.get().getEmail(), p.get().getPassword(), p.get().getFirstName(), p.get().getLastName());
+			TeacherDto teacher = TeacherDto.builder().userType(p.get().getClass().getSimpleName()).id(p.get().getId()).username(p.get().getUsername()).email(p.get().getEmail()).firstName(p.get().getFirstName()).lastName(p.get().getLastName()).build();
 			return new ResponseEntity<TeacherDto>(teacher, HttpStatus.OK);
 		}
 		return new ResponseEntity<TeacherDto>(HttpStatus.NOT_FOUND);
 	}
 
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Teacher> create(@RequestBody Teacher r){
+	public ResponseEntity<Teacher> create(@Valid @RequestBody Teacher r){
 		try {
+			r.setPassword(encoder.encode(r.getPassword()));
 			service.save(r);
 			return new ResponseEntity<Teacher>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -61,7 +66,7 @@ public class TeacherController {
 
 	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Teacher> update(@PathVariable("id") Long id, @RequestBody Teacher teacher, Authentication authentication){
+	public ResponseEntity<Teacher> update(@PathVariable("id") Long id, @Valid @RequestBody Teacher teacher, Authentication authentication){
 		if(authentication.isAuthenticated()) {
 
 				Teacher u = service.findOne(id).orElse(null);
@@ -84,6 +89,7 @@ public class TeacherController {
 		return  new ResponseEntity<Teacher>(HttpStatus.NOT_FOUND);
 	}
 
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Teacher> delete(@PathVariable("id") Long id){
 		if(service.findOne(id).isPresent()) {
@@ -94,7 +100,7 @@ public class TeacherController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
-	@RequestMapping(path = "/{id}/mojiPredmeti", method = RequestMethod.GET)
+	@RequestMapping(path = "/{id}/my-courses", method = RequestMethod.GET)
 	public ResponseEntity<Set<TeacherCourseDto>> getMyCourses(@PathVariable("id") Long id, Authentication authentication){
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -105,20 +111,21 @@ public class TeacherController {
 				Set<Course> courses = p.get().getCourses();
 
 				if(p.isPresent()) {
-					Set<TeacherCourseDto> teacherCourses = courses.stream().map(pr -> new TeacherCourseDto(
-							pr.getId(),
-							pr.getCourseCode(),
-							pr.getSyllabus(),
-							pr.getName(),
-							pr.getEcts(),
-							new TeacherDto(pr.getTeacher().getId(),pr.getTeacher().getFirstName(),pr.getTeacher().getLastName()),
-							pr.getStartDate(),
-							pr.getEndDate(),
-							pr.getDescription(),
-							pr.getStudyProgram().getName(),
-							pr.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDto(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),nm.getQuantity(),nm.getIssuedQuantity())).collect(Collectors.toSet()),
-							pr.getStudents().stream().map(st -> new StudentDto(st.getId(),st.getEmail(),st.getUsername(),st.getIndexNumber(),st.getFirstName(),st.getLastName(),st.getFaculty())).collect(Collectors.toSet())
-					)).collect(Collectors.toSet());
+					Set<TeacherCourseDto> teacherCourses = courses.stream().map(pr -> TeacherCourseDto.builder()
+							.id(pr.getId())
+							.courseCode(pr.getCourseCode())
+							.syllabus(pr.getSyllabus())
+							.name(pr.getName())
+							.ects(pr.getEcts())
+							.teacher(TeacherDto.builder().id(pr.getTeacher().getId()).firstName(pr.getTeacher().getFirstName()).lastName(pr.getTeacher().getLastName()).build())
+							.startDate(pr.getStartDate())
+							.endDate(pr.getEndDate())
+							.description(pr.getDescription())
+							.studyProgram(pr.getStudyProgram().getName())
+							.teachingMaterials(pr.getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
+							.students(pr.getStudents().stream().map(st -> StudentDto.builder().id(st.getId()).email(st.getEmail()).username(st.getUsername()).indexNumber(st.getIndexNumber()).firstName(st.getFirstName()).lastName(st.getLastName()).faculty(st.getFaculty()).build()).collect(Collectors.toSet()))
+							.build()
+					).collect(Collectors.toSet());
 
 
 					return new ResponseEntity<Set<TeacherCourseDto>>(teacherCourses, HttpStatus.OK);

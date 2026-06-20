@@ -10,8 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,8 +20,7 @@ import com.lmsuniversity.permission.PermissionRepository;
 import com.lmsuniversity.security.services.UserDetailsImpl;
 
 @Controller
-@RequestMapping(path = "/api/registrovaniKorisnici")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping(path = "/api/registered-users")
 public class RegisteredUserController {
 
 	@Autowired
@@ -34,13 +33,14 @@ public class RegisteredUserController {
 	PermissionRepository permissionRepository;
 
 
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
 	public ResponseEntity<Set<RegisteredUserDto>> getAll() {
 		HashSet<RegisteredUser> users = new HashSet<RegisteredUser>();
 		HashSet<RegisteredUserDto> response = new HashSet<>();
 		for (RegisteredUser k : service.findAll()) {
-			users.add(new RegisteredUser(k.getUsername(),k.getFirstName(),k.getLastName(), k.getEmail(), k.getPassword()));
-			response.add(new RegisteredUserDto(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getEmail(), k.getPassword(), k.getPermissions(),k.getFirstName(),k.getLastName()));
+			users.add(RegisteredUser.builder().username(k.getUsername()).firstName(k.getFirstName()).lastName(k.getLastName()).email(k.getEmail()).password(k.getPassword()).build());
+			response.add(RegisteredUserDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).permission(k.getPermissions()).firstName(k.getFirstName()).lastName(k.getLastName()).build());
 		}
 		return new ResponseEntity<Set<RegisteredUserDto>>(response, HttpStatus.OK);
 	}
@@ -53,29 +53,31 @@ public class RegisteredUserController {
 
 					if (k instanceof Student) {
 						String indexNumber = ((Student) k).getIndexNumber();
-						StudentDto student = new StudentDto(k.getId(), k.getClass().getSimpleName(), k.getFirstName(), k.getLastName(), k.getEmail(), k.getPassword(), k.getPermissions(), indexNumber, k.getUsername());
+						StudentDto student = StudentDto.builder().id(k.getId()).userType(k.getClass().getSimpleName()).firstName(k.getFirstName()).lastName(k.getLastName()).email(k.getEmail()).password(k.getPassword()).permission(k.getPermissions()).indexNumber(indexNumber).username(k.getUsername()).build();
 						return new ResponseEntity<StudentDto>(student, HttpStatus.OK);
 					} else if (k instanceof Teacher) {
-						TeacherDto teacher = new TeacherDto(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getEmail(), k.getPassword(),k.getFirstName(),k.getLastName());
+						TeacherDto teacher = TeacherDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
 						return new ResponseEntity<TeacherDto>(teacher, HttpStatus.OK);
 					} else if (k instanceof Administrator) {
-						AdministratorDto admin = new AdministratorDto(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getPassword(), k.getEmail(),k.getFirstName(),k.getLastName());
+						AdministratorDto admin = AdministratorDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
 						return new ResponseEntity<AdministratorDto>(admin, HttpStatus.OK);
 					}
 					else if (k instanceof StudentAffairsOffice) {
-						StudentAffairsOfficeDto ss = new StudentAffairsOfficeDto(k.getId(), k.getClass().getSimpleName(), k.getUsername(), k.getEmail(), k.getPassword(),k.getFirstName(),k.getLastName());
+						StudentAffairsOfficeDto ss = StudentAffairsOfficeDto.builder().id(k.getId()).userType(k.getClass().getSimpleName()).username(k.getUsername()).email(k.getEmail()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
 						return new ResponseEntity<StudentAffairsOfficeDto>(ss, HttpStatus.OK);
 					}
-					RegisteredUserDto user = new RegisteredUserDto(k.getClass().getSimpleName(), k.getId(), k.getUsername(), k.getEmail(), k.getPassword(), k.getPermissions(),k.getFirstName(),k.getLastName());
+					RegisteredUserDto user = RegisteredUserDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).permission(k.getPermissions()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
 					return new ResponseEntity<RegisteredUserDto>(user, HttpStatus.OK);
 
 		}
 		return new ResponseEntity<RegisteredUserDto>(HttpStatus.NOT_FOUND);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<RegisteredUser> create(@RequestBody RegisteredUser r) {
+	public ResponseEntity<RegisteredUser> create(@Valid @RequestBody RegisteredUser r) {
 		try {
+			r.setPassword(encoder.encode(r.getPassword()));
 			service.save(r);
 			return new ResponseEntity<RegisteredUser>(r, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -86,7 +88,7 @@ public class RegisteredUserController {
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'USER_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<RegisteredUser> update(@PathVariable("id") Long id, @RequestBody RegisteredUser user, Authentication authentication) {
+	public ResponseEntity<RegisteredUser> update(@PathVariable("id") Long id, @Valid @RequestBody RegisteredUser user, Authentication authentication) {
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
@@ -95,7 +97,7 @@ public class RegisteredUserController {
 				RegisteredUser u = service.findOne(id).orElse(null);
 				if (u != null) {
 					user.setId(id);
-					user.setPassword(user.getPassword());
+					user.setPassword(u.getPassword());
 					user.setPermissions(u.getPermissions());
 					user = service.save(user);
 					return new ResponseEntity<RegisteredUser>(user, HttpStatus.OK);
@@ -106,6 +108,7 @@ public class RegisteredUserController {
 		return new ResponseEntity<RegisteredUser>(HttpStatus.UNAUTHORIZED);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<RegisteredUser> delete(@PathVariable("id") Long id) {
 		if (service.findOne(id).isPresent()) {
@@ -116,9 +119,9 @@ public class RegisteredUserController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
-	@RequestMapping(path="/izmeniTip/{tip}", method = RequestMethod.PUT)
+	@RequestMapping(path="/change-type/{type}", method = RequestMethod.PUT)
 	public ResponseEntity<String> updateUserType(@RequestBody Student student,
-			@PathVariable("tip") String type) {
+			@PathVariable("type") String type) {
 		boolean success = service.changeUserType(student.getId(), type);
 
 		if (success) {
@@ -129,8 +132,8 @@ public class RegisteredUserController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
-	@RequestMapping(path="/{id}/dodeliStudenta", method = RequestMethod.PUT)
-	public ResponseEntity<String> enrollStudent(@PathVariable("id") long userId, @RequestBody StudentDto newStudentInfo) {
+	@RequestMapping(path="/{id}/enroll-student", method = RequestMethod.PUT)
+	public ResponseEntity<String> enrollStudent(@PathVariable("id") long userId, @Valid @RequestBody StudentDto newStudentInfo) {
 		boolean success = false;
 
 		RegisteredUser k = service.findOne(userId).orElse(null);

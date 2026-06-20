@@ -12,19 +12,36 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import com.lmsuniversity.course.Course;
 import com.lmsuniversity.user.Teacher;
 import com.lmsuniversity.user.Student;
 import com.lmsuniversity.announcement.Announcement;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "polaganje")
+@Table(name = "exam_attempts")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ExamAttempt {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
+	@Min(0)
 	private double points;
+
+	@Min(0)
 	private int finalGrade;
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
@@ -33,7 +50,7 @@ public class ExamAttempt {
 	private String note;
 
 	@ManyToOne
-	@JoinColumn(name = "predmet_id")
+	@JoinColumn(name = "course_id")
 	private Course course;
 
 	@ManyToOne
@@ -41,110 +58,10 @@ public class ExamAttempt {
 	private Student student;
 
 	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "obavestenja_id", referencedColumnName = "id")
-    private Announcement announcement;
+	@JoinColumn(name = "announcement_id", referencedColumnName = "id")
+	private Announcement announcement;
 
 	@ManyToOne
-	@JoinColumn(name = "nastavnik_id")
+	@JoinColumn(name = "teacher_id")
 	private Teacher teacher;
-
-	public ExamAttempt() {
-		super();
-	}
-
-	public ExamAttempt(Long id, double points, int finalGrade, LocalDateTime startTime, LocalDateTime endTime,
-			String note, Course course, Student student, Announcement announcement, Teacher teacher) {
-		super();
-		this.id = id;
-		this.points = points;
-		this.finalGrade = finalGrade;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.note = note;
-		this.course = course;
-		this.student = student;
-		this.announcement = announcement;
-		this.teacher = teacher;
-	}
-
-	public Teacher getTeacher() {
-		return teacher;
-	}
-
-	public void setTeacher(Teacher teacher) {
-		this.teacher = teacher;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public double getPoints() {
-		return points;
-	}
-
-	public void setPoints(double points) {
-		this.points = points;
-	}
-
-	public int getFinalGrade() {
-		return finalGrade;
-	}
-
-	public void setFinalGrade(int finalGrade) {
-		this.finalGrade = finalGrade;
-	}
-
-	public LocalDateTime getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(LocalDateTime startTime) {
-		this.startTime = startTime;
-	}
-
-	public LocalDateTime getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(LocalDateTime endTime) {
-		this.endTime = endTime;
-	}
-
-	public String getNote() {
-		return note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
-	}
-
-	public Course getCourse() {
-		return course;
-	}
-
-	public void setCourse(Course course) {
-		this.course = course;
-	}
-
-	public Student getStudent() {
-		return student;
-	}
-
-	public void setStudent(Student student) {
-		this.student = student;
-	}
-
-	public Announcement getAnnouncement() {
-		return announcement;
-	}
-
-	public void setAnnouncement(Announcement announcement) {
-		this.announcement = announcement;
-	}
-
 }
