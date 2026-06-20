@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,7 +24,6 @@ import com.lmsuniversity.security.services.UserDetailsImpl;
 
 @Controller
 @RequestMapping(path = "/api/courses")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CourseController {
 	@Autowired
 	private CourseService service;
@@ -33,16 +32,20 @@ public class CourseController {
 	public ResponseEntity<Iterable<CourseDto>> getAll() {
 		ArrayList<CourseDto> courses = new ArrayList<CourseDto>();
 		for (Course p : service.findAll()) {
-			Set<TeachingMaterialDto> teachingMaterials = p.getTeachingMaterials().stream().map(nm -> new TeachingMaterialDto(
-					nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
-					nm.getQuantity(),
-					nm.getIssuedQuantity()
-			)).collect(Collectors.toSet());
-			courses.add(new CourseDto(p.getId(),p.getCourseCode(), 
-					new StudyProgramDto(p.getStudyProgram().getId(),p.getStudyProgram().getProgramCode(),p.getStudyProgram().getName()), 
-					p.getSyllabus(),p.getName(),p.getEcts(), 
-						new TeacherDto(p.getTeacher().getId(),p.getTeacher().getFirstName(),p.getTeacher().getLastName())
-						, p.getStartDate(),p.getEndDate(), p.getDescription(),teachingMaterials));
+			Set<TeachingMaterialDto> teachingMaterials = p.getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet());
+			courses.add(CourseDto.builder()
+					.id(p.getId())
+					.courseCode(p.getCourseCode())
+					.studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build())
+					.syllabus(p.getSyllabus())
+					.name(p.getName())
+					.ects(p.getEcts())
+					.teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build())
+					.startDate(p.getStartDate())
+					.endDate(p.getEndDate())
+					.description(p.getDescription())
+					.teachingMaterials(teachingMaterials)
+					.build());
 		}
 		return new ResponseEntity<Iterable<CourseDto>>(courses, HttpStatus.OK);
 	}
@@ -51,47 +54,61 @@ public class CourseController {
 	public ResponseEntity<CourseDto> getById(@PathVariable("id") Long id){
 		Optional<Course> p = service.findOne(id);
 		if(p.isPresent()) {
-			Set<TeachingMaterialDto> teachingMaterials = p.get().getTeachingMaterials().stream().map(nm -> new TeachingMaterialDto(
-					nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
-					nm.getQuantity(),
-					nm.getIssuedQuantity()
-			)).collect(Collectors.toSet());
+			Set<TeachingMaterialDto> teachingMaterials = p.get().getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet());
 			try {
-				CourseDto dto = new CourseDto(p.get().getId(),p.get().getCourseCode(),
-						new StudyProgramDto(p.get().getStudyProgram().getId(),p.get().getStudyProgram().getProgramCode(),p.get().getStudyProgram().getName()),p.get().getSyllabus(), p.get().getName(),p.get().getEcts(), new TeacherDto(p.get().getTeacher().getId(),p.get().getTeacher().getFirstName(),p.get().getTeacher().getLastName()),p.get().getStartDate(),p.get().getEndDate() , p.get().getDescription(), teachingMaterials);
+				CourseDto dto = CourseDto.builder()
+						.id(p.get().getId())
+						.courseCode(p.get().getCourseCode())
+						.studyProgram(StudyProgramDto.builder().id(p.get().getStudyProgram().getId()).programCode(p.get().getStudyProgram().getProgramCode()).name(p.get().getStudyProgram().getName()).build())
+						.syllabus(p.get().getSyllabus())
+						.name(p.get().getName())
+						.ects(p.get().getEcts())
+						.teacher(TeacherDto.builder().id(p.get().getTeacher().getId()).firstName(p.get().getTeacher().getFirstName()).lastName(p.get().getTeacher().getLastName()).build())
+						.startDate(p.get().getStartDate())
+						.endDate(p.get().getEndDate())
+						.description(p.get().getDescription())
+						.teachingMaterials(teachingMaterials)
+						.build();
 				return new ResponseEntity<CourseDto>(dto, HttpStatus.OK);
 			} catch (Exception e) {
-				CourseDto dto = new CourseDto(p.get().getId(),p.get().getCourseCode(),
-						new StudyProgramDto(p.get().getStudyProgram().getId(),p.get().getStudyProgram().getProgramCode(),p.get().getStudyProgram().getName()),p.get().getSyllabus(), p.get().getName(),p.get().getEcts(),null,p.get().getStartDate(),p.get().getEndDate() , p.get().getDescription(), teachingMaterials);
+				CourseDto dto = CourseDto.builder()
+						.id(p.get().getId())
+						.courseCode(p.get().getCourseCode())
+						.studyProgram(StudyProgramDto.builder().id(p.get().getStudyProgram().getId()).programCode(p.get().getStudyProgram().getProgramCode()).name(p.get().getStudyProgram().getName()).build())
+						.syllabus(p.get().getSyllabus())
+						.name(p.get().getName())
+						.ects(p.get().getEcts())
+						.teacher(null)
+						.startDate(p.get().getStartDate())
+						.endDate(p.get().getEndDate())
+						.description(p.get().getDescription())
+						.teachingMaterials(teachingMaterials)
+						.build();
 				return new ResponseEntity<CourseDto>(dto, HttpStatus.OK);
 			}
 		}
 		return new ResponseEntity<CourseDto>(HttpStatus.NOT_FOUND);
 	}
 
-	@RequestMapping(path = "/s/{courseCode}", method = RequestMethod.GET)
+	@RequestMapping(path = "/code/{courseCode}", method = RequestMethod.GET)
 	public ResponseEntity<CourseDto> getCourseCode(@PathVariable("courseCode") String courseCode){
 		Optional<Course> p = service.findByCourseCode(courseCode);
 		if(p.isPresent()) {
-			Set<TeachingMaterialDto> teachingMaterials = p.get().getTeachingMaterials().stream().map(nm -> new TeachingMaterialDto(
-					nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPageCount(), nm.getPublisher(), nm.getDescription(),
-					nm.getQuantity(),
-					nm.getIssuedQuantity(),
-					nm.getPublicationYear()
-			)).collect(Collectors.toSet());
+			Set<TeachingMaterialDto> teachingMaterials = p.get().getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).publicationYear(nm.getPublicationYear()).build()).collect(Collectors.toSet());
 			
-			CourseDto dto = new CourseDto(
-					p.get().getId(),
-					p.get().getCourseCode(), 
-					new StudyProgramDto(p.get().getStudyProgram().getId(),p.get().getStudyProgram().getProgramCode(),p.get().getStudyProgram().getName()),
-					p.get().getSyllabus(), 					
-					p.get().getName(),
-					p.get().getEcts(),
-					new TeacherDto(p.get().getTeacher().getId(),p.get().getTeacher().getFirstName(),p.get().getTeacher().getLastName()) ,
-					p.get().getStartDate(),
-					p.get().getEndDate(),
-					p.get().getDescription(),
-					teachingMaterials);
+			CourseDto dto = CourseDto.builder()
+					.id(p.get().getId())
+					.courseCode(p.get().getCourseCode())
+					.studyProgram(StudyProgramDto.builder().id(p.get().getStudyProgram().getId()).programCode(p.get().getStudyProgram().getProgramCode()).name(p.get().getStudyProgram().getName()).build())
+					.syllabus(p.get().getSyllabus())
+					.name(p.get().getName())
+					.ects(p.get().getEcts())
+					.teacher(TeacherDto.builder().id(p.get().getTeacher().getId()).firstName(p.get().getTeacher().getFirstName()).lastName(p.get().getTeacher().getLastName()).build())
+					.startDate(p.get().getStartDate())
+					.endDate(p.get().getEndDate())
+					.description(p.get().getDescription())
+					.teachingMaterials(teachingMaterials)
+					.build();
 			return new ResponseEntity<CourseDto>(dto, HttpStatus.OK);
 		}
 		return new ResponseEntity<CourseDto>(HttpStatus.NOT_FOUND);
@@ -99,7 +116,7 @@ public class CourseController {
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Course> create(@RequestBody Course p){
+	public ResponseEntity<Course> create(@Valid @RequestBody Course p){
 		try {
 			service.save(p);
 			return new ResponseEntity<Course>(p, HttpStatus.CREATED);
@@ -111,7 +128,7 @@ public class CourseController {
 	
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Course> update(@PathVariable("id") Long id, @RequestBody Course course){
+	public ResponseEntity<Course> update(@PathVariable("id") Long id, @Valid @RequestBody Course course){
 		Course p = service.findOne(id).orElse(null);
 		if(p != null) {
 			course.setId(id);
@@ -132,7 +149,7 @@ public class CourseController {
 	}
 	
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
-	@RequestMapping(path = "/{id}/dodajNastavnika", method = RequestMethod.POST)
+	@RequestMapping(path = "/{id}/assign-teacher", method = RequestMethod.POST)
 	public ResponseEntity<Course> assignTeacherToCourse(@PathVariable("id") Long id, @RequestBody Course course){
 		Course p = service.findOne(id).orElse(null);
 		if(p != null) {
@@ -145,7 +162,7 @@ public class CourseController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
-	@RequestMapping(path = "/{id}/izmeniSilabus", method = RequestMethod.PUT)
+	@RequestMapping(path = "/{id}/syllabus", method = RequestMethod.PUT)
 	public ResponseEntity<Course> updateCourseSyllabus(@PathVariable("id") Long id, @RequestBody Course course, Authentication authentication){
 		if(authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

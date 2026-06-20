@@ -6,9 +6,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,8 +23,8 @@ import com.lmsuniversity.studyprogram.StudyProgram;
 import com.lmsuniversity.user.Student;
 
 @Controller
-@RequestMapping(path = "/api/sng")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping(path = "/api/enrollments")
+@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 public class StudentYearEnrollmentController {
 	@Autowired
 	private StudentYearEnrollmentService service;
@@ -36,12 +37,12 @@ public class StudentYearEnrollmentController {
 			Student st = s.getStudent();
 			StudyProgram sp = s.getStudyProgram();
 
-			StudyYearDto studyYear = new StudyYearDto(gs.getId(),gs.getYear());
-			StudentDto student = new StudentDto(st.getId(),st.getFirstName(),st.getLastName(),st.getEmail(),st.getPassword(),st.getIndexNumber(),st.getUsername());
-			StudyProgramDto sProgram = new StudyProgramDto(sp.getId(),sp.getProgramCode(),sp.getDescription(),sp.getName(),sp.getProgramDirector(),new FacultyDto(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()));
+			StudyYearDto studyYear = StudyYearDto.builder().id(gs.getId()).year(gs.getYear()).build();
+			StudentDto student = StudentDto.builder().id(st.getId()).firstName(st.getFirstName()).lastName(st.getLastName()).email(st.getEmail()).password(st.getPassword()).indexNumber(st.getIndexNumber()).username(st.getUsername()).build();
+			StudyProgramDto sProgram = StudyProgramDto.builder().id(sp.getId()).programCode(sp.getProgramCode()).description(sp.getDescription()).name(sp.getName()).programDirector(sp.getProgramDirector()).faculty(FacultyDto.builder().id(sp.getFaculty().getId()).facultyCode(sp.getFaculty().getFacultyCode()).name(sp.getFaculty().getName()).build()).build();
 
 
-			enrollments.add(new StudentYearEnrollmentDto(s.getId(),s.getEnrollmentDate(),studyYear,student,sProgram));
+			enrollments.add(StudentYearEnrollmentDto.builder().id(s.getId()).enrollmentDate(s.getEnrollmentDate()).studyYear(studyYear).student(student).studyProgram(sProgram).build());
 		}
 		return new ResponseEntity<Iterable<StudentYearEnrollmentDto>>(enrollments, HttpStatus.OK);
 		}
@@ -54,11 +55,11 @@ public class StudentYearEnrollmentController {
 			Student st = s.get().getStudent();
 			StudyProgram sp = s.get().getStudyProgram();
 
-			StudyYearDto studyYear = new StudyYearDto(gs.getId(),gs.getYear());
-			StudentDto student = new StudentDto(st.getId(),st.getFirstName(),st.getLastName(),st.getEmail(),st.getPassword(),st.getIndexNumber(),st.getUsername());
-			StudyProgramDto sProgram = new StudyProgramDto(sp.getId(),sp.getProgramCode(),sp.getDescription(),sp.getName(),sp.getProgramDirector(),new FacultyDto(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()));
+			StudyYearDto studyYear = StudyYearDto.builder().id(gs.getId()).year(gs.getYear()).build();
+			StudentDto student = StudentDto.builder().id(st.getId()).firstName(st.getFirstName()).lastName(st.getLastName()).email(st.getEmail()).password(st.getPassword()).indexNumber(st.getIndexNumber()).username(st.getUsername()).build();
+			StudyProgramDto sProgram = StudyProgramDto.builder().id(sp.getId()).programCode(sp.getProgramCode()).description(sp.getDescription()).name(sp.getName()).programDirector(sp.getProgramDirector()).faculty(FacultyDto.builder().id(sp.getFaculty().getId()).facultyCode(sp.getFaculty().getFacultyCode()).name(sp.getFaculty().getName()).build()).build();
 
-			StudentYearEnrollmentDto dto = new StudentYearEnrollmentDto(s.get().getId(),s.get().getEnrollmentDate(),studyYear,student,sProgram);
+			StudentYearEnrollmentDto dto = StudentYearEnrollmentDto.builder().id(s.get().getId()).enrollmentDate(s.get().getEnrollmentDate()).studyYear(studyYear).student(student).studyProgram(sProgram).build();
 			return new ResponseEntity<StudentYearEnrollmentDto>(dto, HttpStatus.OK);
 		}
 		return new ResponseEntity<StudentYearEnrollmentDto>(HttpStatus.NOT_FOUND);
@@ -66,7 +67,7 @@ public class StudentYearEnrollmentController {
 	}
 
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<StudentYearEnrollment> create(@RequestBody StudentYearEnrollment enrollment){
+	public ResponseEntity<StudentYearEnrollment> create(@Valid @RequestBody StudentYearEnrollment enrollment){
 		try {
 			service.save(enrollment);
 			return new ResponseEntity<StudentYearEnrollment>(enrollment, HttpStatus.CREATED);
@@ -86,7 +87,7 @@ public class StudentYearEnrollmentController {
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<StudentYearEnrollment> update(@PathVariable("id") Long id, @RequestBody StudentYearEnrollment studentYearEnrollment){
+	public ResponseEntity<StudentYearEnrollment> update(@PathVariable("id") Long id, @Valid @RequestBody StudentYearEnrollment studentYearEnrollment){
 		StudentYearEnrollment enrollment = service.findOne(id).orElse(null);
 
 		if(enrollment != null) {
@@ -97,7 +98,7 @@ public class StudentYearEnrollmentController {
 		return new ResponseEntity<StudentYearEnrollment>(HttpStatus.NOT_FOUND);
 	}
 
-	@RequestMapping(path = "/fbs/{id}", method = RequestMethod.GET)
+	@RequestMapping(path = "/by-student/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Iterable<StudentYearEnrollmentDto>> getByStudentId(@PathVariable("id") Long id){
 		HashSet<StudentYearEnrollmentDto> enrollments = new HashSet<StudentYearEnrollmentDto>();
 		for (StudentYearEnrollment s : service.findAll()) {
@@ -106,12 +107,12 @@ public class StudentYearEnrollmentController {
 				StudyYear gs = s.getStudyYear();
 				StudyProgram sp = s.getStudyProgram();
 
-				StudyYearDto studyYear = new StudyYearDto(gs.getId(),gs.getYear());
-				StudentDto student = new StudentDto(st.getId(),st.getFirstName(),st.getLastName(),st.getEmail(),st.getPassword(),st.getIndexNumber(),st.getUsername());
-				StudyProgramDto sProgram = new StudyProgramDto(sp.getId(),sp.getProgramCode(),sp.getDescription(),sp.getName(),sp.getProgramDirector(),new FacultyDto(sp.getFaculty().getId(),sp.getFaculty().getFacultyCode(),sp.getFaculty().getName()));
+				StudyYearDto studyYear = StudyYearDto.builder().id(gs.getId()).year(gs.getYear()).build();
+				StudentDto student = StudentDto.builder().id(st.getId()).firstName(st.getFirstName()).lastName(st.getLastName()).email(st.getEmail()).password(st.getPassword()).indexNumber(st.getIndexNumber()).username(st.getUsername()).build();
+				StudyProgramDto sProgram = StudyProgramDto.builder().id(sp.getId()).programCode(sp.getProgramCode()).description(sp.getDescription()).name(sp.getName()).programDirector(sp.getProgramDirector()).faculty(FacultyDto.builder().id(sp.getFaculty().getId()).facultyCode(sp.getFaculty().getFacultyCode()).name(sp.getFaculty().getName()).build()).build();
 
 
-				enrollments.add(new StudentYearEnrollmentDto(s.getId(),s.getEnrollmentDate(),studyYear,student,sProgram));
+				enrollments.add(StudentYearEnrollmentDto.builder().id(s.getId()).enrollmentDate(s.getEnrollmentDate()).studyYear(studyYear).student(student).studyProgram(sProgram).build());
 			}
 		}
 		return new ResponseEntity<Iterable<StudentYearEnrollmentDto>>(enrollments, HttpStatus.OK);

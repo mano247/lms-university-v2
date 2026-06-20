@@ -7,63 +7,30 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TeachingAssignment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 	private int classHours;
 
-	@Column(name = "nastavnik_id")
+	@Column(name = "teacher_id")
 	private Long teacherId;
 
 	@Enumerated(EnumType.STRING)
 	private TeachingType teachingType;
-
-
-
-	public TeachingAssignment() {
-		super();
-	}
-
-	public TeachingAssignment(Long id, int classHours, Long teacherId, TeachingType teachingType) {
-		super();
-		this.id = id;
-		this.classHours = classHours;
-		this.teacherId = teacherId;
-		this.teachingType = teachingType;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public int getClassHours() {
-		return classHours;
-	}
-
-	public void setClassHours(int classHours) {
-		this.classHours = classHours;
-	}
-
-	public Long getTeacherId() {
-		return teacherId;
-	}
-
-	public void setTeacherId(Long teacherId) {
-		this.teacherId = teacherId;
-	}
-
-	public TeachingType getTeachingType() {
-		return teachingType;
-	}
-
-	public void setTeachingType(TeachingType teachingType) {
-		this.teachingType = teachingType;
-	}
 }

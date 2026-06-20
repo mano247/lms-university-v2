@@ -7,16 +7,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 import com.lmsuniversity.course.Course;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TeachingMaterial {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
+	@NotBlank
 	private String title;
 	private String authors;
 	private String publicationYear;
@@ -26,142 +42,19 @@ public class TeachingMaterial {
 	private String description;
 
 	private String url;
+
+	@Min(0)
 	private int pageCount;
+
+	@Min(0)
 	private int quantity;
+
+	@Min(0)
 	private int issuedQuantity;
 
 	private Outcome outcome;
 
 	@ManyToOne
-	@JoinColumn(name = "predmet_id")
+	@JoinColumn(name = "course_id")
 	private Course course;
-
-
-	public TeachingMaterial() {
-		super();
-	}
-
-	public TeachingMaterial(Long id, String title, String authors, String publicationYear, String publisher, String description,
-			String url, Outcome outcome, Course course,int quantity,int issuedQuantity) {
-		super();
-		this.id = id;
-		this.title = title;
-		this.authors = authors;
-		this.publicationYear = publicationYear;
-		this.publisher = publisher;
-		this.description = description;
-		this.url = url;
-		this.outcome = outcome;
-		this.course = course;
-		this.quantity = quantity;
-		this.issuedQuantity = issuedQuantity;
-	}
-
-	public TeachingMaterial(Long id, String title, String authors, int pageCount, String publisher, String description) {
-		super();
-		this.id = id;
-		this.title = title;
-		this.authors = authors;
-		this.pageCount = pageCount;
-		this.publisher = publisher;
-		this.description = description;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getAuthors() {
-		return authors;
-	}
-
-	public void setAuthors(String authors) {
-		this.authors = authors;
-	}
-
-	public String getPublicationYear() {
-		return publicationYear;
-	}
-
-	public void setPublicationYear(String publicationYear) {
-		this.publicationYear = publicationYear;
-	}
-
-	public String getPublisher() {
-		return publisher;
-	}
-
-	public void setPublisher(String publisher) {
-		this.publisher = publisher;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public Outcome getOutcome() {
-		return outcome;
-	}
-
-	public void setOutcome(Outcome outcome) {
-		this.outcome = outcome;
-	}
-
-	public Course getCourse() {
-		return course;
-	}
-
-	public void setCourse(Course course) {
-		this.course = course;
-	}
-
-	public int getPageCount() {
-		return pageCount;
-	}
-
-	public void setPageCount(int pageCount) {
-		this.pageCount = pageCount;
-	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-	public int getIssuedQuantity() {
-		return issuedQuantity;
-	}
-
-	public void setIssuedQuantity(int issuedQuantity) {
-		this.issuedQuantity = issuedQuantity;
-	}
-
-
 }

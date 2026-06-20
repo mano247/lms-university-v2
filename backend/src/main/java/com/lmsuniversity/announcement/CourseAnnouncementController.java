@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,8 +28,7 @@ import com.lmsuniversity.security.services.UserDetailsImpl;
 import com.lmsuniversity.course.CourseService;
 
 @Controller
-@RequestMapping(path = "/api/predmetnaObavestenja")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping(path = "/api/course-announcements")
 public class CourseAnnouncementController {
 	@Autowired
 	private CourseAnnouncementService service;
@@ -48,11 +47,19 @@ public class CourseAnnouncementController {
 			ArrayList<CourseAnnouncementDto> courseAnnouncements = new ArrayList<CourseAnnouncementDto>();
 			for (CourseAnnouncement o : service.findAll()) {
 
-				CourseDto course = new CourseDto(o.getCourse().getId(),o.getCourse().getCourseCode(), o.getCourse().getSyllabus(), o.getCourse().getName(), o.getCourse().getEcts(),
-						new TeacherDto(o.getCourse().getTeacher().getId(),o.getCourse().getTeacher().getFirstName(),o.getCourse().getTeacher().getLastName()), o.getCourse().getStartDate(), o.getCourse().getEndDate(),
-						o.getCourse().getDescription(), o.getCourse().getTeachingMaterials().stream().map(
-								nm -> new TeachingMaterialDto(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPublicationYear(), nm.getPublisher(), nm.getDescription(), nm.getUrl(), nm.getOutcome(), nm.getQuantity(), nm.getIssuedQuantity()
-								)).collect(Collectors.toSet()));
+				CourseDto course = CourseDto.builder()
+						.id(o.getCourse().getId())
+						.courseCode(o.getCourse().getCourseCode())
+						.syllabus(o.getCourse().getSyllabus())
+						.name(o.getCourse().getName())
+						.ects(o.getCourse().getEcts())
+						.teacher(TeacherDto.builder().id(o.getCourse().getTeacher().getId()).firstName(o.getCourse().getTeacher().getFirstName()).lastName(o.getCourse().getTeacher().getLastName()).build())
+						.startDate(o.getCourse().getStartDate())
+						.endDate(o.getCourse().getEndDate())
+						.description(o.getCourse().getDescription())
+						.teachingMaterials(o.getCourse().getTeachingMaterials().stream().map(
+								nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).publicationYear(nm.getPublicationYear()).publisher(nm.getPublisher()).description(nm.getDescription()).url(nm.getUrl()).outcome(nm.getOutcome()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
+						.build();
 
 				Optional<Course> pr = courseService.findOne(o.getCourse().getId());
 				List<Long> id = new ArrayList<>();
@@ -62,9 +69,9 @@ public class CourseAnnouncementController {
 
 				if (id.contains(userId)) {
 
-					courseAnnouncements.add(new CourseAnnouncementDto(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
+					courseAnnouncements.add(CourseAnnouncementDto.builder().id(o.getId()).title(o.getTitle()).content(o.getContent()).date(o.getDate()).imageUrl(o.getImage()).course(course).startDate(o.getStartDate()).endDate(o.getEndDate()).build());
 				}else if(pr.get().getTeacher().getId() == userId) {
-					courseAnnouncements.add(new CourseAnnouncementDto(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
+					courseAnnouncements.add(CourseAnnouncementDto.builder().id(o.getId()).title(o.getTitle()).content(o.getContent()).date(o.getDate()).imageUrl(o.getImage()).course(course).startDate(o.getStartDate()).endDate(o.getEndDate()).build());
 
 				}
 
@@ -80,21 +87,21 @@ public class CourseAnnouncementController {
 	public ResponseEntity<CourseAnnouncementDto> get(@PathVariable("id") Long id){
 		Optional<CourseAnnouncement> o = service.findOne(id);
 		if(o.isPresent()) {
-			CourseDto course = new CourseDto(
-					o.get().getCourse().getId(),
-					o.get().getCourse().getCourseCode(),
-					new StudyProgramDto(o.get().getCourse().getStudyProgram().getId(),o.get().getCourse().getStudyProgram().getProgramCode(),o.get().getCourse().getStudyProgram().getName()),
-					o.get().getCourse().getSyllabus(),
-					o.get().getCourse().getName(),
-					o.get().getCourse().getEcts(),
-					new TeacherDto(o.get().getCourse().getTeacher().getId(),o.get().getCourse().getTeacher().getFirstName(),o.get().getCourse().getTeacher().getLastName()),
-					o.get().getCourse().getStartDate(),
-					o.get().getCourse().getEndDate(),
-					o.get().getCourse().getDescription(),
-					o.get().getCourse().getTeachingMaterials().stream().map(nm -> new TeachingMaterialDto(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPublicationYear(), nm.getPublisher(), nm.getDescription(), nm.getUrl(), nm.getOutcome(), nm.getQuantity(), nm.getIssuedQuantity()
-									)).collect(Collectors.toSet()));
+			CourseDto course = CourseDto.builder()
+					.id(o.get().getCourse().getId())
+					.courseCode(o.get().getCourse().getCourseCode())
+					.studyProgram(StudyProgramDto.builder().id(o.get().getCourse().getStudyProgram().getId()).programCode(o.get().getCourse().getStudyProgram().getProgramCode()).name(o.get().getCourse().getStudyProgram().getName()).build())
+					.syllabus(o.get().getCourse().getSyllabus())
+					.name(o.get().getCourse().getName())
+					.ects(o.get().getCourse().getEcts())
+					.teacher(TeacherDto.builder().id(o.get().getCourse().getTeacher().getId()).firstName(o.get().getCourse().getTeacher().getFirstName()).lastName(o.get().getCourse().getTeacher().getLastName()).build())
+					.startDate(o.get().getCourse().getStartDate())
+					.endDate(o.get().getCourse().getEndDate())
+					.description(o.get().getCourse().getDescription())
+					.teachingMaterials(o.get().getCourse().getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).publicationYear(nm.getPublicationYear()).publisher(nm.getPublisher()).description(nm.getDescription()).url(nm.getUrl()).outcome(nm.getOutcome()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
+					.build();
 
-			CourseAnnouncementDto announcement = new CourseAnnouncementDto(o.get().getId(), o.get().getTitle(), o.get().getContent(), o.get().getDate(), o.get().getImage(), course, o.get().getStartDate(), o.get().getEndDate());
+			CourseAnnouncementDto announcement = CourseAnnouncementDto.builder().id(o.get().getId()).title(o.get().getTitle()).content(o.get().getContent()).date(o.get().getDate()).imageUrl(o.get().getImage()).course(course).startDate(o.get().getStartDate()).endDate(o.get().getEndDate()).build();
 			return new ResponseEntity<CourseAnnouncementDto>(announcement, HttpStatus.OK);
 		}
 		return new ResponseEntity<CourseAnnouncementDto>(HttpStatus.NOT_FOUND);
@@ -102,7 +109,7 @@ public class CourseAnnouncementController {
 
 	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<CourseAnnouncement> create(@RequestBody CourseAnnouncement r, Authentication authentication){
+	public ResponseEntity<CourseAnnouncement> create(@Valid @RequestBody CourseAnnouncement r, Authentication authentication){
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
@@ -121,7 +128,7 @@ public class CourseAnnouncementController {
 
 	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<CourseAnnouncement> update(@PathVariable("id") Long id, @RequestBody CourseAnnouncement courseAnnouncement, Authentication authentication){
+	public ResponseEntity<CourseAnnouncement> update(@PathVariable("id") Long id, @Valid @RequestBody CourseAnnouncement courseAnnouncement, Authentication authentication){
 
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -171,7 +178,7 @@ public class CourseAnnouncementController {
 	}
 
 @PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
-@RequestMapping(path = "gbp/{id}", method = RequestMethod.GET)
+@RequestMapping(path = "/by-course/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Iterable<CourseAnnouncementDto>> getByCourse(@PathVariable("id") Long id, Authentication authentication){
 
 
@@ -182,18 +189,20 @@ public class CourseAnnouncementController {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
 				if (o.getCourse().getId().equals(id)) {
-					CourseDto course = new CourseDto(
-							o.getCourse().getId(),
-							o.getCourse().getCourseCode(),
-							o.getCourse().getSyllabus(),
-							o.getCourse().getName(),
-							o.getCourse().getEcts(),
-							new TeacherDto(o.getCourse().getTeacher().getId(),o.getCourse().getTeacher().getFirstName(),o.getCourse().getTeacher().getLastName()), o.getCourse().getStartDate(), o.getCourse().getEndDate(),
-							o.getCourse().getDescription(),
-							o.getCourse().getTeachingMaterials()
+					CourseDto course = CourseDto.builder()
+							.id(o.getCourse().getId())
+							.courseCode(o.getCourse().getCourseCode())
+							.syllabus(o.getCourse().getSyllabus())
+							.name(o.getCourse().getName())
+							.ects(o.getCourse().getEcts())
+							.teacher(TeacherDto.builder().id(o.getCourse().getTeacher().getId()).firstName(o.getCourse().getTeacher().getFirstName()).lastName(o.getCourse().getTeacher().getLastName()).build())
+							.startDate(o.getCourse().getStartDate())
+							.endDate(o.getCourse().getEndDate())
+							.description(o.getCourse().getDescription())
+							.teachingMaterials(o.getCourse().getTeachingMaterials()
 							.stream()
-							.map( nm -> new TeachingMaterialDto(nm.getId(), nm.getTitle(), nm.getAuthors(), nm.getPublicationYear(), nm.getPublisher(), nm.getDescription(), nm.getUrl(), nm.getOutcome(), nm.getQuantity(), nm.getIssuedQuantity()
-								)).collect(Collectors.toSet()));
+							.map( nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).publicationYear(nm.getPublicationYear()).publisher(nm.getPublisher()).description(nm.getDescription()).url(nm.getUrl()).outcome(nm.getOutcome()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
+							.build();
 
 					Optional<Course> pr = courseService.findOne(o.getCourse().getId());
 					List<Long> idlist = new ArrayList<>();
@@ -202,9 +211,9 @@ public class CourseAnnouncementController {
 					}
 
 					if (idlist.contains(userId)) {
-						courseAnnouncements.add(new CourseAnnouncementDto(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
+						courseAnnouncements.add(CourseAnnouncementDto.builder().id(o.getId()).title(o.getTitle()).content(o.getContent()).date(o.getDate()).imageUrl(o.getImage()).course(course).startDate(o.getStartDate()).endDate(o.getEndDate()).build());
 					}else if(pr.get().getTeacher().getId() == userId) {
-						courseAnnouncements.add(new CourseAnnouncementDto(o.getId(), o.getTitle(), o.getContent(), o.getDate(), o.getImage(), course, o.getStartDate(), o.getEndDate()));
+						courseAnnouncements.add(CourseAnnouncementDto.builder().id(o.getId()).title(o.getTitle()).content(o.getContent()).date(o.getDate()).imageUrl(o.getImage()).course(course).startDate(o.getStartDate()).endDate(o.getEndDate()).build());
 					}
 		}
 				}

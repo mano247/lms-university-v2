@@ -6,16 +6,17 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@RequestMapping(path = "/api/kancelariskiMaterial")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping(path = "/api/office-supplies")
+@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 public class OfficeSupplyController {
 	@Autowired
 	private OfficeSupplyService service;
@@ -40,7 +41,7 @@ public class OfficeSupplyController {
 	}
 
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<OfficeSupply> create(@RequestBody OfficeSupply r){
+	public ResponseEntity<OfficeSupply> create(@Valid @RequestBody OfficeSupply r){
 		try {
 			service.save(r);
 			return new ResponseEntity<OfficeSupply>(r, HttpStatus.CREATED);
@@ -51,7 +52,7 @@ public class OfficeSupplyController {
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<OfficeSupply> update(@PathVariable("id") Long id, @RequestBody OfficeSupply officeSupply){
+	public ResponseEntity<OfficeSupply> update(@PathVariable("id") Long id, @Valid @RequestBody OfficeSupply officeSupply){
 		OfficeSupply u = service.findOne(id).orElse(null);
 
 		if(u != null) {

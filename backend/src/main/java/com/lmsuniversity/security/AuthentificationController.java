@@ -1,6 +1,5 @@
 package com.lmsuniversity.security;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +32,6 @@ import com.lmsuniversity.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthentificationController {
@@ -69,10 +66,13 @@ public class AuthentificationController {
               .map(item -> item.getAuthority())
               .collect(Collectors.toList());
 
-      return ResponseEntity.ok(new JwtResponse(jwt,
-              userDetails.getId(),
-              userDetails.getEmail(),
-              roles, userDetails.getUserType()));
+      return ResponseEntity.ok(JwtResponse.builder()
+              .accessToken(jwt)
+              .id(userDetails.getId())
+              .email(userDetails.getEmail())
+              .permissions(roles)
+              .userType(userDetails.getUserType())
+              .build());
     } catch (BadCredentialsException ex) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
               .body(new MessageResponse("Incorrect username or password combination."));
@@ -88,51 +88,20 @@ public class AuthentificationController {
           .body(new MessageResponse("Error: Email is already in use!"));
     }
 
-    RegisteredUser user = new RegisteredUser(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()), signUpRequest.getUsername());
+    // Signup always grants USER_PERMISSION only. Elevated roles (student/teacher/
+    // student-affairs-office/administrator) can only be assigned afterwards through the
+    // protected /api/registered-users/change-type endpoint (ADMINISTRATOR_PERMISSION
+    // required) - a client can never self-assign a privileged role at signup time.
+    Permission userRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
+        .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
 
-    Set<String> strRoles = signUpRequest.getPermission();
-    Set<Permission> roles = new HashSet<>();
+    RegisteredUser user = RegisteredUser.builder()
+        .email(signUpRequest.getEmail())
+        .password(encoder.encode(signUpRequest.getPassword()))
+        .username(signUpRequest.getUsername())
+        .permissions(Set.of(userRole))
+        .build();
 
-    if (strRoles == null) {
-    	Permission userRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
-          .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-      roles.add(userRole);
-    } else {
-      strRoles.forEach(role -> {
-        switch (role) {
-        case "student":
-        	Permission studentRole = roleRepository.findByName(PermissionEnum.STUDENT_PERMISSION)
-              .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-          roles.add(studentRole);
-
-          break;
-        case "teacher":
-        	Permission teacherRole = roleRepository.findByName(PermissionEnum.TEACHER_PERMISSION)
-              .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-          roles.add(teacherRole);
-
-          break;
-          case "studentskaSluzba":
-        	  Permission studentAffairsRole = roleRepository.findByName(PermissionEnum.STUDENT_AFFAIRS_PERMISSION)
-                    .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-            roles.add(studentAffairsRole);
-
-            break;
-          case "administrator":
-        	  Permission administratorRole = roleRepository.findByName(PermissionEnum.ADMINISTRATOR_PERMISSION)
-                    .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-            roles.add(administratorRole);
-
-            break;
-        default:
-        	Permission userRole = roleRepository.findByName(PermissionEnum.USER_PERMISSION)
-              .orElseThrow(() -> new RuntimeException("Error: Permission has not been found."));
-          roles.add(userRole);
-        }
-      });
-    }
-
-    user.setPermissions(roles);
     userRepository.save(user);
 
     return ResponseEntity.ok(new MessageResponse("You have registered successfully!"));

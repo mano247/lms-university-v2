@@ -15,151 +15,62 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lmsuniversity.permission.Permission;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "registrovani_korisnici",
+@Table(name = "registered_users",
 	uniqueConstraints = {
 				@UniqueConstraint(columnNames = "email")
 		})
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class RegisteredUser {
-		@Id
-		@GeneratedValue(strategy = GenerationType.IDENTITY)
-		private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
+	private Long id;
 
-		private String username;
+	@NotBlank
+	@Size(max = 50)
+	private String username;
 
-		private String password;
+	// Accepted on input (create/update) but never serialized back out in API responses.
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private String password;
 
-		private String email;
+	@NotBlank
+	@Email
+	@Size(max = 100)
+	private String email;
 
-		private String firstName;
+	@NotBlank
+	@Size(max = 50)
+	private String firstName;
 
-		private String lastName;
+	@NotBlank
+	@Size(max = 50)
+	private String lastName;
 
-		@ManyToMany(fetch = FetchType.LAZY)
-		@JoinTable(name = "registrovani_korisnik_permissions",
-				joinColumns = @JoinColumn(name = "registrovaniKorisnik_id"),
-				inverseJoinColumns = @JoinColumn(name = "permission_id"))
-		private Set<Permission> permissions = new HashSet<>();
-
-		public  RegisteredUser() {
-			super();
-		}
-
-		public RegisteredUser(Long id, String username, String password, String email,
-				Set<Permission> permissions) {
-			super();
-			this.id = id;
-			this.username = username;
-			this.password = password;
-			this.email = email;
-			this.permissions = permissions;
-
-		}
-
-		public RegisteredUser(Long id, String username, String password, String email) {
-			super();
-			this.id = id;
-			this.username = username;
-			this.password = password;
-			this.email = email;
-		}
-
-		public RegisteredUser( String email, String password, String username) {
-			this.email = email;
-			this.password = password;
-			this.username = username;
-		}
-
-		public RegisteredUser(String username, String firstName, String lastName, String email, String password) {
-			this.username = username;
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.email = email;
-			this.password = password;
-		}
-
-		public RegisteredUser(String firstName, String lastName, String email, String password) {
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.email = email;
-			this.password = password;
-		}
-
-		public RegisteredUser(Long id, String firstName, String lastName, String email, String password, Set<Permission> permissions) {
-			this.id = id;
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.email = email;
-			this.password = password;
-			this.permissions = permissions;
-		}
-
-		public RegisteredUser(Long id, String firstName, String lastName,String username, String email, String password, Set<Permission> permissions) {
-			this.id = id;
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.username = username;
-			this.email = email;
-			this.password = password;
-			this.permissions = permissions;
-		}
-
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
-
-		public String getEmail() {
-			return email;
-		}
-
-		public void setEmail(String email) {
-			this.email = email;
-		}
-
-		public Set<Permission> getPermissions() {
-			return permissions;
-		}
-
-		public void setPermissions(Set<Permission> permissions) {
-			this.permissions = permissions;
-		}
-
-		public String getFirstName() {
-			return firstName;
-		}
-
-		public void setFirstName(String firstName) {
-			this.firstName = firstName;
-		}
-
-		public String getLastName() {
-			return lastName;
-		}
-
-		public void setLastName(String lastName) {
-			this.lastName = lastName;
-		}
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "registered_user_permissions",
+			joinColumns = @JoinColumn(name = "registered_user_id"),
+			inverseJoinColumns = @JoinColumn(name = "permission_id"))
+	@Builder.Default
+	private Set<Permission> permissions = new HashSet<>();
 }

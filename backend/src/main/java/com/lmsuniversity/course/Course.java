@@ -15,6 +15,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import com.lmsuniversity.examattempt.ExamAttempt;
 import com.lmsuniversity.announcement.CourseAnnouncement;
@@ -22,21 +26,37 @@ import com.lmsuniversity.teachingmaterial.TeachingMaterial;
 import com.lmsuniversity.user.Teacher;
 import com.lmsuniversity.user.Student;
 import com.lmsuniversity.studyprogram.StudyProgram;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "predmeti")
+@Table(name = "courses")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Course {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
+	@NotBlank
 	@Column(nullable = false, unique = true)
 	private String courseCode;
 
 	@Column(columnDefinition = "LONGTEXT")
-    private String syllabus;
+	private String syllabus;
 
+	@NotBlank
 	private String name;
 
+	@Min(1)
 	private int ects;
 
 	private Date startDate;
@@ -52,156 +72,27 @@ public class Course {
 	@OneToMany(mappedBy = "course")
 	private Set<ExamAttempt> examAttempts;
 
+	@NotNull
 	@ManyToOne
-    @JoinColumn(name = "nastavnik_id")
-    private Teacher teacher;
+	@JoinColumn(name = "teacher_id")
+	private Teacher teacher;
 
 	@ManyToMany(mappedBy = "courses")
-    private Set<Student> students;
+	private Set<Student> students;
 
 	@OneToMany(mappedBy = "course")
-    private Set<CourseAnnouncement> announcements;
+	private Set<CourseAnnouncement> announcements;
 
+	@NotNull
 	@ManyToOne
-    @JoinColumn(name = "studijskiProgram_id")
-    private StudyProgram studyProgram;
+	@JoinColumn(name = "study_program_id")
+	private StudyProgram studyProgram;
 
-	public Course() {
-		super();
+	@AssertTrue(message = "endDate must not be before startDate")
+	public boolean isDateRangeValid() {
+		if (startDate == null || endDate == null) {
+			return true;
+		}
+		return !endDate.before(startDate);
 	}
-
-	public Course(Long id,String courseCode, String syllabus, String name, int ects,
-			Date startDate, Date endDate, String description
-			, Set<ExamAttempt> examAttempts, Teacher teacher,
-			Set<Student> students, StudyProgram studyProgram,Set<TeachingMaterial> teachingMaterials, Set<CourseAnnouncement> announcements) {
-		super();
-		this.id = id;
-		this.courseCode = courseCode;
-		this.syllabus = syllabus;
-		this.name = name;
-		this.ects = ects;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.description = description;
-		this.teachingMaterials = teachingMaterials;
-		this.examAttempts = examAttempts;
-		this.teacher = teacher;
-		this.students = students;
-		this.announcements = announcements;
-		this.studyProgram = studyProgram;
-	}
-
-	public String getCourseCode() {
-		return courseCode;
-	}
-
-	public void setCourseCode(String courseCode) {
-		this.courseCode = courseCode;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getSyllabus() {
-		return syllabus;
-	}
-
-	public void setSyllabus(String syllabus) {
-		this.syllabus = syllabus;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getEcts() {
-		return ects;
-	}
-
-	public void setEcts(int ects) {
-		this.ects = ects;
-	}
-
-
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public Set<TeachingMaterial> getTeachingMaterials() {
-		return teachingMaterials;
-	}
-
-	public void setTeachingMaterials(Set<TeachingMaterial> teachingMaterials) {
-		this.teachingMaterials = teachingMaterials;
-	}
-
-	public Set<ExamAttempt> getExamAttempts() {
-		return examAttempts;
-	}
-
-	public void setExamAttempts(Set<ExamAttempt> examAttempts) {
-		this.examAttempts = examAttempts;
-	}
-
-	public Teacher getTeacher() {
-		return teacher;
-	}
-
-	public void setTeacher(Teacher teacher) {
-		this.teacher = teacher;
-	}
-
-	public Set<Student> getStudents() {
-		return students;
-	}
-
-	public void setStudents(Set<Student> students) {
-		this.students = students;
-	}
-
-	public Set<CourseAnnouncement> getAnnouncements() {
-		return announcements;
-	}
-
-	public void setAnnouncements(Set<CourseAnnouncement> announcements) {
-		this.announcements = announcements;
-	}
-
-	public StudyProgram getStudyProgram() {
-		return studyProgram;
-	}
-
-	public void setStudyProgram(StudyProgram studyProgram) {
-		this.studyProgram = studyProgram;
-	}
-
 }
