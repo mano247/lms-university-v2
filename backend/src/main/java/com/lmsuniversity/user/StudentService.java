@@ -5,11 +5,16 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.lmsuniversity.examattempt.ExamAttemptRepository;
 import com.lmsuniversity.faculty.Faculty;
 import com.lmsuniversity.faculty.FacultyRepository;
+import com.lmsuniversity.finalthesis.FinalThesisRepository;
+import com.lmsuniversity.studentyearenrollment.StudentYearEnrollmentRepository;
 
 @Service
 public class StudentService {
@@ -18,6 +23,15 @@ public class StudentService {
 
 	@Autowired
 	private FacultyRepository facultyRepository;
+
+	@Autowired
+	private ExamAttemptRepository examAttemptRepository;
+
+	@Autowired
+	private FinalThesisRepository finalThesisRepository;
+
+	@Autowired
+	private StudentYearEnrollmentRepository studentYearEnrollmentRepository;
 
 	@Autowired
 	private StudentMapper mapper;
@@ -59,6 +73,25 @@ public class StudentService {
 	}
 
 	public void delete(Long id) {
+		if (examAttemptRepository.existsByStudentId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete student: they still have exam attempts associated with them.");
+		}
+		if (finalThesisRepository.existsByStudentId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete student: they still have a final thesis associated with them.");
+		}
+		if (studentYearEnrollmentRepository.existsByStudentId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete student: they still have year enrollments associated with them.");
+		}
+		Student student = repository.findById(id).orElse(null);
+		if (student != null) {
+			student.getCourses().clear();
+			student.getStudyYears().clear();
+			student.getPermissions().clear();
+			repository.save(student);
+		}
 		repository.deleteById(id);
 	}
 

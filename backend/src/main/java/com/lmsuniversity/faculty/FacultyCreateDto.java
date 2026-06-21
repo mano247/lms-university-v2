@@ -20,7 +20,6 @@ public class FacultyCreateDto {
 	private String contact;
 	private String description;
 	private String dean;
-	private String image;
 	private String address;
 
 	@NotNull

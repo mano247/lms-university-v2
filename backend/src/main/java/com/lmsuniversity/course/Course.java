@@ -3,6 +3,7 @@ package com.lmsuniversity.course;
 import java.util.Date;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
@@ -66,7 +67,7 @@ public class Course {
 	@Column(columnDefinition = "LONGTEXT")
 	private String description;
 
-	@OneToMany(mappedBy = "course")
+	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<TeachingMaterial> teachingMaterials;
 
 	@OneToMany(mappedBy = "course")
@@ -80,7 +81,7 @@ public class Course {
 	@ManyToMany(mappedBy = "courses")
 	private Set<Student> students;
 
-	@OneToMany(mappedBy = "course")
+	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<CourseAnnouncement> announcements;
 
 	@NotNull

@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.lmsuniversity.faculty.FacultyRepository;
+import com.lmsuniversity.user.TeacherRepository;
 
 @Service
 public class UniversityService {
@@ -13,6 +18,12 @@ public class UniversityService {
 
 	@Autowired
 	private RectorateRepository rectorateRepository;
+
+	@Autowired
+	private FacultyRepository facultyRepository;
+
+	@Autowired
+	private TeacherRepository teacherRepository;
 
 	@Autowired
 	private UniversityMapper mapper;
@@ -48,6 +59,14 @@ public class UniversityService {
 	}
 
 	public void delete(Long id) {
+		if (facultyRepository.existsByUniversityId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete university: it still has faculties associated with it.");
+		}
+		if (teacherRepository.existsByUniversityId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete university: it still has teachers associated with it.");
+		}
 		repository.deleteById(id);
 	}
 

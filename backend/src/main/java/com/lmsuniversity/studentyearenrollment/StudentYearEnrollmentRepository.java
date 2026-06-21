@@ -19,4 +19,8 @@ public interface StudentYearEnrollmentRepository extends JpaRepository<StudentYe
 	@EntityGraph(attributePaths = {"student.faculty", "studyYear", "studyProgram.faculty.university"})
 	List<StudentYearEnrollment> findByStudentId(Long studentId);
 
+	boolean existsByStudentId(Long studentId);
+
+	boolean existsByStudyProgramId(Long studyProgramId);
+
 }

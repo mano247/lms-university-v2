@@ -19,10 +19,12 @@ public interface FacultyMapper {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "university", ignore = true)
 	@Mapping(target = "studyPrograms", ignore = true)
+	@Mapping(target = "image", ignore = true)
 	Faculty toEntity(FacultyCreateDto dto);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "university", ignore = true)
 	@Mapping(target = "studyPrograms", ignore = true)
+	@Mapping(target = "image", ignore = true)
 	void updateEntityFromDto(FacultyUpdateDto dto, @MappingTarget Faculty entity);
 }

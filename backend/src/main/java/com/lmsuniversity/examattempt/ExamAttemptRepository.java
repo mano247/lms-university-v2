@@ -14,6 +14,12 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long>{
 	@EntityGraph(attributePaths = {"course", "student", "teacher"})
 	List<ExamAttempt> findByStudentId(Long studentId);
 
+	boolean existsByCourseId(Long courseId);
+
+	boolean existsByStudentId(Long studentId);
+
+	boolean existsByTeacherId(Long teacherId);
+
 	String DETAILS_FETCH =
 			"JOIN FETCH e.course c "
 			+ "JOIN FETCH c.teacher "
