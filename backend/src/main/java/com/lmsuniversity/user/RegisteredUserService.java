@@ -1,12 +1,16 @@
 package com.lmsuniversity.user;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.lmsuniversity.faculty.Faculty;
+import com.lmsuniversity.faculty.FacultyRepository;
 import com.lmsuniversity.permission.Permission;
 import com.lmsuniversity.permission.PermissionEnum;
 import com.lmsuniversity.permission.PermissionRepository;
@@ -20,7 +24,16 @@ public class RegisteredUserService {
 	@Autowired
 	private PermissionRepository permissionRepository;
 
-	public Iterable<RegisteredUser> findAll() {
+	@Autowired
+	private FacultyRepository facultyRepository;
+
+	@Autowired
+	private RegisteredUserMapper mapper;
+
+	@Autowired
+	private PasswordEncoder encoder;
+
+	public List<RegisteredUser> findAll() {
 		return repository.findAll();
 	}
 
@@ -36,11 +49,22 @@ public class RegisteredUserService {
 		return repository.save(newUser);
 	}
 
-	public RegisteredUser update(RegisteredUser user) {
-		if(repository.findById(user.getId()).isPresent()) {
-			return repository.save(user);
+	public RegisteredUser create(RegisteredUserCreateDto dto) {
+		RegisteredUser user = mapper.toEntity(dto);
+		user.setPassword(encoder.encode(dto.getPassword()));
+		Permission userRole = permissionRepository.findByName(PermissionEnum.USER_PERMISSION)
+				.orElseThrow(() -> new IllegalStateException("Permission has not been found: USER_PERMISSION"));
+		user.setPermissions(Set.of(userRole));
+		return repository.save(user);
+	}
+
+	public RegisteredUser update(Long id, RegisteredUserUpdateDto dto) {
+		RegisteredUser user = repository.findById(id).orElse(null);
+		if (user == null) {
+			return null;
 		}
-		return null;
+		mapper.updateEntityFromDto(dto, user);
+		return repository.save(user);
 	}
 
 	public void delete(Long id) {
@@ -119,7 +143,7 @@ public class RegisteredUserService {
 		}
 	}
 
-	public boolean enrollStudent (long userId, StudentDto additionalStudentInfo) {
+	public boolean enrollStudent(long userId, EnrollStudentDto additionalStudentInfo) {
 
 		RegisteredUser user = repository.findById(userId).orElse(null);
 		if (user == null) {
@@ -130,18 +154,23 @@ public class RegisteredUserService {
 			Optional<Permission> studentRole = permissionRepository.findByName(PermissionEnum.STUDENT_PERMISSION);
 			permissions.add(studentRole.orElse(null));
 
-			Student student = Student.builder()
+			Student.StudentBuilder<?, ?> studentBuilder = Student.builder()
 					.email(additionalStudentInfo.getEmail())
 					.username(additionalStudentInfo.getUsername())
 					.indexNumber(additionalStudentInfo.getIndexNumber())
-					.password(additionalStudentInfo.getPassword())
+					.password(encoder.encode(additionalStudentInfo.getPassword()))
 					.firstName(additionalStudentInfo.getFirstName())
 					.lastName(additionalStudentInfo.getLastName())
-					.faculty(additionalStudentInfo.getFaculty())
-					.permissions(permissions)
-					.build();
+					.permissions(permissions);
+
+			if (additionalStudentInfo.getFacultyId() != null) {
+				Faculty faculty = facultyRepository.findById(additionalStudentInfo.getFacultyId())
+						.orElseThrow(() -> new IllegalArgumentException("Faculty not found: " + additionalStudentInfo.getFacultyId()));
+				studentBuilder.faculty(faculty);
+			}
+
 			repository.delete(user);
-			repository.save(student);
+			repository.save(studentBuilder.build());
 			return true;
 		}
 		else {return false;}

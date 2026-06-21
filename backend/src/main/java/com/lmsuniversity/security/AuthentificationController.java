@@ -53,8 +53,6 @@ public class AuthentificationController {
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     try {
-    	System.out.println("passed ");
-    	System.out.println(loginRequest.getEmail() +" "+ loginRequest.getPassword());
       Authentication authentication = authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 

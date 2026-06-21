@@ -1,18 +1,21 @@
 package com.lmsuniversity.announcement;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-
 
 @Service
 public class AnnouncementService {
 	@Autowired
 	private AnnouncementRepository repository;
 
-	public Iterable<Announcement> findAll() {
+	@Autowired
+	private AnnouncementMapper mapper;
+
+	public List<Announcement> findAll() {
 		return repository.findAll();
 	}
 
@@ -25,11 +28,23 @@ public class AnnouncementService {
 		return repository.save(newAnnouncement);
 	}
 
-	public Announcement update(Announcement announcement) {
-		if(repository.findById(announcement.getId()).isPresent()) {
-			return repository.save(announcement);
+	public Announcement create(AnnouncementCreateDto dto) {
+		Announcement announcement = mapper.toEntity(dto);
+		announcement.setDate(LocalDateTime.now());
+		return repository.save(announcement);
+	}
+
+	public Announcement update(Long id, AnnouncementUpdateDto dto) {
+		Announcement announcement = repository.findById(id).orElse(null);
+		if (announcement == null) {
+			return null;
 		}
-		return null;
+		mapper.updateEntityFromDto(dto, announcement);
+		if (dto.getImage() != null && !dto.getImage().isBlank()) {
+			announcement.setImage(dto.getImage());
+		}
+		announcement.setDate(LocalDateTime.now());
+		return repository.save(announcement);
 	}
 
 	public void delete(Long id) {

@@ -1,7 +1,7 @@
 package com.lmsuniversity.user;
 
 import java.util.Set;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.validation.Valid;
@@ -30,63 +29,43 @@ public class TeacherController {
 	private TeacherService service;
 
 	@Autowired
-	private PasswordEncoder encoder;
+	private TeacherMapper mapper;
+
+	@Autowired
+	private StudentMapper studentMapper;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<TeacherDto>> getAll(){
-		ArrayList<TeacherDto> teachers = new ArrayList<TeacherDto>();
-		for (Teacher p : service.findAll()) {
-			teachers.add(TeacherDto.builder().userType(p.getClass().getSimpleName()).id(p.getId()).username(p.getUsername()).email(p.getEmail()).firstName(p.getFirstName()).lastName(p.getLastName()).build());
-		}
-		return new ResponseEntity<Iterable<TeacherDto>>(teachers, HttpStatus.OK);
+	public ResponseEntity<List<TeacherDto>> getAll(){
+		List<TeacherDto> teachers = mapper.toDtoList(service.findAll());
+		return new ResponseEntity<List<TeacherDto>>(teachers, HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<TeacherDto> get(@PathVariable("id") Long id){
 		Optional<Teacher> p = service.findOne(id);
 		if(p.isPresent()) {
-			TeacherDto teacher = TeacherDto.builder().userType(p.get().getClass().getSimpleName()).id(p.get().getId()).username(p.get().getUsername()).email(p.get().getEmail()).firstName(p.get().getFirstName()).lastName(p.get().getLastName()).build();
-			return new ResponseEntity<TeacherDto>(teacher, HttpStatus.OK);
+			return new ResponseEntity<TeacherDto>(mapper.toDto(p.get()), HttpStatus.OK);
 		}
 		return new ResponseEntity<TeacherDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Teacher> create(@Valid @RequestBody Teacher r){
-		try {
-			r.setPassword(encoder.encode(r.getPassword()));
-			service.save(r);
-			return new ResponseEntity<Teacher>(r, HttpStatus.CREATED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<Teacher>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<TeacherDto> create(@Valid @RequestBody TeacherCreateDto dto){
+		Teacher teacher = service.create(dto);
+		return new ResponseEntity<TeacherDto>(mapper.toDto(teacher), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Teacher> update(@PathVariable("id") Long id, @Valid @RequestBody Teacher teacher, Authentication authentication){
+	public ResponseEntity<TeacherDto> update(@PathVariable("id") Long id, @Valid @RequestBody TeacherUpdateDto dto, Authentication authentication){
 		if(authentication.isAuthenticated()) {
-
-				Teacher u = service.findOne(id).orElse(null);
-				if(u != null && u.getUniversity()!= null) {
-					teacher.setId(id);
-					teacher.setUniversity(u.getUniversity());
-					teacher.setPassword(u.getPassword());
-					teacher.setPermissions(u.getPermissions());
-					teacher = service.save(teacher);
-					return new ResponseEntity<Teacher>(HttpStatus.OK);
-				}else if (u != null) {
-					teacher.setId(id);
-					teacher.setPassword(u.getPassword());
-					teacher.setPermissions(u.getPermissions());
-					teacher = service.save(teacher);
-					return new ResponseEntity<Teacher>(HttpStatus.OK);
-				}
-
+			Teacher teacher = service.update(id, dto);
+			if(teacher != null) {
+				return new ResponseEntity<TeacherDto>(mapper.toDto(teacher), HttpStatus.OK);
+			}
 		}
-		return  new ResponseEntity<Teacher>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TeacherDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
@@ -123,7 +102,7 @@ public class TeacherController {
 							.description(pr.getDescription())
 							.studyProgram(pr.getStudyProgram().getName())
 							.teachingMaterials(pr.getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
-							.students(pr.getStudents().stream().map(st -> StudentDto.builder().id(st.getId()).email(st.getEmail()).username(st.getUsername()).indexNumber(st.getIndexNumber()).firstName(st.getFirstName()).lastName(st.getLastName()).faculty(st.getFaculty()).build()).collect(Collectors.toSet()))
+							.students(pr.getStudents().stream().map(studentMapper::toDto).collect(Collectors.toSet()))
 							.build()
 					).collect(Collectors.toSet());
 

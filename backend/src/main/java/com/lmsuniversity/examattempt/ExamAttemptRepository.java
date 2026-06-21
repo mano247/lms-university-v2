@@ -14,7 +14,7 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long>{
 	private Iterable<ExamAttempt> findAllByStudent(Long id){
         List<ExamAttempt> examAttempts = new ArrayList<>();
         for(ExamAttempt pp : findAll()){
-            if(pp.getStudent().getId() == id) {
+            if(pp.getStudent().getId().equals(id)) {
                 examAttempts.add(pp);
             }
         }

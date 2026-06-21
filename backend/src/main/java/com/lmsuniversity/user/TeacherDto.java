@@ -17,4 +17,6 @@ public class TeacherDto {
 	private String email;
 	private String firstName;
 	private String lastName;
+	private String biography;
+	private String personalIdNumber;
 }

@@ -1,5 +1,6 @@
 package com.lmsuniversity.user;
 
+import com.lmsuniversity.faculty.FacultyDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class StudentAffairsOfficeDto {
 	private String email;
 	private String firstName;
 	private String lastName;
+	private FacultyDto faculty;
 }
