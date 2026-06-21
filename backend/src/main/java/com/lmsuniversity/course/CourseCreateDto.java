@@ -36,6 +36,9 @@ public class CourseCreateDto {
 	@NotNull
 	private Long studyProgramId;
 
+	@NotNull
+	private Long studyYearId;
+
 	@AssertTrue(message = "endDate must not be before startDate")
 	public boolean isDateRangeValid() {
 		if (startDate == null || endDate == null) {

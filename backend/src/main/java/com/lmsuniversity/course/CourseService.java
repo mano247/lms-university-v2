@@ -18,6 +18,8 @@ import com.lmsuniversity.examattempt.ExamAttemptRepository;
 import com.lmsuniversity.examperiod.ExamPeriodRepository;
 import com.lmsuniversity.studyprogram.StudyProgram;
 import com.lmsuniversity.studyprogram.StudyProgramRepository;
+import com.lmsuniversity.studyyear.StudyYear;
+import com.lmsuniversity.studyyear.StudyYearRepository;
 import com.lmsuniversity.user.Student;
 import com.lmsuniversity.user.StudentRepository;
 import com.lmsuniversity.user.Teacher;
@@ -33,6 +35,9 @@ public class CourseService {
 
 	@Autowired
 	private StudyProgramRepository studyProgramRepository;
+
+	@Autowired
+	private StudyYearRepository studyYearRepository;
 
 	@Autowired
 	private ExamAttemptRepository examAttemptRepository;
@@ -72,9 +77,12 @@ public class CourseService {
 				.orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + dto.getTeacherId()));
 		StudyProgram studyProgram = studyProgramRepository.findById(dto.getStudyProgramId())
 				.orElseThrow(() -> new IllegalArgumentException("Study program not found: " + dto.getStudyProgramId()));
+		StudyYear studyYear = studyYearRepository.findById(dto.getStudyYearId())
+				.orElseThrow(() -> new IllegalArgumentException("Study year not found: " + dto.getStudyYearId()));
 		Course course = mapper.toEntity(dto);
 		course.setTeacher(teacher);
 		course.setStudyProgram(studyProgram);
+		course.setStudyYear(studyYear);
 		return repository.save(course);
 	}
 
@@ -87,9 +95,12 @@ public class CourseService {
 				.orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + dto.getTeacherId()));
 		StudyProgram studyProgram = studyProgramRepository.findById(dto.getStudyProgramId())
 				.orElseThrow(() -> new IllegalArgumentException("Study program not found: " + dto.getStudyProgramId()));
+		StudyYear studyYear = studyYearRepository.findById(dto.getStudyYearId())
+				.orElseThrow(() -> new IllegalArgumentException("Study year not found: " + dto.getStudyYearId()));
 		mapper.updateEntityFromDto(dto, course);
 		course.setTeacher(teacher);
 		course.setStudyProgram(studyProgram);
+		course.setStudyYear(studyYear);
 		return repository.save(course);
 	}
 

@@ -2,6 +2,7 @@ package com.lmsuniversity.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,5 +39,12 @@ public class EnrollStudentDto {
 	@Size(max = 20)
 	private String indexNumber;
 
+	@NotNull
 	private Long facultyId;
+
+	@NotNull
+	private Long studyProgramId;
+
+	@NotNull
+	private Long studyYearId;
 }

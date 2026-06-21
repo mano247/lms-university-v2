@@ -19,7 +19,7 @@ public class FacultyUpdateDto {
 	private String name;
 	private String contact;
 	private String description;
-	private String dean;
+	private Long deanId;
 	private String address;
 
 	@NotNull

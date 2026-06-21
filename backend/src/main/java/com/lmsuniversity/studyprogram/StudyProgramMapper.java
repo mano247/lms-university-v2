@@ -9,8 +9,9 @@ import org.mapstruct.Named;
 
 import com.lmsuniversity.course.Course;
 import com.lmsuniversity.faculty.FacultyMapper;
+import com.lmsuniversity.user.TeacherMapper;
 
-@Mapper(componentModel = "spring", uses = { FacultyMapper.class })
+@Mapper(componentModel = "spring", uses = { FacultyMapper.class, TeacherMapper.class })
 public interface StudyProgramMapper {
 
 	StudyProgramDto toDto(StudyProgram studyProgram);
@@ -24,11 +25,13 @@ public interface StudyProgramMapper {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "faculty", ignore = true)
 	@Mapping(target = "courses", ignore = true)
+	@Mapping(target = "programDirector", ignore = true)
 	StudyProgram toEntity(StudyProgramCreateDto dto);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "faculty", ignore = true)
 	@Mapping(target = "courses", ignore = true)
+	@Mapping(target = "programDirector", ignore = true)
 	void updateEntityFromDto(StudyProgramUpdateDto dto, @MappingTarget StudyProgram entity);
 
 	default String courseToCourseCode(Course course) {

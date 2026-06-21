@@ -3,6 +3,7 @@ package com.lmsuniversity.studyprogram;
 import java.util.Set;
 
 import com.lmsuniversity.faculty.FacultyDto;
+import com.lmsuniversity.user.TeacherDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class StudyProgramDto {
 	private String programCode;
 	private String description;
 	private String name;
-	private String programDirector;
+	private TeacherDto programDirector;
 	private FacultyDto faculty;
 	private Set<String> courses;
 }

@@ -12,9 +12,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.lmsuniversity.course.CourseRepository;
 import com.lmsuniversity.examattempt.ExamAttemptRepository;
+import com.lmsuniversity.faculty.FacultyRepository;
 import com.lmsuniversity.finalthesis.FinalThesisRepository;
 import com.lmsuniversity.rectorate.University;
 import com.lmsuniversity.rectorate.UniversityRepository;
+import com.lmsuniversity.studyprogram.StudyProgramRepository;
 
 @Service
 public class TeacherService {
@@ -32,6 +34,12 @@ public class TeacherService {
 
 	@Autowired
 	private FinalThesisRepository finalThesisRepository;
+
+	@Autowired
+	private FacultyRepository facultyRepository;
+
+	@Autowired
+	private StudyProgramRepository studyProgramRepository;
 
 	@Autowired
 	private TeacherMapper mapper;
@@ -91,6 +99,14 @@ public class TeacherService {
 		if (finalThesisRepository.existsByMentorId(id)) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT,
 					"Cannot delete teacher: they still mentor final theses.");
+		}
+		if (facultyRepository.existsByDeanId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete teacher: they are the dean of a faculty.");
+		}
+		if (studyProgramRepository.existsByProgramDirectorId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete teacher: they are the director of a study program.");
 		}
 		repository.deleteById(id);
 	}

@@ -27,6 +27,7 @@ import com.lmsuniversity.teachingmaterial.TeachingMaterial;
 import com.lmsuniversity.user.Teacher;
 import com.lmsuniversity.user.Student;
 import com.lmsuniversity.studyprogram.StudyProgram;
+import com.lmsuniversity.studyyear.StudyYear;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -88,6 +89,11 @@ public class Course {
 	@ManyToOne
 	@JoinColumn(name = "study_program_id")
 	private StudyProgram studyProgram;
+
+	@NotNull
+	@ManyToOne
+	@JoinColumn(name = "study_year_id")
+	private StudyYear studyYear;
 
 	@AssertTrue(message = "endDate must not be before startDate")
 	public boolean isDateRangeValid() {
