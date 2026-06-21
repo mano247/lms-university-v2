@@ -1,11 +1,12 @@
 package com.lmsuniversity.user;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +34,8 @@ public class RegisteredUserService {
 	@Autowired
 	private PasswordEncoder encoder;
 
-	public List<RegisteredUser> findAll() {
-		return repository.findAll();
+	public Page<RegisteredUser> findAll(Pageable pageable) {
+		return repository.findAll(pageable);
 	}
 
 	public Optional<RegisteredUser> findOne(Long id) {

@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,9 +37,9 @@ public class TeacherController {
 	private StudentMapper studentMapper;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<TeacherDto>> getAll(){
-		List<TeacherDto> teachers = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<TeacherDto>>(teachers, HttpStatus.OK);
+	public ResponseEntity<Page<TeacherDto>> getAll(Pageable pageable){
+		Page<TeacherDto> teachers = service.findAll(pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<TeacherDto>>(teachers, HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)

@@ -12,6 +12,7 @@ import com.lmsuniversity.user.TeacherMapper;
 @Mapper(componentModel = "spring", uses = { CourseMapper.class, StudentMapper.class, TeacherMapper.class })
 public interface ExamAttemptMapper {
 
+	@Mapping(target = "student", source = "student", qualifiedByName = "toSummaryDto")
 	ExamAttemptDto toDto(ExamAttempt examAttempt);
 
 	List<ExamAttemptDto> toDtoList(List<ExamAttempt> examAttempts);

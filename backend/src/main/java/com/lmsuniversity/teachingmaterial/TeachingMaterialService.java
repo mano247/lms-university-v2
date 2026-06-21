@@ -1,9 +1,10 @@
 package com.lmsuniversity.teachingmaterial;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lmsuniversity.course.Course;
@@ -20,8 +21,8 @@ public class TeachingMaterialService {
 	@Autowired
 	private TeachingMaterialMapper mapper;
 
-	public List<TeachingMaterial> findAll() {
-		return repository.findAll();
+	public Page<TeachingMaterial> findAll(Pageable pageable) {
+		return repository.findAll(pageable);
 	}
 
 	public Optional<TeachingMaterial> findOne(Long id) {

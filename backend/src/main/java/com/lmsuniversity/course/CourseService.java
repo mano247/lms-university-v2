@@ -1,9 +1,14 @@
 package com.lmsuniversity.course;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lmsuniversity.studyprogram.StudyProgram;
@@ -25,8 +30,13 @@ public class CourseService {
 	@Autowired
 	private CourseMapper mapper;
 
-	public List<Course> findAll() {
-		return repository.findAll();
+	public Page<Course> findAll(Pageable pageable) {
+		Page<Course> page = repository.findAll(pageable);
+		List<Course> withDetails = repository.fetchDetails(page.getContent());
+		Map<Long, Course> byId = new LinkedHashMap<>();
+		withDetails.forEach(c -> byId.put(c.getId(), c));
+		List<Course> ordered = page.getContent().stream().map(c -> byId.get(c.getId())).toList();
+		return new PageImpl<>(ordered, pageable, page.getTotalElements());
 	}
 
 	public Optional<Course> findOne(Long id) {

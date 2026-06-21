@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,9 +43,9 @@ public class ExamAttemptController {
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<ExamAttemptDto>> getAll() {
-		List<ExamAttemptDto> examAttempts = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<ExamAttemptDto>>(examAttempts, HttpStatus.OK);
+	public ResponseEntity<Page<ExamAttemptDto>> getAll(Pageable pageable) {
+		Page<ExamAttemptDto> examAttempts = service.findAll(pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<ExamAttemptDto>>(examAttempts, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
@@ -97,6 +100,8 @@ public class ExamAttemptController {
 			if (teacherId.equals(userId)) {
 
 				Set<Course> teacherCourses = teacherService.findOne(teacherId).get().getCourses();
+				List<Long> courseIds = teacherCourses.stream().map(Course::getId).toList();
+				List<ExamAttempt> courseExamAttempts = service.findByCourseIds(courseIds);
 
 				List<AddGradeDto> response = new ArrayList<>();
 				for(Course p : teacherCourses) {
@@ -104,7 +109,7 @@ public class ExamAttemptController {
 					List<TeacherStudentsDto>  students = new ArrayList<TeacherStudentsDto>();
 					for(Student s : p.getStudents()) {
 
-						for(ExamAttempt pp : service.findAll()) {
+						for(ExamAttempt pp : courseExamAttempts) {
 
 							if(pp.getCourse().getId().equals(p.getId()) && pp.getStudent().getId().equals(s.getId())) {
 
@@ -138,24 +143,14 @@ public class ExamAttemptController {
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/registered/{id}", method = RequestMethod.GET)
 	public ResponseEntity<List<ExamAttemptDto>> getRegisteredExamAttempts(@PathVariable("id") Long id) {
-		List<ExamAttemptDto> examAttempts = new ArrayList<>();
-		for (ExamAttempt pp : service.findAll()) {
-			if(pp.getFinalGrade()==0 && pp.getPoints()==0.0 && pp.getStudent().getId().equals(id)) {
-				examAttempts.add(mapper.toDto(pp));
-			}
-		}
+		List<ExamAttemptDto> examAttempts = service.findRegisteredByStudent(id).stream().map(mapper::toDto).collect(Collectors.toList());
 		return new ResponseEntity<List<ExamAttemptDto>>(examAttempts, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/registered-by-course/{id}", method = RequestMethod.GET)
 	public ResponseEntity<List<ExamAttemptDto>> getRegisteredExamAttemptsByCourse(@PathVariable("id") Long id) {
-		List<ExamAttemptDto> examAttempts = new ArrayList<>();
-		for (ExamAttempt pp : service.findAll()) {
-			if(pp.getFinalGrade()==0 && pp.getPoints()==0.0 && pp.getCourse().getId().equals(id)) {
-				examAttempts.add(mapper.toDto(pp));
-			}
-		}
+		List<ExamAttemptDto> examAttempts = service.findRegisteredByCourse(id).stream().map(mapper::toDto).collect(Collectors.toList());
 		return new ResponseEntity<List<ExamAttemptDto>>(examAttempts, HttpStatus.OK);
 	}
 

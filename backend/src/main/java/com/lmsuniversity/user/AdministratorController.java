@@ -1,9 +1,10 @@
 package com.lmsuniversity.user;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,9 +28,9 @@ public class AdministratorController {
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<AdministratorDto>> getAll(){
-		List<AdministratorDto> administrators = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<AdministratorDto>>(administrators, HttpStatus.OK);
+	public ResponseEntity<Page<AdministratorDto>> getAll(Pageable pageable){
+		Page<AdministratorDto> administrators = service.findAll(pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<AdministratorDto>>(administrators, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")

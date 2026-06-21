@@ -1,10 +1,11 @@
 package com.lmsuniversity.announcement;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,8 +16,8 @@ public class AnnouncementService {
 	@Autowired
 	private AnnouncementMapper mapper;
 
-	public List<Announcement> findAll() {
-		return repository.findAll();
+	public Page<Announcement> findAll(Pageable pageable) {
+		return repository.findAllGlobal(pageable);
 	}
 
 	public Optional<Announcement> findOne(Long id) {

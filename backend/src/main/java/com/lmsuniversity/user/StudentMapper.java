@@ -5,6 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 import com.lmsuniversity.faculty.FacultyMapper;
 
@@ -16,6 +17,11 @@ public interface StudentMapper {
 	StudentDto toDto(Student student);
 
 	List<StudentDto> toDtoList(List<Student> students);
+
+	@Named("toSummaryDto")
+	@Mapping(target = "userType", expression = "java(student.getClass().getSimpleName())")
+	@Mapping(target = "permission", ignore = true)
+	StudentDto toSummaryDto(Student student);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "faculty", ignore = true)
