@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.lmsuniversity.examattempt.ExamAttemptRepository;
+import com.lmsuniversity.examperiod.ExamPeriodRepository;
 import com.lmsuniversity.studyprogram.StudyProgram;
 import com.lmsuniversity.studyprogram.StudyProgramRepository;
 import com.lmsuniversity.user.Student;
@@ -35,6 +36,9 @@ public class CourseService {
 
 	@Autowired
 	private ExamAttemptRepository examAttemptRepository;
+
+	@Autowired
+	private ExamPeriodRepository examPeriodRepository;
 
 	@Autowired
 	private StudentRepository studentRepository;
@@ -113,6 +117,10 @@ public class CourseService {
 		if (examAttemptRepository.existsByCourseId(id)) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT,
 					"Cannot delete course: it still has exam attempts associated with it.");
+		}
+		if (examPeriodRepository.existsByCourseId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete course: it still has exam periods associated with it.");
 		}
 		Course course = repository.findById(id).orElse(null);
 		if (course != null && course.getStudents() != null) {

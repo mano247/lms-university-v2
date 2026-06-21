@@ -20,6 +20,15 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long>{
 
 	boolean existsByTeacherId(Long teacherId);
 
+	boolean existsByExamPeriodTermId(Long examPeriodTermId);
+
+	boolean existsByExamPeriodTermIdAndStudentId(Long examPeriodTermId, Long studentId);
+
+	long countByExamPeriodTermId(Long examPeriodTermId);
+
+	@Query("SELECT (COUNT(e) > 0) FROM ExamAttempt e WHERE e.examPeriodTerm.examPeriod.id = :examPeriodId")
+	boolean existsByExamPeriodId(@Param("examPeriodId") Long examPeriodId);
+
 	String DETAILS_FETCH =
 			"JOIN FETCH e.course c "
 			+ "JOIN FETCH c.teacher "
