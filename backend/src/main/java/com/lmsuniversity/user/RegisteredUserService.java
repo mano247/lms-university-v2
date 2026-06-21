@@ -7,14 +7,20 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.lmsuniversity.course.CourseRepository;
+import com.lmsuniversity.examattempt.ExamAttemptRepository;
 import com.lmsuniversity.faculty.Faculty;
 import com.lmsuniversity.faculty.FacultyRepository;
+import com.lmsuniversity.finalthesis.FinalThesisRepository;
 import com.lmsuniversity.permission.Permission;
 import com.lmsuniversity.permission.PermissionEnum;
 import com.lmsuniversity.permission.PermissionRepository;
+import com.lmsuniversity.studentyearenrollment.StudentYearEnrollmentRepository;
 
 @Service
 public class RegisteredUserService {
@@ -29,10 +35,53 @@ public class RegisteredUserService {
 	private FacultyRepository facultyRepository;
 
 	@Autowired
+	private CourseRepository courseRepository;
+
+	@Autowired
+	private ExamAttemptRepository examAttemptRepository;
+
+	@Autowired
+	private FinalThesisRepository finalThesisRepository;
+
+	@Autowired
+	private StudentYearEnrollmentRepository studentYearEnrollmentRepository;
+
+	@Autowired
 	private RegisteredUserMapper mapper;
 
 	@Autowired
 	private PasswordEncoder encoder;
+
+	private void assertNoBlockingDependents(RegisteredUser user) {
+		Long id = user.getId();
+		if (user instanceof Teacher) {
+			if (courseRepository.existsByTeacherId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they still teach courses.");
+			}
+			if (examAttemptRepository.existsByTeacherId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they still have exam attempts associated with them.");
+			}
+			if (finalThesisRepository.existsByMentorId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they still mentor final theses.");
+			}
+		} else if (user instanceof Student) {
+			if (examAttemptRepository.existsByStudentId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they still have exam attempts associated with them.");
+			}
+			if (finalThesisRepository.existsByStudentId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they still have a final thesis associated with them.");
+			}
+			if (studentYearEnrollmentRepository.existsByStudentId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they still have year enrollments associated with them.");
+			}
+		}
+	}
 
 	public Page<RegisteredUser> findAll(Pageable pageable) {
 		return repository.findAll(pageable);
@@ -69,6 +118,17 @@ public class RegisteredUserService {
 	}
 
 	public void delete(Long id) {
+		RegisteredUser user = repository.findById(id).orElse(null);
+		if (user == null) {
+			return;
+		}
+		assertNoBlockingDependents(user);
+		if (user instanceof Student student) {
+			student.getCourses().clear();
+			student.getStudyYears().clear();
+		}
+		user.getPermissions().clear();
+		repository.save(user);
 		repository.deleteById(id);
 	}
 
@@ -82,6 +142,7 @@ public class RegisteredUserService {
 		if (user == null) {
 			return false;
 		}
+		assertNoBlockingDependents(user);
 		if ("student_premission".equalsIgnoreCase(type) && !(user instanceof Student)) {
 			Set<Permission> permissions = new HashSet<>();
 			Optional<Permission> studentRole = permissionRepository.findByName(PermissionEnum.STUDENT_PERMISSION);
@@ -151,6 +212,7 @@ public class RegisteredUserService {
 			return false;
 			}
 		else if (!(user instanceof Student)) {
+			assertNoBlockingDependents(user);
 			Set<Permission> permissions = new HashSet<>();
 			Optional<Permission> studentRole = permissionRepository.findByName(PermissionEnum.STUDENT_PERMISSION);
 			permissions.add(studentRole.orElse(null));

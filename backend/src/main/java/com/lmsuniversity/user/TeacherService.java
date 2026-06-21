@@ -5,9 +5,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.lmsuniversity.course.CourseRepository;
+import com.lmsuniversity.examattempt.ExamAttemptRepository;
+import com.lmsuniversity.finalthesis.FinalThesisRepository;
 import com.lmsuniversity.rectorate.University;
 import com.lmsuniversity.rectorate.UniversityRepository;
 
@@ -18,6 +23,15 @@ public class TeacherService {
 
 	@Autowired
 	private UniversityRepository universityRepository;
+
+	@Autowired
+	private CourseRepository courseRepository;
+
+	@Autowired
+	private ExamAttemptRepository examAttemptRepository;
+
+	@Autowired
+	private FinalThesisRepository finalThesisRepository;
 
 	@Autowired
 	private TeacherMapper mapper;
@@ -66,6 +80,18 @@ public class TeacherService {
 	}
 
 	public void delete(Long id) {
+		if (courseRepository.existsByTeacherId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete teacher: they still teach courses.");
+		}
+		if (examAttemptRepository.existsByTeacherId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete teacher: they still have exam attempts associated with them.");
+		}
+		if (finalThesisRepository.existsByMentorId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete teacher: they still mentor final theses.");
+		}
 		repository.deleteById(id);
 	}
 

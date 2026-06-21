@@ -1,5 +1,6 @@
 package com.lmsuniversity.course;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.lmsuniversity.examattempt.ExamAttemptRepository;
 import com.lmsuniversity.studyprogram.StudyProgram;
 import com.lmsuniversity.studyprogram.StudyProgramRepository;
+import com.lmsuniversity.user.Student;
+import com.lmsuniversity.user.StudentRepository;
 import com.lmsuniversity.user.Teacher;
 import com.lmsuniversity.user.TeacherRepository;
 
@@ -26,6 +32,12 @@ public class CourseService {
 
 	@Autowired
 	private StudyProgramRepository studyProgramRepository;
+
+	@Autowired
+	private ExamAttemptRepository examAttemptRepository;
+
+	@Autowired
+	private StudentRepository studentRepository;
 
 	@Autowired
 	private CourseMapper mapper;
@@ -98,6 +110,17 @@ public class CourseService {
 	}
 
 	public void delete(Long id) {
+		if (examAttemptRepository.existsByCourseId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete course: it still has exam attempts associated with it.");
+		}
+		Course course = repository.findById(id).orElse(null);
+		if (course != null && course.getStudents() != null) {
+			for (Student student : new HashSet<>(course.getStudents())) {
+				student.getCourses().remove(course);
+				studentRepository.save(student);
+			}
+		}
 		repository.deleteById(id);
 	}
 

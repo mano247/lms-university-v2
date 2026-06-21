@@ -13,4 +13,6 @@ public interface StudentAffairsOfficeRepository extends JpaRepository<StudentAff
 	@EntityGraph(attributePaths = {"faculty"})
 	Page<StudentAffairsOffice> findAll(Pageable pageable);
 
+	boolean existsByFacultyId(Long facultyId);
+
 }

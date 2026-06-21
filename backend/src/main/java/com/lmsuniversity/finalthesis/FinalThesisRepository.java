@@ -15,6 +15,8 @@ public interface FinalThesisRepository extends JpaRepository<FinalThesis, Long>{
 
 	boolean existsByStudentId(Long studentId);
 
+	boolean existsByMentorId(Long mentorId);
+
 	@Override
 	@EntityGraph(attributePaths = {"student", "mentor"})
 	Page<FinalThesis> findAll(Pageable pageable);

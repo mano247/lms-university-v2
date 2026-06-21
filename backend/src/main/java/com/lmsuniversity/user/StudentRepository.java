@@ -15,4 +15,6 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 			+ "FROM Student s LEFT JOIN s.faculty f")
 	Page<StudentListDto> findAllProjected(Pageable pageable);
 
+	boolean existsByFacultyId(Long facultyId);
+
 }

@@ -13,6 +13,10 @@ public interface CourseRepository extends JpaRepository<Course, Long>{
 
 	Optional<Course> findByCourseCode(String courseCode);
 
+	boolean existsByStudyProgramId(Long studyProgramId);
+
+	boolean existsByTeacherId(Long teacherId);
+
 	@Query("SELECT DISTINCT c FROM Course c "
 			+ "JOIN FETCH c.teacher "
 			+ "JOIN FETCH c.studyProgram sp "

@@ -94,6 +94,7 @@ public class WebSecurityConfig {
 		        .requestMatchers(HttpMethod.GET, "/api/universities/**").permitAll()
 		        .requestMatchers(HttpMethod.GET, "/api/rectorates/**").permitAll()
 		        .requestMatchers(HttpMethod.GET, "/api/announcements/**").permitAll()
+		        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
 		        .anyRequest().authenticated()
         );
     
