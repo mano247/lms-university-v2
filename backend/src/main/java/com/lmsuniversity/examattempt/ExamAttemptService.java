@@ -7,15 +7,26 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-
+import com.lmsuniversity.course.Course;
+import com.lmsuniversity.course.CourseRepository;
+import com.lmsuniversity.user.Student;
+import com.lmsuniversity.user.StudentRepository;
 
 @Service
 public class ExamAttemptService {
 	@Autowired
 	private ExamAttemptRepository repository;
 
-	public Iterable<ExamAttempt> findAll() {
+	@Autowired
+	private CourseRepository courseRepository;
+
+	@Autowired
+	private StudentRepository studentRepository;
+
+	@Autowired
+	private ExamAttemptMapper mapper;
+
+	public List<ExamAttempt> findAll() {
 		return repository.findAll();
 	}
 
@@ -28,11 +39,39 @@ public class ExamAttemptService {
 		return repository.save(newExamAttempt);
 	}
 
-	public ExamAttempt update(ExamAttempt examAttempt) {
-		if(repository.findById(examAttempt.getId()).isPresent()) {
-			return repository.save(examAttempt);
+	public ExamAttempt create(ExamAttemptCreateDto dto, Long studentId) {
+		Course course = courseRepository.findById(dto.getCourseId())
+				.orElseThrow(() -> new IllegalArgumentException("Course not found: " + dto.getCourseId()));
+		Student student = studentRepository.findById(studentId)
+				.orElseThrow(() -> new IllegalArgumentException("Student not found: " + studentId));
+		if (!course.getStudents().contains(student)) {
+			throw new IllegalArgumentException("Student is not enrolled in course: " + dto.getCourseId());
 		}
-		return null;
+
+		ExamAttempt examAttempt = mapper.toEntity(dto);
+		examAttempt.setCourse(course);
+		examAttempt.setStudent(student);
+		examAttempt.setTeacher(course.getTeacher());
+		examAttempt.setPoints(0);
+		examAttempt.setFinalGrade(0);
+		return repository.save(examAttempt);
+	}
+
+	public ExamAttempt update(Long id, ExamAttemptUpdateDto dto, Long requestingTeacherId) {
+		ExamAttempt examAttempt = repository.findById(id).orElse(null);
+		if (examAttempt == null || !examAttempt.getTeacher().getId().equals(requestingTeacherId)) {
+			return null;
+		}
+		if (dto.getPoints() != null) {
+			examAttempt.setPoints(dto.getPoints());
+		}
+		if (dto.getFinalGrade() != null) {
+			examAttempt.setFinalGrade(dto.getFinalGrade());
+		}
+		if (dto.getNote() != null) {
+			examAttempt.setNote(dto.getNote());
+		}
+		return repository.save(examAttempt);
 	}
 
 	public void delete(Long id) {
@@ -46,7 +85,7 @@ public class ExamAttemptService {
 	public Iterable<ExamAttempt> findAllByStudent(Long id ) {
 		List<ExamAttempt> examAttempts = new ArrayList<>();
 		for(ExamAttempt pp : findAll()){
-			if(pp.getStudent().getId() == id) {
+			if(pp.getStudent().getId().equals(id)) {
 				examAttempts.add(pp);
 			}
 		}

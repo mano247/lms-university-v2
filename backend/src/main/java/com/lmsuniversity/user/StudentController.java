@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.validation.Valid;
@@ -22,10 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.lmsuniversity.common.MyCoursesDto;
-import com.lmsuniversity.teachingmaterial.TeachingMaterialDto;
 import com.lmsuniversity.course.CourseDto;
-import com.lmsuniversity.common.StudentUpdateDto;
-import com.lmsuniversity.studyprogram.StudyProgramDto;
+import com.lmsuniversity.course.CourseMapper;
 import com.lmsuniversity.examattempt.ExamAttempt;
 import com.lmsuniversity.course.Course;
 import com.lmsuniversity.studyprogram.StudyProgram;
@@ -40,23 +37,23 @@ public class StudentController {
 		private StudentService service;
 
 		@Autowired
+		private StudentMapper mapper;
+
+		@Autowired
+		private CourseMapper courseMapper;
+
+		@Autowired
 		private StudyProgramService spService;
 
 		@Autowired
 		private ExamAttemptService examAttemptService;
 
-		@Autowired
-		PasswordEncoder encoder;
-
 
 		@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "", method = RequestMethod.GET)
-		public ResponseEntity<Iterable<StudentDto>> getAll() {
-			ArrayList<StudentDto> student = new ArrayList<StudentDto>();
-			for (Student s : service.findAll()) {
-				student.add(StudentDto.builder().id(s.getId()).userType(s.getClass().getSimpleName()).firstName(s.getFirstName()).lastName(s.getLastName()).email(s.getEmail()).password(s.getPassword()).permission(s.getPermissions()).indexNumber(s.getIndexNumber()).username(s.getUsername()).build());
-			}
-			return new ResponseEntity<Iterable<StudentDto>>(student, HttpStatus.OK);
+		public ResponseEntity<List<StudentDto>> getAll() {
+			List<StudentDto> students = mapper.toDtoList(service.findAll());
+			return new ResponseEntity<List<StudentDto>>(students, HttpStatus.OK);
 		}
 
 		@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
@@ -64,49 +61,34 @@ public class StudentController {
 		public ResponseEntity<StudentDto> get(@PathVariable("id") Long id) {
 			Optional<Student> s = service.findOne(id);
 			if (s.isPresent()) {
-				StudentDto dto = StudentDto.builder().id(s.get().getId()).userType(s.get().getClass().getSimpleName()).firstName(s.get().getFirstName()).lastName(s.get().getLastName()).email(s.get().getEmail()).password(s.get().getPassword()).permission(s.get().getPermissions()).indexNumber(s.get().getIndexNumber()).username(s.get().getUsername()).build();
-				return new ResponseEntity<StudentDto>(dto, HttpStatus.OK);
+				return new ResponseEntity<StudentDto>(mapper.toDto(s.get()), HttpStatus.OK);
 			}
 			return new ResponseEntity<StudentDto>(HttpStatus.NOT_FOUND);
 		}
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "", method = RequestMethod.POST)
-		public ResponseEntity<Student> create(@Valid @RequestBody Student r) {
-			try {
-				r.setPassword(encoder.encode(r.getPassword()));
-				service.save(r);
-				return new ResponseEntity<Student>(r, HttpStatus.CREATED);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return new ResponseEntity<Student>(HttpStatus.BAD_REQUEST);
+		public ResponseEntity<StudentDto> create(@Valid @RequestBody StudentCreateDto dto) {
+			Student student = service.create(dto);
+			return new ResponseEntity<StudentDto>(mapper.toDto(student), HttpStatus.CREATED);
 		}
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION')")
 		@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-		public ResponseEntity<Student> update(@PathVariable("id") Long id, @Valid @RequestBody StudentUpdateDto student, Authentication authentication) {
+		public ResponseEntity<StudentDto> update(@PathVariable("id") Long id, @Valid @RequestBody StudentUpdateDto dto, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
 				UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 				Long userId = userDetails.getId();
 
 				if (id.equals(userId)) {
-					Student studentToUpdate = service.findOne(id).orElse(null);
-					if (studentToUpdate != null) {
-						studentToUpdate.setId(id);
-						studentToUpdate.setFirstName(student.getFirstName());
-						studentToUpdate.setLastName(student.getLastName());
-						studentToUpdate.setEmail(student.getEmail());
-						studentToUpdate.setPassword(studentToUpdate.getPassword());
-						studentToUpdate.setPermissions(studentToUpdate.getPermissions());
-
-						service.save(studentToUpdate);
-						return new ResponseEntity<Student>(HttpStatus.OK);
+					Student student = service.update(id, dto);
+					if (student != null) {
+						return new ResponseEntity<StudentDto>(mapper.toDto(student), HttpStatus.OK);
 					}
 				}
 			}
 
-			return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<StudentDto>(HttpStatus.NOT_FOUND);
 		}
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
@@ -118,30 +100,16 @@ public class StudentController {
 
 				if (id.equals(userId)) {
 					Set<Course> actualCourses = service.findOne(id).get().getCourses();
-					service.findOne(id).get().getCourses()
-							.stream().map(p -> CourseDto.builder()
-									.id(p.getId())
-									.courseCode(p.getCourseCode())
-									.teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build())
-									.studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build())
-									.name(p.getName())
-									.ects(p.getEcts())
-									.description(p.getDescription())
-									.syllabus(p.getSyllabus())
-									.teachingMaterials(p.getTeachingMaterials().stream().map(nm ->
-											TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
-									.build()).collect(Collectors.toSet());
 
 					List<MyCoursesDto> result = new ArrayList<>();
 					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
 					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
-							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getFinalGrade() > 5 && pp.getFinalGrade() <=10) {
+							if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId()) && pp.getFinalGrade() > 5 && pp.getFinalGrade() <=10) {
 								result.add(MyCoursesDto.builder().id(p.getId()).courseName(p.getName()).description(p.getDescription()).syllabus(p.getSyllabus()).teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build()).points(pp.getPoints()).ects(p.getEcts()).grade(pp.getFinalGrade()).build());
 							}
 						}
 					}
-
 
 					return new ResponseEntity<List<MyCoursesDto>>(result, HttpStatus.OK);
 				}
@@ -158,30 +126,16 @@ public class StudentController {
 
 				if (id.equals(userId)) {
 					Set<Course> actualCourses = service.findOne(id).get().getCourses();
-					service.findOne(id).get().getCourses()
-							.stream().map(p -> CourseDto.builder()
-									.id(p.getId())
-									.courseCode(p.getCourseCode())
-									.teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build())
-									.studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build())
-									.name(p.getName())
-									.ects(p.getEcts())
-									.description(p.getDescription())
-									.syllabus(p.getSyllabus())
-									.teachingMaterials(p.getTeachingMaterials().stream().map(nm ->
-											TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
-									.build()).collect(Collectors.toSet());
 
 					List<MyCoursesDto> result = new ArrayList<>();
 					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
 					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
-							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getFinalGrade() ==5) {
+							if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId()) && pp.getFinalGrade() ==5) {
 								result.add(MyCoursesDto.builder().id(p.getId()).courseName(p.getName()).description(p.getDescription()).syllabus(p.getSyllabus()).teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build()).points(pp.getPoints()).ects(p.getEcts()).grade(pp.getFinalGrade()).build());
 							}
 						}
 					}
-
 
 					return new ResponseEntity<List<MyCoursesDto>>(result, HttpStatus.OK);
 				}
@@ -197,9 +151,8 @@ public class StudentController {
 				Long userId = userDetails.getId();
 
 				if (id.equals(userId)) {
-					service.findOne(id).get().getCourses();
 					Set<CourseDto> courses = service.findOne(id).get().getCourses()
-							.stream().map(p -> CourseDto.builder().id(p.getId()).courseCode(p.getCourseCode()).studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build()).syllabus(p.getSyllabus()).name(p.getName()).ects(p.getEcts()).teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build()).startDate(p.getStartDate()).endDate(p.getEndDate()).description(p.getDescription()).teachingMaterials(p.getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).publicationYear(nm.getPublicationYear()).build()).collect(Collectors.toSet())).build()).collect(Collectors.toSet());
+							.stream().map(courseMapper::toDto).collect(Collectors.toSet());
 
 					return new ResponseEntity<Set<CourseDto>>(courses, HttpStatus.OK);
 				}
@@ -215,9 +168,12 @@ public class StudentController {
 				Long userId = userDetails.getId();
 
 				if (id.equals(userId)) {
-					service.findOne(id).get().getCourses();
 					Set<CourseDto> courses = service.findOne(id).get().getCourses()
-							.stream().filter(p -> p.getEndDate().after(new Date())).filter(p -> p.getStartDate().before(new Date())).map(p -> CourseDto.builder().id(p.getId()).courseCode(p.getCourseCode()).studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build()).syllabus(p.getSyllabus()).name(p.getName()).ects(p.getEcts()).teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build()).startDate(p.getStartDate()).endDate(p.getEndDate()).description(p.getDescription()).teachingMaterials(p.getTeachingMaterials().stream().map(nm -> TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).publicationYear(nm.getPublicationYear()).build()).collect(Collectors.toSet())).build()).collect(Collectors.toSet());
+							.stream()
+							.filter(p -> p.getEndDate().after(new Date()))
+							.filter(p -> p.getStartDate().before(new Date()))
+							.map(courseMapper::toDto)
+							.collect(Collectors.toSet());
 
 					return new ResponseEntity<Set<CourseDto>>(courses, HttpStatus.OK);
 				}
@@ -234,31 +190,17 @@ public class StudentController {
 
 				if (id.equals(userId)) {
 					Set<Course> actualCourses = service.findOne(id).get().getCourses();
-					service.findOne(id).get().getCourses()
-							.stream().map(p -> CourseDto.builder()
-									.id(p.getId())
-									.courseCode(p.getCourseCode())
-									.teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build())
-									.studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build())
-									.name(p.getName())
-									.ects(p.getEcts())
-									.description(p.getDescription())
-									.syllabus(p.getSyllabus())
-									.teachingMaterials(p.getTeachingMaterials().stream().map(nm ->
-											TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
-									.build()).collect(Collectors.toSet());
 
 					List<MyCoursesDto> result = new ArrayList<>();
 
 					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
 					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
-							if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId() && pp.getCourse().getId().equals(courseId) && pp.getFinalGrade() ==5) {
+							if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId()) && pp.getCourse().getId().equals(courseId) && pp.getFinalGrade() ==5) {
 								result.add(MyCoursesDto.builder().id(p.getId()).courseName(p.getName()).description(p.getDescription()).syllabus(p.getSyllabus()).teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build()).points(pp.getPoints()).ects(p.getEcts()).grade(pp.getFinalGrade()).build());
 							}
 						}
 					}
-
 
 					return new ResponseEntity<List<MyCoursesDto>>(result, HttpStatus.OK);
 				}
@@ -268,28 +210,21 @@ public class StudentController {
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION','ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "/assign-courses/{studyProgramId}", method = RequestMethod.PUT)
-			public ResponseEntity<Student> assignCoursesToStudent(@PathVariable("studyProgramId") Long studyProgramId, @RequestBody Student student, Authentication authentication) {
-
+		public ResponseEntity<StudentDto> assignCoursesToStudent(@PathVariable("studyProgramId") Long studyProgramId, @Valid @RequestBody AssignCoursesDto dto, Authentication authentication) {
 			if (authentication.isAuthenticated()) {
-				Student s = service.findOne(student.getId()).orElse(null);
-					Optional<StudyProgram> optionalStudyProgram = spService.findOne(studyProgramId);
-				    StudyProgram studyProgram = optionalStudyProgram.get();
-				    Set<Course> courses = new HashSet<>();
-				    for (Course p : studyProgram.getCourses()) {
-					    courses.add(p);
-				    }
+				Student s = service.findOne(dto.getStudentId()).orElse(null);
+				Optional<StudyProgram> optionalStudyProgram = spService.findOne(studyProgramId);
 
-					if (s != null) {
-							s.setId(student.getId());
-							s.setCourses(courses);
-
-							service.save(s);
-							return new ResponseEntity<Student>(s,HttpStatus.OK);
-							}
-					return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
-					}
-			return new ResponseEntity<Student>(HttpStatus.BAD_REQUEST);
+				if (s != null && optionalStudyProgram.isPresent()) {
+					Set<Course> courses = new HashSet<>(optionalStudyProgram.get().getCourses());
+					s.setCourses(courses);
+					service.save(s);
+					return new ResponseEntity<StudentDto>(mapper.toDto(s), HttpStatus.OK);
+				}
+				return new ResponseEntity<StudentDto>(HttpStatus.NOT_FOUND);
 			}
+			return new ResponseEntity<StudentDto>(HttpStatus.BAD_REQUEST);
+		}
 
 
 		@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION')")
@@ -302,20 +237,6 @@ public class StudentController {
 				if (id.equals(userId)) {
 					Set<Course> studentCourses = service.findOne(id).get().getCourses();
 
-					service.findOne(id).get().getCourses()
-							.stream().map(p -> CourseDto.builder()
-									.id(p.getId())
-									.courseCode(p.getCourseCode())
-									.teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build())
-									.studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build())
-									.name(p.getName())
-									.ects(p.getEcts())
-									.description(p.getDescription())
-									.syllabus(p.getSyllabus())
-									.teachingMaterials(p.getTeachingMaterials().stream().map(nm ->
-											TeachingMaterialDto.builder().id(nm.getId()).title(nm.getTitle()).authors(nm.getAuthors()).pageCount(nm.getPageCount()).publisher(nm.getPublisher()).description(nm.getDescription()).quantity(nm.getQuantity()).issuedQuantity(nm.getIssuedQuantity()).build()).collect(Collectors.toSet()))
-									.build()).collect(Collectors.toSet());
-
 					List<CourseDto> result = new ArrayList<>();
 
 					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
@@ -324,7 +245,7 @@ public class StudentController {
 					    boolean coursePassed = false;
 
 					    for (ExamAttempt pp : examAttempts) {
-					        if (pp.getStudent().getId() == id && pp.getCourse().getId() == p.getId()) {
+					        if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId())) {
 					            if (pp.getFinalGrade() > 5) {
 					                coursePassed = true;
 					                break;
@@ -332,7 +253,7 @@ public class StudentController {
 					        }
 					    }
 					    if (!coursePassed) {
-					        result.add(CourseDto.builder().id(p.getId()).courseCode(p.getCourseCode()).teacher(TeacherDto.builder().id(p.getTeacher().getId()).firstName(p.getTeacher().getFirstName()).lastName(p.getTeacher().getLastName()).build()).studyProgram(StudyProgramDto.builder().id(p.getStudyProgram().getId()).programCode(p.getStudyProgram().getProgramCode()).name(p.getStudyProgram().getName()).build()).name(p.getName()).ects(p.getEcts()).description(p.getDescription()).syllabus(p.getSyllabus()).build());
+					        result.add(courseMapper.toDto(p));
 					    }
 					}
 

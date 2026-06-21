@@ -1,6 +1,6 @@
 package com.lmsuniversity.officesupply;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,46 +21,37 @@ public class OfficeSupplyController {
 	@Autowired
 	private OfficeSupplyService service;
 
+	@Autowired
+	private OfficeSupplyMapper mapper;
+
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<OfficeSupplyDto>> getAll(){
-		HashSet<OfficeSupplyDto> officeSupplies = new HashSet<OfficeSupplyDto>();
-		for (OfficeSupply k : service.findAll()) {
-			officeSupplies.add(new OfficeSupplyDto(k.getId(),k.getName(),k.getQuantity(),k.getIssuedQuantity()));
-		}
-		return new ResponseEntity<Iterable<OfficeSupplyDto>>(officeSupplies, HttpStatus.OK);
+	public ResponseEntity<List<OfficeSupplyDto>> getAll(){
+		List<OfficeSupplyDto> officeSupplies = mapper.toDtoList(service.findAll());
+		return new ResponseEntity<List<OfficeSupplyDto>>(officeSupplies, HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<OfficeSupplyDto> get(@PathVariable("id") Long id){
 		Optional<OfficeSupply> k = service.findOne(id);
 		if(k.isPresent()) {
-			OfficeSupplyDto dto = new OfficeSupplyDto(k.get().getId(),k.get().getName(),k.get().getQuantity(),k.get().getIssuedQuantity());
-			return new ResponseEntity<OfficeSupplyDto>(dto, HttpStatus.OK);
+			return new ResponseEntity<OfficeSupplyDto>(mapper.toDto(k.get()), HttpStatus.OK);
 		}
 		return new ResponseEntity<OfficeSupplyDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<OfficeSupply> create(@Valid @RequestBody OfficeSupply r){
-		try {
-			service.save(r);
-			return new ResponseEntity<OfficeSupply>(r, HttpStatus.CREATED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<OfficeSupply>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<OfficeSupplyDto> create(@Valid @RequestBody OfficeSupplyCreateDto dto){
+		OfficeSupply officeSupply = service.create(dto);
+		return new ResponseEntity<OfficeSupplyDto>(mapper.toDto(officeSupply), HttpStatus.CREATED);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<OfficeSupply> update(@PathVariable("id") Long id, @Valid @RequestBody OfficeSupply officeSupply){
-		OfficeSupply u = service.findOne(id).orElse(null);
-
-		if(u != null) {
-			officeSupply.setId(id);
-			officeSupply = service.save(officeSupply);
-			return new ResponseEntity<OfficeSupply>(officeSupply, HttpStatus.OK);
+	public ResponseEntity<OfficeSupplyDto> update(@PathVariable("id") Long id, @Valid @RequestBody OfficeSupplyUpdateDto dto){
+		OfficeSupply officeSupply = service.update(id, dto);
+		if(officeSupply != null) {
+			return new ResponseEntity<OfficeSupplyDto>(mapper.toDto(officeSupply), HttpStatus.OK);
 		}
-		return new ResponseEntity<OfficeSupply>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<OfficeSupplyDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)

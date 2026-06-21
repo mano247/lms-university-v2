@@ -1,5 +1,6 @@
 package com.lmsuniversity.rectorate;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,13 @@ public class UniversityService {
 	@Autowired
 	private UniversityRepository repository;
 
-	public Iterable<University> findAll() {
+	@Autowired
+	private RectorateRepository rectorateRepository;
+
+	@Autowired
+	private UniversityMapper mapper;
+
+	public List<University> findAll() {
 		return repository.findAll();
 	}
 
@@ -23,11 +30,21 @@ public class UniversityService {
 		return repository.save(newUniversity);
 	}
 
-	public University update(University university) {
-		if(repository.findById(university.getId()).isPresent()) {
-			return repository.save(university);
+	public University create(UniversityCreateDto dto) {
+		Rectorate rectorate = rectorateRepository.findById(dto.getRectorateId())
+				.orElseThrow(() -> new IllegalArgumentException("Rectorate not found: " + dto.getRectorateId()));
+		University university = mapper.toEntity(dto);
+		university.setRectorate(rectorate);
+		return repository.save(university);
+	}
+
+	public University update(Long id, UniversityUpdateDto dto) {
+		University university = repository.findById(id).orElse(null);
+		if (university == null) {
+			return null;
 		}
-		return null;
+		mapper.updateEntityFromDto(dto, university);
+		return repository.save(university);
 	}
 
 	public void delete(Long id) {

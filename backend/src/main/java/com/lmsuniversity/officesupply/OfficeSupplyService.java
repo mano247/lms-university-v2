@@ -1,5 +1,6 @@
 package com.lmsuniversity.officesupply;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,10 @@ public class OfficeSupplyService {
 	@Autowired
 	private OfficeSupplyRepository repository;
 
-	public Iterable<OfficeSupply> findAll() {
+	@Autowired
+	private OfficeSupplyMapper mapper;
+
+	public List<OfficeSupply> findAll() {
 		return repository.findAll();
 	}
 
@@ -23,11 +27,18 @@ public class OfficeSupplyService {
 		return repository.save(newOfficeSupply);
 	}
 
-	public OfficeSupply update(OfficeSupply officeSupply) {
-		if(repository.findById(officeSupply.getId()).isPresent()) {
-			return repository.save(officeSupply);
+	public OfficeSupply create(OfficeSupplyCreateDto dto) {
+		OfficeSupply officeSupply = mapper.toEntity(dto);
+		return repository.save(officeSupply);
+	}
+
+	public OfficeSupply update(Long id, OfficeSupplyUpdateDto dto) {
+		OfficeSupply officeSupply = repository.findById(id).orElse(null);
+		if (officeSupply == null) {
+			return null;
 		}
-		return null;
+		mapper.updateEntityFromDto(dto, officeSupply);
+		return repository.save(officeSupply);
 	}
 
 	public void delete(Long id) {

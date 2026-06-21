@@ -1,6 +1,6 @@
 package com.lmsuniversity.user;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.validation.Valid;
@@ -24,64 +23,42 @@ public class StudentAffairsOfficeController {
 	private StudentAffairsOfficeService service;
 
 	@Autowired
-	private PasswordEncoder encoder;
+	private StudentAffairsOfficeMapper mapper;
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<StudentAffairsOffice>> getAll(){
-		HashSet<StudentAffairsOffice> studentAffairsOffices = new HashSet<StudentAffairsOffice>();
-		for (StudentAffairsOffice s : service.findAll()) {
-			studentAffairsOffices.add(StudentAffairsOffice.builder().id(s.getId()).firstName(s.getFirstName()).lastName(s.getLastName()).username(s.getUsername()).email(s.getEmail()).password(s.getPassword()).permissions(s.getPermissions()).build());
-		}
-		return new ResponseEntity<Iterable<StudentAffairsOffice>>(studentAffairsOffices, HttpStatus.OK);
+	public ResponseEntity<List<StudentAffairsOfficeDto>> getAll(){
+		List<StudentAffairsOfficeDto> studentAffairsOffices = mapper.toDtoList(service.findAll());
+		return new ResponseEntity<List<StudentAffairsOfficeDto>>(studentAffairsOffices, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<StudentAffairsOffice> get(@PathVariable("id") Long id){
+	public ResponseEntity<StudentAffairsOfficeDto> get(@PathVariable("id") Long id){
 		Optional<StudentAffairsOffice> s = service.findOne(id);
 		if(s.isPresent()) {
-			StudentAffairsOffice studentAffairsOffice = StudentAffairsOffice.builder()
-					.id(s.get().getId())
-					.firstName(s.get().getFirstName())
-					.lastName(s.get().getLastName())
-					.username(s.get().getUsername())
-					.email(s.get().getEmail())
-					.password(s.get().getPassword())
-					.permissions(s.get().getPermissions())
-					.build();
-			return new ResponseEntity<StudentAffairsOffice>(studentAffairsOffice, HttpStatus.OK);
+			return new ResponseEntity<StudentAffairsOfficeDto>(mapper.toDto(s.get()), HttpStatus.OK);
 		}
-		return new ResponseEntity<StudentAffairsOffice>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudentAffairsOfficeDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<StudentAffairsOffice> create(@Valid @RequestBody StudentAffairsOffice r){
-		try {
-			r.setPassword(encoder.encode(r.getPassword()));
-			service.save(r);
-			return new ResponseEntity<StudentAffairsOffice>(r, HttpStatus.CREATED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<StudentAffairsOffice>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<StudentAffairsOfficeDto> create(@Valid @RequestBody StudentAffairsOfficeCreateDto dto){
+		StudentAffairsOffice studentAffairsOffice = service.create(dto);
+		return new ResponseEntity<StudentAffairsOfficeDto>(mapper.toDto(studentAffairsOffice), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION','STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<StudentAffairsOffice> update(@PathVariable("id") Long id, @Valid @RequestBody StudentAffairsOffice studentAffairsOffice, Authentication authentication){
+	public ResponseEntity<StudentAffairsOfficeDto> update(@PathVariable("id") Long id, @Valid @RequestBody StudentAffairsOfficeUpdateDto dto, Authentication authentication){
 		if (authentication.isAuthenticated()) {
-				StudentAffairsOffice u = service.findOne(id).orElse(null);
-				if(u != null) {
-					studentAffairsOffice.setId(id);
-					studentAffairsOffice.setPermissions(u.getPermissions());
-					studentAffairsOffice.setPassword(u.getPassword());
-					studentAffairsOffice = service.save(studentAffairsOffice);
-					return new ResponseEntity<StudentAffairsOffice>(studentAffairsOffice, HttpStatus.OK);
-				}
+			StudentAffairsOffice studentAffairsOffice = service.update(id, dto);
+			if(studentAffairsOffice != null) {
+				return new ResponseEntity<StudentAffairsOfficeDto>(mapper.toDto(studentAffairsOffice), HttpStatus.OK);
+			}
 		}
-		return new ResponseEntity<StudentAffairsOffice>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudentAffairsOfficeDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")

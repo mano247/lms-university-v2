@@ -1,7 +1,8 @@
-package com.lmsuniversity.common;
+package com.lmsuniversity.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,16 +12,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudentUpdateDto {
+public class TeacherUpdateDto {
 	@NotBlank
+	@Size(max = 50)
 	private String firstName;
 
 	@NotBlank
+	@Size(max = 50)
 	private String lastName;
 
 	@NotBlank
 	@Email
+	@Size(max = 100)
 	private String email;
 
-	private String password;
+	private String biography;
+	private String personalIdNumber;
+	private Long universityId;
 }

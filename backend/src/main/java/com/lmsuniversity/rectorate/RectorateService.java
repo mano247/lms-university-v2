@@ -1,5 +1,6 @@
 package com.lmsuniversity.rectorate;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -12,8 +13,11 @@ public class RectorateService {
 	@Autowired
 	private RectorateRepository repository;
 
+	@Autowired
+	private RectorateMapper mapper;
 
-	public Iterable<Rectorate> findAll() {
+
+	public List<Rectorate> findAll() {
 		return repository.findAll();
 	}
 
@@ -26,11 +30,18 @@ public class RectorateService {
 		return repository.save(newRectorate);
 	}
 
-	public Rectorate update(Rectorate rectorate) {
-		if(repository.findById(rectorate.getId()).isPresent()) {
-			return repository.save(rectorate);
+	public Rectorate create(RectorateCreateDto dto) {
+		Rectorate rectorate = mapper.toEntity(dto);
+		return repository.save(rectorate);
+	}
+
+	public Rectorate update(Long id, RectorateUpdateDto dto) {
+		Rectorate rectorate = repository.findById(id).orElse(null);
+		if (rectorate == null) {
+			return null;
 		}
-		return null;
+		mapper.updateEntityFromDto(dto, rectorate);
+		return repository.save(rectorate);
 	}
 
 	public void delete(Long id) {
