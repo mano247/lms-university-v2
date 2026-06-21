@@ -1,6 +1,6 @@
 package com.lmsuniversity.user;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.validation.Valid;
@@ -24,69 +23,44 @@ public class AdministratorController {
 	private AdministratorService service;
 
 	@Autowired
-	private PasswordEncoder encoder;
+	private AdministratorMapper mapper;
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Administrator>> getAll(){
-		HashSet<Administrator> administrators = new HashSet<Administrator>();
-		for (Administrator a : service.findAll()) {
-			administrators.add(Administrator.builder().id(a.getId()).firstName(a.getFirstName()).lastName(a.getLastName()).username(a.getUsername()).email(a.getEmail()).password(a.getPassword()).permissions(a.getPermissions()).build());
-		}
-		return new ResponseEntity<Iterable<Administrator>>(administrators, HttpStatus.OK);
+	public ResponseEntity<List<AdministratorDto>> getAll(){
+		List<AdministratorDto> administrators = mapper.toDtoList(service.findAll());
+		return new ResponseEntity<List<AdministratorDto>>(administrators, HttpStatus.OK);
 	}
-	
+
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Administrator> get(@PathVariable("id") Long id){
+	public ResponseEntity<AdministratorDto> get(@PathVariable("id") Long id){
 		Optional<Administrator> a = service.findOne(id);
 		if(a.isPresent()) {
-			Administrator administrator = Administrator.builder()
-					.id(a.get().getId())
-					.firstName(a.get().getFirstName())
-					.lastName(a.get().getLastName())
-					.username(a.get().getUsername())
-					.email(a.get().getEmail())
-					.password(a.get().getPassword())
-					.permissions(a.get().getPermissions())
-					.build();
-			return new ResponseEntity<Administrator>(administrator, HttpStatus.OK);
+			return new ResponseEntity<AdministratorDto>(mapper.toDto(a.get()), HttpStatus.OK);
 		}
-		return new ResponseEntity<Administrator>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<AdministratorDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Administrator> create(@Valid @RequestBody Administrator r){
-		try {
-			r.setPassword(encoder.encode(r.getPassword()));
-			service.save(r);
-			return new ResponseEntity<Administrator>(r, HttpStatus.CREATED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<Administrator>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<AdministratorDto> create(@Valid @RequestBody AdministratorCreateDto dto){
+		Administrator administrator = service.create(dto);
+		return new ResponseEntity<AdministratorDto>(mapper.toDto(administrator), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Administrator> update(@PathVariable("id") Long id, @Valid @RequestBody Administrator administrator, Authentication authentication){
+	public ResponseEntity<AdministratorDto> update(@PathVariable("id") Long id, @Valid @RequestBody AdministratorUpdateDto dto, Authentication authentication){
 		if (authentication.isAuthenticated()) {
-
-				Administrator u = service.findOne(id).orElse(null);
-				if(u != null) {
-					administrator.setId(id);
-					administrator.setPassword(u.getPassword());
-					administrator.setPermissions(u.getPermissions());
-					administrator = service.save(administrator);
-					return new ResponseEntity<Administrator>(administrator, HttpStatus.OK);
-				}
-
+			Administrator administrator = service.update(id, dto);
+			if(administrator != null) {
+				return new ResponseEntity<AdministratorDto>(mapper.toDto(administrator), HttpStatus.OK);
 			}
-
-		return new ResponseEntity<Administrator>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<AdministratorDto>(HttpStatus.NOT_FOUND);
 	}
-	
+
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Administrator> delete(@PathVariable("id") Long id){

@@ -1,7 +1,7 @@
 package com.lmsuniversity.announcement;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,72 +22,44 @@ public class AnnouncementController {
 	@Autowired
 	private AnnouncementService service;
 
-	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Announcement>> getAll(){
-		ArrayList<Announcement> announcements = new ArrayList<Announcement>();
-		for (Announcement o : service.findAll()) {
+	@Autowired
+	private AnnouncementMapper mapper;
 
+	@RequestMapping(path = "", method = RequestMethod.GET)
+	public ResponseEntity<List<AnnouncementDto>> getAll(){
+		List<AnnouncementDto> announcements = new ArrayList<AnnouncementDto>();
+		for (Announcement o : service.findAll()) {
 			if(!(o instanceof CourseAnnouncement)) {
-				announcements.add(Announcement.builder()
-						.id(o.getId())
-						.content(o.getContent())
-						.title(o.getTitle())
-						.date(o.getDate())
-						.image(o.getImage())
-						.startDate(o.getStartDate())
-						.endDate(o.getEndDate())
-						.build());
+				announcements.add(mapper.toDto(o));
 			}
 		}
-		return new ResponseEntity<Iterable<Announcement>>(announcements, HttpStatus.OK);
+		return new ResponseEntity<List<AnnouncementDto>>(announcements, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Announcement> get(@PathVariable("id") Long id){
+	public ResponseEntity<AnnouncementDto> get(@PathVariable("id") Long id){
 		Optional<Announcement> o = service.findOne(id);
 		if(o.isPresent()) {
-			
-			Announcement announcement = Announcement.builder()
-					.id(o.get().getId())
-					.content(o.get().getContent())
-					.title(o.get().getTitle())
-					.date(o.get().getDate())
-					.image(o.get().getImage())
-					.startDate(o.get().getStartDate())
-					.endDate(o.get().getEndDate())
-					.build();
-			return new ResponseEntity<Announcement>(announcement, HttpStatus.OK);
+			return new ResponseEntity<AnnouncementDto>(mapper.toDto(o.get()), HttpStatus.OK);
 		}
-		return new ResponseEntity<Announcement>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<AnnouncementDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<Announcement> create(@Valid @RequestBody Announcement r){
-		try {
-			r.setDate(LocalDateTime.now());
-			service.save(r);
-			return new ResponseEntity<Announcement>(r, HttpStatus.CREATED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<Announcement>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<AnnouncementDto> create(@Valid @RequestBody AnnouncementCreateDto dto){
+		Announcement announcement = service.create(dto);
+		return new ResponseEntity<AnnouncementDto>(mapper.toDto(announcement), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Announcement> update(@PathVariable("id") Long id, @Valid @RequestBody Announcement announcement){
-		Announcement r = service.findOne(id).orElse(null);
-		if(r != null) {
-			announcement.setId(id);
-			if(announcement.getImage() == null || announcement.getImage() == "") {
-				announcement.setImage(r.getImage());
-			}
-			announcement.setDate(LocalDateTime.now());
-			announcement = service.save(announcement);
-			return new ResponseEntity<Announcement>(announcement, HttpStatus.OK);
+	public ResponseEntity<AnnouncementDto> update(@PathVariable("id") Long id, @Valid @RequestBody AnnouncementUpdateDto dto){
+		Announcement announcement = service.update(id, dto);
+		if(announcement != null) {
+			return new ResponseEntity<AnnouncementDto>(mapper.toDto(announcement), HttpStatus.OK);
 		}
-		return new ResponseEntity<Announcement>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<AnnouncementDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")

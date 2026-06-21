@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FinalThesisRepository extends JpaRepository<FinalThesis, Long>{
 
+	boolean existsByStudentId(Long studentId);
+
 }

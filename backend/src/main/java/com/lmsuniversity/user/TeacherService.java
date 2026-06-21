@@ -1,19 +1,30 @@
 package com.lmsuniversity.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
-
+import com.lmsuniversity.rectorate.University;
+import com.lmsuniversity.rectorate.UniversityRepository;
 
 @Service
 public class TeacherService {
 	@Autowired
 	private TeacherRepository repository;
 
-	public Iterable<Teacher> findAll() {
+	@Autowired
+	private UniversityRepository universityRepository;
+
+	@Autowired
+	private TeacherMapper mapper;
+
+	@Autowired
+	private PasswordEncoder encoder;
+
+	public List<Teacher> findAll() {
 		return repository.findAll();
 	}
 
@@ -26,11 +37,31 @@ public class TeacherService {
 		return repository.save(newTeacher);
 	}
 
-	public Teacher update(Teacher teacher) {
-		if(repository.findById(teacher.getId()).isPresent()) {
-			return repository.save(teacher);
+	public Teacher create(TeacherCreateDto dto) {
+		Teacher teacher = mapper.toEntity(dto);
+		teacher.setPassword(encoder.encode(dto.getPassword()));
+		if (dto.getUniversityId() != null) {
+			University university = universityRepository.findById(dto.getUniversityId())
+					.orElseThrow(() -> new IllegalArgumentException("University not found: " + dto.getUniversityId()));
+			teacher.setUniversity(university);
 		}
-		return null;
+		return repository.save(teacher);
+	}
+
+	public Teacher update(Long id, TeacherUpdateDto dto) {
+		Teacher teacher = repository.findById(id).orElse(null);
+		if (teacher == null) {
+			return null;
+		}
+		mapper.updateEntityFromDto(dto, teacher);
+		if (dto.getUniversityId() != null) {
+			University university = universityRepository.findById(dto.getUniversityId())
+					.orElseThrow(() -> new IllegalArgumentException("University not found: " + dto.getUniversityId()));
+			teacher.setUniversity(university);
+		} else {
+			teacher.setUniversity(null);
+		}
+		return repository.save(teacher);
 	}
 
 	public void delete(Long id) {

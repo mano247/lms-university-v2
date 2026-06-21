@@ -16,7 +16,6 @@ public class UniversityDto {
 	private String name;
 	private LocalDateTime foundingDate;
 	private String contact;
-	private String rector;
 	private String address;
 	private String description;
 	private String image;

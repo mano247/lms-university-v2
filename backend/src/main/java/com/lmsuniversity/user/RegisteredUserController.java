@@ -1,14 +1,12 @@
 package com.lmsuniversity.user;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.validation.Valid;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.lmsuniversity.permission.PermissionRepository;
 import com.lmsuniversity.security.services.UserDetailsImpl;
 
 @Controller
@@ -27,85 +24,70 @@ public class RegisteredUserController {
 	private RegisteredUserService service;
 
 	@Autowired
-	PasswordEncoder encoder;
+	private RegisteredUserMapper mapper;
 
 	@Autowired
-	PermissionRepository permissionRepository;
+	private StudentMapper studentMapper;
+
+	@Autowired
+	private TeacherMapper teacherMapper;
+
+	@Autowired
+	private AdministratorMapper administratorMapper;
+
+	@Autowired
+	private StudentAffairsOfficeMapper studentAffairsOfficeMapper;
 
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<Set<RegisteredUserDto>> getAll() {
-		HashSet<RegisteredUser> users = new HashSet<RegisteredUser>();
-		HashSet<RegisteredUserDto> response = new HashSet<>();
-		for (RegisteredUser k : service.findAll()) {
-			users.add(RegisteredUser.builder().username(k.getUsername()).firstName(k.getFirstName()).lastName(k.getLastName()).email(k.getEmail()).password(k.getPassword()).build());
-			response.add(RegisteredUserDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).permission(k.getPermissions()).firstName(k.getFirstName()).lastName(k.getLastName()).build());
-		}
-		return new ResponseEntity<Set<RegisteredUserDto>>(response, HttpStatus.OK);
+	public ResponseEntity<List<RegisteredUserDto>> getAll() {
+		List<RegisteredUserDto> response = mapper.toDtoList(service.findAll());
+		return new ResponseEntity<List<RegisteredUserDto>>(response, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'USER_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getOne(@PathVariable("id") Long id) {
 		RegisteredUser k = service.findOne(id).orElse(null);
-				if (k != null) {
-
-					if (k instanceof Student) {
-						String indexNumber = ((Student) k).getIndexNumber();
-						StudentDto student = StudentDto.builder().id(k.getId()).userType(k.getClass().getSimpleName()).firstName(k.getFirstName()).lastName(k.getLastName()).email(k.getEmail()).password(k.getPassword()).permission(k.getPermissions()).indexNumber(indexNumber).username(k.getUsername()).build();
-						return new ResponseEntity<StudentDto>(student, HttpStatus.OK);
-					} else if (k instanceof Teacher) {
-						TeacherDto teacher = TeacherDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
-						return new ResponseEntity<TeacherDto>(teacher, HttpStatus.OK);
-					} else if (k instanceof Administrator) {
-						AdministratorDto admin = AdministratorDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
-						return new ResponseEntity<AdministratorDto>(admin, HttpStatus.OK);
-					}
-					else if (k instanceof StudentAffairsOffice) {
-						StudentAffairsOfficeDto ss = StudentAffairsOfficeDto.builder().id(k.getId()).userType(k.getClass().getSimpleName()).username(k.getUsername()).email(k.getEmail()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
-						return new ResponseEntity<StudentAffairsOfficeDto>(ss, HttpStatus.OK);
-					}
-					RegisteredUserDto user = RegisteredUserDto.builder().userType(k.getClass().getSimpleName()).id(k.getId()).username(k.getUsername()).email(k.getEmail()).permission(k.getPermissions()).firstName(k.getFirstName()).lastName(k.getLastName()).build();
-					return new ResponseEntity<RegisteredUserDto>(user, HttpStatus.OK);
-
+		if (k != null) {
+			if (k instanceof Student student) {
+				return new ResponseEntity<StudentDto>(studentMapper.toDto(student), HttpStatus.OK);
+			} else if (k instanceof Teacher teacher) {
+				return new ResponseEntity<TeacherDto>(teacherMapper.toDto(teacher), HttpStatus.OK);
+			} else if (k instanceof Administrator administrator) {
+				return new ResponseEntity<AdministratorDto>(administratorMapper.toDto(administrator), HttpStatus.OK);
+			} else if (k instanceof StudentAffairsOffice studentAffairsOffice) {
+				return new ResponseEntity<StudentAffairsOfficeDto>(studentAffairsOfficeMapper.toDto(studentAffairsOffice), HttpStatus.OK);
+			}
+			return new ResponseEntity<RegisteredUserDto>(mapper.toDto(k), HttpStatus.OK);
 		}
 		return new ResponseEntity<RegisteredUserDto>(HttpStatus.NOT_FOUND);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.POST)
-	public ResponseEntity<RegisteredUser> create(@Valid @RequestBody RegisteredUser r) {
-		try {
-			r.setPassword(encoder.encode(r.getPassword()));
-			service.save(r);
-			return new ResponseEntity<RegisteredUser>(r, HttpStatus.CREATED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<RegisteredUser>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<RegisteredUserDto> create(@Valid @RequestBody RegisteredUserCreateDto dto) {
+		RegisteredUser user = service.create(dto);
+		return new ResponseEntity<RegisteredUserDto>(mapper.toDto(user), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'USER_PERMISSION')")
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<RegisteredUser> update(@PathVariable("id") Long id, @Valid @RequestBody RegisteredUser user, Authentication authentication) {
+	public ResponseEntity<RegisteredUserDto> update(@PathVariable("id") Long id, @Valid @RequestBody RegisteredUserUpdateDto dto, Authentication authentication) {
 		if (authentication.isAuthenticated()) {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			Long userId = userDetails.getId();
 
 			if (id.equals(userId)) {
-				RegisteredUser u = service.findOne(id).orElse(null);
-				if (u != null) {
-					user.setId(id);
-					user.setPassword(u.getPassword());
-					user.setPermissions(u.getPermissions());
-					user = service.save(user);
-					return new ResponseEntity<RegisteredUser>(user, HttpStatus.OK);
+				RegisteredUser user = service.update(id, dto);
+				if (user != null) {
+					return new ResponseEntity<RegisteredUserDto>(mapper.toDto(user), HttpStatus.OK);
 				}
-				return new ResponseEntity<RegisteredUser>(HttpStatus.NOT_FOUND);
+				return new ResponseEntity<RegisteredUserDto>(HttpStatus.NOT_FOUND);
 			}
 		}
-		return new ResponseEntity<RegisteredUser>(HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<RegisteredUserDto>(HttpStatus.UNAUTHORIZED);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
@@ -120,9 +102,9 @@ public class RegisteredUserController {
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path="/change-type/{type}", method = RequestMethod.PUT)
-	public ResponseEntity<String> updateUserType(@RequestBody Student student,
+	public ResponseEntity<String> updateUserType(@Valid @RequestBody ChangeUserTypeDto dto,
 			@PathVariable("type") String type) {
-		boolean success = service.changeUserType(student.getId(), type);
+		boolean success = service.changeUserType(dto.getUserId(), type);
 
 		if (success) {
 			return new ResponseEntity<String>(HttpStatus.OK);
@@ -133,14 +115,9 @@ public class RegisteredUserController {
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path="/{id}/enroll-student", method = RequestMethod.PUT)
-	public ResponseEntity<String> enrollStudent(@PathVariable("id") long userId, @Valid @RequestBody StudentDto newStudentInfo) {
-		boolean success = false;
+	public ResponseEntity<String> enrollStudent(@PathVariable("id") long userId, @Valid @RequestBody EnrollStudentDto newStudentInfo) {
+		boolean success = service.enrollStudent(userId, newStudentInfo);
 
-		RegisteredUser k = service.findOne(userId).orElse(null);
-		if (k != null) {
-			if (k instanceof RegisteredUser) {
-				success = service.enrollStudent(userId, newStudentInfo);
-			}}
 		if (success) {
 			return new ResponseEntity<String>(HttpStatus.OK);
 		} else {
