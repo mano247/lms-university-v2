@@ -5,6 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 import com.lmsuniversity.course.Course;
 import com.lmsuniversity.faculty.FacultyMapper;
@@ -15,6 +16,10 @@ public interface StudyProgramMapper {
 	StudyProgramDto toDto(StudyProgram studyProgram);
 
 	List<StudyProgramDto> toDtoList(List<StudyProgram> studyPrograms);
+
+	@Named("toSummaryDto")
+	@Mapping(target = "courses", ignore = true)
+	StudyProgramDto toSummaryDto(StudyProgram studyProgram);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "faculty", ignore = true)

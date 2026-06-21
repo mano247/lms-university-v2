@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lmsuniversity.user.Student;
@@ -25,12 +27,20 @@ public class FinalThesisService {
 	@Autowired
 	private FinalThesisMapper mapper;
 
-	public List<FinalThesis> findAll() {
-		return repository.findAll();
+	public Page<FinalThesis> findAll(Pageable pageable) {
+		return repository.findAll(pageable);
 	}
 
 	public Optional<FinalThesis> findOne(Long id) {
 		return repository.findById(id);
+	}
+
+	public Optional<FinalThesis> findByStudentId(Long studentId) {
+		return repository.findByStudentId(studentId);
+	}
+
+	public List<FinalThesis> findByMentorId(Long mentorId) {
+		return repository.findByMentorId(mentorId);
 	}
 
 

@@ -1,10 +1,11 @@
 package com.lmsuniversity.finalthesis;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,9 +27,9 @@ public class FinalThesisController {
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<FinalThesisDto>> getAll(){
-		List<FinalThesisDto> finalTheses = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<FinalThesisDto>>(finalTheses, HttpStatus.OK);
+	public ResponseEntity<Page<FinalThesisDto>> getAll(Pageable pageable){
+		Page<FinalThesisDto> finalTheses = service.findAll(pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<FinalThesisDto>>(finalTheses, HttpStatus.OK);
 		}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
@@ -45,23 +46,17 @@ public class FinalThesisController {
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/by-student/{id}", method = RequestMethod.GET)
 	public ResponseEntity<FinalThesisDto> findByStudent(@PathVariable("id") Long id){
-		for (FinalThesis z : service.findAll()) {
-			if (id.equals(z.getStudent().getId())) {
-				return new ResponseEntity<FinalThesisDto>(mapper.toDto(z), HttpStatus.OK);
+		Optional<FinalThesis> z = service.findByStudentId(id);
+		if (z.isPresent()) {
+			return new ResponseEntity<FinalThesisDto>(mapper.toDto(z.get()), HttpStatus.OK);
 		}
-			}
 		return new ResponseEntity<FinalThesisDto>(HttpStatus.NOT_FOUND);
 		}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "/by-mentor/{id}", method = RequestMethod.GET)
 	public ResponseEntity<List<FinalThesisDto>> findByMentor(@PathVariable("id") Long id){
-		List<FinalThesisDto> finalTheses = new ArrayList<>();
-		for (FinalThesis z : service.findAll()) {
-			if (id.equals(z.getMentor().getId())) {
-				finalTheses.add(mapper.toDto(z));
-		}
-			}
+		List<FinalThesisDto> finalTheses = service.findByMentorId(id).stream().map(mapper::toDto).toList();
 		return new ResponseEntity<List<FinalThesisDto>>(finalTheses, HttpStatus.OK);
 		}
 

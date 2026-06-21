@@ -1,8 +1,8 @@
 package com.lmsuniversity.user;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,9 +41,9 @@ public class RegisteredUserController {
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<RegisteredUserDto>> getAll() {
-		List<RegisteredUserDto> response = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<RegisteredUserDto>>(response, HttpStatus.OK);
+	public ResponseEntity<Page<RegisteredUserDto>> getAll(Pageable pageable) {
+		Page<RegisteredUserDto> response = service.findAll(pageable).map(mapper::toListDto);
+		return new ResponseEntity<Page<RegisteredUserDto>>(response, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'USER_PERMISSION')")

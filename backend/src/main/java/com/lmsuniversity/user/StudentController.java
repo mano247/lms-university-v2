@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,9 +53,9 @@ public class StudentController {
 
 		@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 		@RequestMapping(path = "", method = RequestMethod.GET)
-		public ResponseEntity<List<StudentDto>> getAll() {
-			List<StudentDto> students = mapper.toDtoList(service.findAll());
-			return new ResponseEntity<List<StudentDto>>(students, HttpStatus.OK);
+		public ResponseEntity<Page<StudentListDto>> getAll(Pageable pageable) {
+			Page<StudentListDto> students = service.findAll(pageable);
+			return new ResponseEntity<Page<StudentListDto>>(students, HttpStatus.OK);
 		}
 
 		@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
@@ -102,7 +104,7 @@ public class StudentController {
 					Set<Course> actualCourses = service.findOne(id).get().getCourses();
 
 					List<MyCoursesDto> result = new ArrayList<>();
-					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					List<ExamAttempt> examAttempts = examAttemptService.findByStudentId(id);
 					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
 							if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId()) && pp.getFinalGrade() > 5 && pp.getFinalGrade() <=10) {
@@ -128,7 +130,7 @@ public class StudentController {
 					Set<Course> actualCourses = service.findOne(id).get().getCourses();
 
 					List<MyCoursesDto> result = new ArrayList<>();
-					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					List<ExamAttempt> examAttempts = examAttemptService.findByStudentId(id);
 					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
 							if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId()) && pp.getFinalGrade() ==5) {
@@ -193,7 +195,7 @@ public class StudentController {
 
 					List<MyCoursesDto> result = new ArrayList<>();
 
-					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					List<ExamAttempt> examAttempts = examAttemptService.findByStudentId(id);
 					for (Course p : actualCourses) {
 						for (ExamAttempt pp : examAttempts) {
 							if (pp.getStudent().getId().equals(id) && pp.getCourse().getId().equals(p.getId()) && pp.getCourse().getId().equals(courseId) && pp.getFinalGrade() ==5) {
@@ -239,7 +241,7 @@ public class StudentController {
 
 					List<CourseDto> result = new ArrayList<>();
 
-					Iterable<ExamAttempt> examAttempts = examAttemptService.findAll();
+					List<ExamAttempt> examAttempts = examAttemptService.findByStudentId(id);
 
 					for (Course p : studentCourses) {
 					    boolean coursePassed = false;

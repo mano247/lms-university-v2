@@ -1,10 +1,14 @@
 package com.lmsuniversity.examattempt;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lmsuniversity.course.Course;
@@ -26,8 +30,13 @@ public class ExamAttemptService {
 	@Autowired
 	private ExamAttemptMapper mapper;
 
-	public List<ExamAttempt> findAll() {
-		return repository.findAll();
+	public Page<ExamAttempt> findAll(Pageable pageable) {
+		Page<ExamAttempt> page = repository.findAll(pageable);
+		List<ExamAttempt> withDetails = repository.fetchDetails(page.getContent());
+		Map<Long, ExamAttempt> byId = new LinkedHashMap<>();
+		withDetails.forEach(e -> byId.put(e.getId(), e));
+		List<ExamAttempt> ordered = page.getContent().stream().map(e -> byId.get(e.getId())).toList();
+		return new PageImpl<>(ordered, pageable, page.getTotalElements());
 	}
 
 	public Optional<ExamAttempt> findOne(Long id) {
@@ -82,13 +91,19 @@ public class ExamAttemptService {
 		repository.delete(examAttempt);
 	}
 
-	public Iterable<ExamAttempt> findAllByStudent(Long id ) {
-		List<ExamAttempt> examAttempts = new ArrayList<>();
-		for(ExamAttempt pp : findAll()){
-			if(pp.getStudent().getId().equals(id)) {
-				examAttempts.add(pp);
-			}
-		}
-		return examAttempts;
+	public List<ExamAttempt> findRegisteredByStudent(Long studentId) {
+		return repository.findRegisteredByStudent(studentId);
+	}
+
+	public List<ExamAttempt> findRegisteredByCourse(Long courseId) {
+		return repository.findRegisteredByCourse(courseId);
+	}
+
+	public List<ExamAttempt> findByCourseIds(List<Long> courseIds) {
+		return repository.findByCourseIds(courseIds);
+	}
+
+	public List<ExamAttempt> findByStudentId(Long studentId) {
+		return repository.findByStudentId(studentId);
 	}
 }

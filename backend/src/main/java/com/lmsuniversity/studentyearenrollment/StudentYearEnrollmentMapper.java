@@ -12,6 +12,8 @@ import com.lmsuniversity.user.StudentMapper;
 @Mapper(componentModel = "spring", uses = { StudentMapper.class, StudyProgramMapper.class })
 public interface StudentYearEnrollmentMapper {
 
+	@Mapping(target = "student", source = "student", qualifiedByName = "toSummaryDto")
+	@Mapping(target = "studyProgram", source = "studyProgram", qualifiedByName = "toSummaryDto")
 	StudentYearEnrollmentDto toDto(StudentYearEnrollment enrollment);
 
 	List<StudentYearEnrollmentDto> toDtoList(List<StudentYearEnrollment> enrollments);

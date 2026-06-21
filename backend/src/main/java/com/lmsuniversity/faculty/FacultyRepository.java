@@ -1,16 +1,19 @@
 package com.lmsuniversity.faculty;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FacultyRepository extends JpaRepository<Faculty, Long>{
 
-//	Optional<Faculty> findOne(Long Id);
+	@Override
+	@EntityGraph(attributePaths = {"university"})
+	List<Faculty> findAll();
 
 	Optional<Faculty> findByFacultyCode(String facultyCode);
 
 }
-
