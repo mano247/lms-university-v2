@@ -5,11 +5,18 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.lmsuniversity.filestorage.FileStorageService;
 import com.lmsuniversity.rectorate.University;
 import com.lmsuniversity.rectorate.UniversityRepository;
 import com.lmsuniversity.studyprogram.StudyProgram;
+import com.lmsuniversity.studyprogram.StudyProgramRepository;
+import com.lmsuniversity.user.StudentRepository;
+import com.lmsuniversity.user.StudentAffairsOfficeRepository;
 
 @Service
 public class FacultyService {
@@ -18,6 +25,18 @@ public class FacultyService {
 
 	@Autowired
 	private UniversityRepository universityRepository;
+
+	@Autowired
+	private StudyProgramRepository studyProgramRepository;
+
+	@Autowired
+	private StudentRepository studentRepository;
+
+	@Autowired
+	private StudentAffairsOfficeRepository studentAffairsOfficeRepository;
+
+	@Autowired
+	private FileStorageService fileStorageService;
 
 	@Autowired
 	private FacultyMapper mapper;
@@ -59,11 +78,35 @@ public class FacultyService {
 	}
 
 	public void delete(Long id) {
+		if (studyProgramRepository.existsByFacultyId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete faculty: it still has study programs associated with it.");
+		}
+		if (studentRepository.existsByFacultyId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete faculty: it still has students associated with it.");
+		}
+		if (studentAffairsOfficeRepository.existsByFacultyId(id)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Cannot delete faculty: it still has student affairs office staff associated with it.");
+		}
 		repository.deleteById(id);
 	}
 
 	public void delete(Faculty faculty) {
 		repository.delete(faculty);
+	}
+
+	public Faculty uploadImage(Long id, MultipartFile file) {
+		Faculty faculty = repository.findById(id).orElse(null);
+		if (faculty == null) {
+			return null;
+		}
+		String oldImage = faculty.getImage();
+		faculty.setImage(fileStorageService.storeImage(file, "faculties"));
+		Faculty saved = repository.save(faculty);
+		fileStorageService.deleteIfExists(oldImage);
+		return saved;
 	}
 
 	@SuppressWarnings("deprecation")

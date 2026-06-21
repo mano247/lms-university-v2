@@ -12,6 +12,8 @@ public interface StudyProgramRepository extends JpaRepository<StudyProgram, Long
 
 	Optional<StudyProgram> findByProgramCode(String programCode);
 
+	boolean existsByFacultyId(Long facultyId);
+
 	@Override
 	@EntityGraph(attributePaths = {"faculty.university", "courses"})
 	List<StudyProgram> findAll();

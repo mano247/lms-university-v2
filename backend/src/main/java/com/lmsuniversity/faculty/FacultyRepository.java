@@ -16,4 +16,6 @@ public interface FacultyRepository extends JpaRepository<Faculty, Long>{
 
 	Optional<Faculty> findByFacultyCode(String facultyCode);
 
+	boolean existsByUniversityId(Long universityId);
+
 }

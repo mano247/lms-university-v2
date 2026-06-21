@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping(path = "/api/faculties")
@@ -72,5 +74,15 @@ public class FacultyController {
 			return new ResponseEntity<Faculty>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Faculty>(HttpStatus.NOT_FOUND);
+	}
+
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
+	@RequestMapping(path = "/{id}/image", method = RequestMethod.POST, consumes = "multipart/form-data")
+	public ResponseEntity<FacultyDto> uploadImage(@PathVariable("id") Long id, @RequestParam("file") MultipartFile file){
+		Faculty faculty = service.uploadImage(id, file);
+		if(faculty != null) {
+			return new ResponseEntity<FacultyDto>(mapper.toDto(faculty), HttpStatus.OK);
+		}
+		return new ResponseEntity<FacultyDto>(HttpStatus.NOT_FOUND);
 	}
 }

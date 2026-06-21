@@ -2,6 +2,7 @@ target/
 *.class
 .idea/
 *.iml
+uploads/
 
 # local secrets - never commit, see .env.example
 .env
