@@ -18,7 +18,7 @@ public class StudyProgramUpdateDto {
 
 	@NotBlank
 	private String name;
-	private String programDirector;
+	private Long programDirectorId;
 
 	@NotNull
 	private Long facultyId;

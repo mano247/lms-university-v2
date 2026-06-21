@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Set;
 
 import com.lmsuniversity.studyprogram.StudyProgramDto;
+import com.lmsuniversity.studyyear.StudyYearDto;
 import com.lmsuniversity.teachingmaterial.TeachingMaterialDto;
 import com.lmsuniversity.user.TeacherDto;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,6 @@ public class CourseDto {
 	private Date endDate;
 	private String description;
 	private StudyProgramDto studyProgram;
+	private StudyYearDto studyYear;
 	private Set<TeachingMaterialDto> teachingMaterials;
 }

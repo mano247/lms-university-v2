@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 public interface FacultyRepository extends JpaRepository<Faculty, Long>{
 
 	@Override
-	@EntityGraph(attributePaths = {"university"})
+	@EntityGraph(attributePaths = {"university", "dean"})
 	List<Faculty> findAll();
 
 	Optional<Faculty> findByFacultyCode(String facultyCode);
 
 	boolean existsByUniversityId(Long universityId);
+
+	boolean existsByDeanId(Long deanId);
 
 }

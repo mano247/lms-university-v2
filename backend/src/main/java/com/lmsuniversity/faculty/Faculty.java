@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import com.lmsuniversity.rectorate.University;
 import com.lmsuniversity.studyprogram.StudyProgram;
+import com.lmsuniversity.user.Teacher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -44,7 +45,10 @@ public class Faculty {
 	@Column(columnDefinition = "LONGTEXT")
 	private String description;
 
-	private String dean;
+	@ManyToOne
+	@JoinColumn(name = "dean_id")
+	private Teacher dean;
+
 	private String image;
 	private String address;
 

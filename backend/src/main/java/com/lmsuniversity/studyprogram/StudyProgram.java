@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import com.lmsuniversity.faculty.Faculty;
 import com.lmsuniversity.course.Course;
+import com.lmsuniversity.user.Teacher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -44,7 +45,10 @@ public class StudyProgram {
 
 	@NotBlank
 	private String name;
-	private String programDirector;
+
+	@ManyToOne
+	@JoinColumn(name = "program_director_id")
+	private Teacher programDirector;
 
 	@NotNull
 	@ManyToOne

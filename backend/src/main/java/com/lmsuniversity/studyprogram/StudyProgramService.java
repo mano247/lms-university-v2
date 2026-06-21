@@ -11,6 +11,8 @@ import com.lmsuniversity.course.CourseRepository;
 import com.lmsuniversity.faculty.Faculty;
 import com.lmsuniversity.faculty.FacultyRepository;
 import com.lmsuniversity.studentyearenrollment.StudentYearEnrollmentRepository;
+import com.lmsuniversity.user.Teacher;
+import com.lmsuniversity.user.TeacherRepository;
 
 @Service
 public class StudyProgramService {
@@ -25,6 +27,9 @@ public class StudyProgramService {
 
 	@Autowired
 	private StudentYearEnrollmentRepository studentYearEnrollmentRepository;
+
+	@Autowired
+	private TeacherRepository teacherRepository;
 
 	@Autowired
 	private StudyProgramMapper mapper;
@@ -50,6 +55,7 @@ public class StudyProgramService {
 				.orElseThrow(() -> new IllegalArgumentException("Faculty not found: " + dto.getFacultyId()));
 		StudyProgram studyProgram = mapper.toEntity(dto);
 		studyProgram.setFaculty(faculty);
+		studyProgram.setProgramDirector(resolveProgramDirector(dto.getProgramDirectorId()));
 		return repository.save(studyProgram);
 	}
 
@@ -62,7 +68,16 @@ public class StudyProgramService {
 				.orElseThrow(() -> new IllegalArgumentException("Faculty not found: " + dto.getFacultyId()));
 		mapper.updateEntityFromDto(dto, studyProgram);
 		studyProgram.setFaculty(faculty);
+		studyProgram.setProgramDirector(resolveProgramDirector(dto.getProgramDirectorId()));
 		return repository.save(studyProgram);
+	}
+
+	private Teacher resolveProgramDirector(Long programDirectorId) {
+		if (programDirectorId == null) {
+			return null;
+		}
+		return teacherRepository.findById(programDirectorId)
+				.orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + programDirectorId));
 	}
 
 	public void delete(Long id) {

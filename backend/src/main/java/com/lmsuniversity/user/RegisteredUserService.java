@@ -1,5 +1,6 @@
 package com.lmsuniversity.user;
 
+import java.sql.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +22,8 @@ import com.lmsuniversity.permission.Permission;
 import com.lmsuniversity.permission.PermissionEnum;
 import com.lmsuniversity.permission.PermissionRepository;
 import com.lmsuniversity.studentyearenrollment.StudentYearEnrollmentRepository;
+import com.lmsuniversity.studentyearenrollment.StudentYearEnrollmentService;
+import com.lmsuniversity.studyprogram.StudyProgramRepository;
 
 @Service
 public class RegisteredUserService {
@@ -47,6 +50,12 @@ public class RegisteredUserService {
 	private StudentYearEnrollmentRepository studentYearEnrollmentRepository;
 
 	@Autowired
+	private StudyProgramRepository studyProgramRepository;
+
+	@Autowired
+	private StudentYearEnrollmentService studentYearEnrollmentService;
+
+	@Autowired
 	private RegisteredUserMapper mapper;
 
 	@Autowired
@@ -66,6 +75,14 @@ public class RegisteredUserService {
 			if (finalThesisRepository.existsByMentorId(id)) {
 				throw new ResponseStatusException(HttpStatus.CONFLICT,
 						"Cannot remove this user: they still mentor final theses.");
+			}
+			if (facultyRepository.existsByDeanId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they are the dean of a faculty.");
+			}
+			if (studyProgramRepository.existsByProgramDirectorId(id)) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT,
+						"Cannot remove this user: they are the director of a study program.");
 			}
 		} else if (user instanceof Student) {
 			if (examAttemptRepository.existsByStudentId(id)) {
@@ -217,23 +234,25 @@ public class RegisteredUserService {
 			Optional<Permission> studentRole = permissionRepository.findByName(PermissionEnum.STUDENT_PERMISSION);
 			permissions.add(studentRole.orElse(null));
 
-			Student.StudentBuilder<?, ?> studentBuilder = Student.builder()
+			Faculty faculty = facultyRepository.findById(additionalStudentInfo.getFacultyId())
+					.orElseThrow(() -> new IllegalArgumentException("Faculty not found: " + additionalStudentInfo.getFacultyId()));
+
+			Student student = Student.builder()
 					.email(additionalStudentInfo.getEmail())
 					.username(additionalStudentInfo.getUsername())
 					.indexNumber(additionalStudentInfo.getIndexNumber())
 					.password(encoder.encode(additionalStudentInfo.getPassword()))
 					.firstName(additionalStudentInfo.getFirstName())
 					.lastName(additionalStudentInfo.getLastName())
-					.permissions(permissions);
-
-			if (additionalStudentInfo.getFacultyId() != null) {
-				Faculty faculty = facultyRepository.findById(additionalStudentInfo.getFacultyId())
-						.orElseThrow(() -> new IllegalArgumentException("Faculty not found: " + additionalStudentInfo.getFacultyId()));
-				studentBuilder.faculty(faculty);
-			}
+					.permissions(permissions)
+					.faculty(faculty)
+					.build();
 
 			repository.delete(user);
-			repository.save(studentBuilder.build());
+			Student savedStudent = repository.save(student);
+
+			studentYearEnrollmentService.enroll(savedStudent, additionalStudentInfo.getStudyProgramId(),
+					additionalStudentInfo.getStudyYearId(), new Date(System.currentTimeMillis()));
 			return true;
 		}
 		else {return false;}
