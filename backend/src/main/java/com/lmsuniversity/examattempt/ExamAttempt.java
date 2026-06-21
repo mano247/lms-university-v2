@@ -14,6 +14,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import com.lmsuniversity.course.Course;
+import com.lmsuniversity.examperiod.ExamPeriodTerm;
 import com.lmsuniversity.user.Teacher;
 import com.lmsuniversity.user.Student;
 import com.lmsuniversity.announcement.Announcement;
@@ -64,4 +65,8 @@ public class ExamAttempt {
 	@ManyToOne
 	@JoinColumn(name = "teacher_id")
 	private Teacher teacher;
+
+	@ManyToOne
+	@JoinColumn(name = "exam_period_term_id")
+	private ExamPeriodTerm examPeriodTerm;
 }

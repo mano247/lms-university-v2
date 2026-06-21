@@ -22,6 +22,7 @@ public interface ExamAttemptMapper {
 	@Mapping(target = "student", ignore = true)
 	@Mapping(target = "teacher", ignore = true)
 	@Mapping(target = "announcement", ignore = true)
+	@Mapping(target = "examPeriodTerm", ignore = true)
 	@Mapping(target = "points", ignore = true)
 	@Mapping(target = "finalGrade", ignore = true)
 	ExamAttempt toEntity(ExamAttemptCreateDto dto);
