@@ -1,9 +1,10 @@
 package com.lmsuniversity.officesupply;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,8 +15,8 @@ public class OfficeSupplyService {
 	@Autowired
 	private OfficeSupplyMapper mapper;
 
-	public List<OfficeSupply> findAll() {
-		return repository.findAll();
+	public Page<OfficeSupply> findAll(Pageable pageable) {
+		return repository.findAll(pageable);
 	}
 
 	public Optional<OfficeSupply> findOne(Long id) {

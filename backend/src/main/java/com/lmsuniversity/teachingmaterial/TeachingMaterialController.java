@@ -1,9 +1,10 @@
 package com.lmsuniversity.teachingmaterial;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,9 +26,9 @@ public class TeachingMaterialController {
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<TeachingMaterialDto>> getAll(){
-		List<TeachingMaterialDto> teachingMaterials = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<TeachingMaterialDto>>(teachingMaterials, HttpStatus.OK);
+	public ResponseEntity<Page<TeachingMaterialDto>> getAll(Pageable pageable){
+		Page<TeachingMaterialDto> teachingMaterials = service.findAll(pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<TeachingMaterialDto>>(teachingMaterials, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION')")

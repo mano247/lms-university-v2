@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lmsuniversity.studyprogram.StudyProgram;
@@ -31,12 +33,16 @@ public class StudentYearEnrollmentService {
 	@Autowired
 	private StudentYearEnrollmentMapper mapper;
 
-	public List<StudentYearEnrollment> findAll() {
-		return repository.findAll();
+	public Page<StudentYearEnrollment> findAll(Pageable pageable) {
+		return repository.findAll(pageable);
 	}
 
 	public Optional<StudentYearEnrollment> findOne(Long id) {
 		return repository.findById(id);
+	}
+
+	public List<StudentYearEnrollment> findByStudentId(Long studentId) {
+		return repository.findByStudentId(studentId);
 	}
 
 

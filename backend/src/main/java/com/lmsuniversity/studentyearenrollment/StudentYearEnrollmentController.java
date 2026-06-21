@@ -1,10 +1,11 @@
 package com.lmsuniversity.studentyearenrollment;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,9 +27,9 @@ public class StudentYearEnrollmentController {
 	private StudentYearEnrollmentMapper mapper;
 
 	@RequestMapping(path = "", method = RequestMethod.GET)
-	public ResponseEntity<List<StudentYearEnrollmentDto>> getAll(){
-		List<StudentYearEnrollmentDto> enrollments = mapper.toDtoList(service.findAll());
-		return new ResponseEntity<List<StudentYearEnrollmentDto>>(enrollments, HttpStatus.OK);
+	public ResponseEntity<Page<StudentYearEnrollmentDto>> getAll(Pageable pageable){
+		Page<StudentYearEnrollmentDto> enrollments = service.findAll(pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<StudentYearEnrollmentDto>>(enrollments, HttpStatus.OK);
 		}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
@@ -67,12 +68,7 @@ public class StudentYearEnrollmentController {
 
 	@RequestMapping(path = "/by-student/{id}", method = RequestMethod.GET)
 	public ResponseEntity<List<StudentYearEnrollmentDto>> getByStudentId(@PathVariable("id") Long id){
-		List<StudentYearEnrollmentDto> enrollments = new ArrayList<>();
-		for (StudentYearEnrollment s : service.findAll()) {
-			if (id.equals(s.getStudent().getId())) {
-				enrollments.add(mapper.toDto(s));
-			}
-		}
+		List<StudentYearEnrollmentDto> enrollments = service.findByStudentId(id).stream().map(mapper::toDto).toList();
 		return new ResponseEntity<List<StudentYearEnrollmentDto>>(enrollments, HttpStatus.OK);
 		}
 }

@@ -1,9 +1,10 @@
 package com.lmsuniversity.user;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,8 @@ public class TeacherService {
 	@Autowired
 	private PasswordEncoder encoder;
 
-	public List<Teacher> findAll() {
-		return repository.findAll();
+	public Page<Teacher> findAll(Pageable pageable) {
+		return repository.findAll(pageable);
 	}
 
 	public Optional<Teacher> findOne(Long id) {

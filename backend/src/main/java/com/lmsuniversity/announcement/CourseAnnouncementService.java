@@ -1,10 +1,15 @@
 package com.lmsuniversity.announcement;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lmsuniversity.course.Course;
@@ -27,8 +32,18 @@ public class CourseAnnouncementService {
 	@Autowired
 	private CourseAnnouncementMapper mapper;
 
-	public List<CourseAnnouncement> findAll() {
-		return repository.findAll();
+	public Page<CourseAnnouncement> findVisibleToUser(Long userId, Pageable pageable) {
+		Page<CourseAnnouncement> page = repository.findVisibleToUser(userId, pageable);
+		List<CourseAnnouncement> withDetails = repository.fetchDetails(page.getContent());
+		Map<Long, CourseAnnouncement> byId = new LinkedHashMap<>();
+		withDetails.forEach(ca -> byId.put(ca.getId(), ca));
+		List<CourseAnnouncement> ordered = page.getContent().stream().map(ca -> byId.get(ca.getId())).toList();
+		return new PageImpl<>(ordered, pageable, page.getTotalElements());
+	}
+
+	public List<CourseAnnouncement> findByCourseVisibleToUser(Long courseId, Long userId) {
+		List<CourseAnnouncement> matches = repository.findByCourseVisibleToUser(courseId, userId);
+		return repository.fetchDetails(matches);
 	}
 
 	public Optional<CourseAnnouncement> findOne(Long id) {

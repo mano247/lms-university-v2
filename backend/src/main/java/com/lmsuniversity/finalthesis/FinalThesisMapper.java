@@ -12,6 +12,7 @@ import com.lmsuniversity.user.TeacherMapper;
 @Mapper(componentModel = "spring", uses = { StudentMapper.class, TeacherMapper.class })
 public interface FinalThesisMapper {
 
+	@Mapping(target = "student", source = "student", qualifiedByName = "toSummaryDto")
 	FinalThesisDto toDto(FinalThesis finalThesis);
 
 	List<FinalThesisDto> toDtoList(List<FinalThesis> finalTheses);
