@@ -7,13 +7,28 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = { RectorateMapper.class })
+@Mapper(componentModel = "spring")
 public interface UniversityMapper {
 
-	@Mapping(target = "rectorate", source = "rectorate", qualifiedByName = "toSummaryDto")
+	@Mapping(target = "rectorate", source = "rectorate", qualifiedByName = "toRectorateSummaryDto")
 	UniversityDto toDto(University university);
 
 	List<UniversityDto> toDtoList(List<University> universities);
+
+	@Named("toRectorateSummaryDto")
+	static RectorateDto toRectorateSummaryDto(Rectorate rectorate) {
+		if (rectorate == null) {
+			return null;
+		}
+		return RectorateDto.builder()
+				.id(rectorate.getId())
+				.name(rectorate.getName())
+				.contact(rectorate.getContact())
+				.image(rectorate.getImage())
+				.address(rectorate.getAddress())
+				.rectorName(rectorate.getRectorName())
+				.build();
+	}
 
 	@Named("toUniversitySummaryDto")
 	@Mapping(target = "rectorate", ignore = true)
