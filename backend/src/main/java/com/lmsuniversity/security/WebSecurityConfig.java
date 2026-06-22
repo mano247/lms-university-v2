@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -22,7 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.lmsuniversity.security.jwt.AuthEntryPointJwt;
-import com.lmsuniversity.security.jwt.AuthTokenFilter;
+import com.lmsuniversity.security.jwt.JwtUserDetailsAuthenticationConverter;
 import com.lmsuniversity.security.jwt.LoginRateLimitingFilter;
 import com.lmsuniversity.security.services.UserDetailsServiceImpl;
 
@@ -38,22 +39,21 @@ public class WebSecurityConfig {
   @Autowired
   private LoginRateLimitingFilter loginRateLimitingFilter;
 
+  @Autowired
+  private JwtDecoder jwtDecoder;
+
+  @Autowired
+  private JwtUserDetailsAuthenticationConverter jwtAuthenticationConverter;
+
   @Value("${app.cors.allowedOrigins}")
   private String allowedOrigins;
 
   @Bean
-  public AuthTokenFilter authenticationJwtTokenFilter() {
-    return new AuthTokenFilter();
-  }
-
-  
-  @Bean
   public DaoAuthenticationProvider authenticationProvider() {
-      DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-       
-      authProvider.setUserDetailsService(userDetailsService);
+      DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+
       authProvider.setPasswordEncoder(passwordEncoder());
-   
+
       return authProvider;
   }
 
@@ -96,12 +96,14 @@ public class WebSecurityConfig {
 		        .requestMatchers(HttpMethod.GET, "/api/announcements/**").permitAll()
 		        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
 		        .anyRequest().authenticated()
-        );
-    
+        )
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
+                .decoder(jwtDecoder)
+                .jwtAuthenticationConverter(jwtAuthenticationConverter)));
+
     http.authenticationProvider(authenticationProvider());
 
-    http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-    http.addFilterBefore(loginRateLimitingFilter, AuthTokenFilter.class);
+    http.addFilterBefore(loginRateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
