@@ -3,11 +3,11 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { Nastavnik } from '../../../model/users/nastavnik';
-import { StudentskaSluzba } from '../../../model/users/studentskaSluzba';
+import { Teacher } from '../../../model/users/nastavnik';
+import { StudentOffice } from '../../../model/users/studentskaSluzba';
 import { Administrator } from '../../../model/users/administrator';
-import { NastavnikService } from '../../../services/nastavnik.service';
-import { StudentskaSluzbaService } from '../../../services/studentska-sluzba.service';
+import { TeacherService } from '../../../services/nastavnik.service';
+import { StudentOfficeService } from '../../../services/studentska-sluzba.service';
 import { AdministratorService } from '../../../services/administrator.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -25,276 +25,241 @@ import { InputGroupModule } from 'primeng/inputgroup';
   styleUrl: './a-zaposleni.component.css',
   providers: [MessageService, ConfirmationService]
 })
-export class AZaposleniComponent implements OnInit{
-  profesori: Nastavnik[] = [];
-  sluzba: StudentskaSluzba[] = [];
-  administratori: Administrator[] = [];
+export class AZaposleniComponent implements OnInit {
+  teachers: Teacher[] = [];
+  officeStaff: StudentOffice[] = [];
+  administrators: Administrator[] = [];
 
-  filtriraniProfesori: Nastavnik[] = [];
-  filtriranaSluzba: StudentskaSluzba[] = [];
-  filtriraniAdministratori: Administrator[] = [];
+  filteredTeachers: Teacher[] = [];
+  filteredOfficeStaff: StudentOffice[] = [];
+  filteredAdministrators: Administrator[] = [];
 
-  izmeniProfesoraVisible: boolean = false;
+  editTeacherVisible: boolean = false;
+  editOfficeVisible: boolean = false;
+  editAdminVisible: boolean = false;
 
-  izmeniSSluzbuVisible: boolean = false;
+  teacherSearch: any = {};
+  officeSearch: any = {};
+  adminSearch: any = {};
 
-  izmeniAdminaVisible: boolean = false;
+  selectedTeacher: any = {};
+  selectedOffice: any = {};
+  selectedAdmin: any = {};
 
-  pretragaProfesora:any = {};
-  pretragaSluzbe:any = {};
-  pretragaAdmina:any = {};
-
-  noviProfesor:any = {};
-  novaSluzba:any = {};
-  noviAdmin:any = {};
-
-  zaposleniSelect: { label: string, value: string }[] = [
-    { label: 'Profesori', value: 'profesori' },
-    { label: 'Studentska Sluzba', value: 'ssluzba' },
-    { label: 'Adminstracija', value: 'administratori' }
+  employeeTypes: { label: string; value: string }[] = [
+    { label: 'Teachers', value: 'teachers' },
+    { label: 'Student Office', value: 'officeStaff' },
+    { label: 'Administrators', value: 'administrators' }
   ];
 
-  selected: string = "profesori"
+  selectedCategory: string = 'teachers';
 
-  constructor(private nastavnikService: NastavnikService, private ssluzbaService: StudentskaSluzbaService, 
-    private adminService: AdministratorService, private messageService: MessageService, private confirmationService: ConfirmationService){}
+  constructor(
+    private teacherService: TeacherService,
+    private studentOfficeService: StudentOfficeService,
+    private adminService: AdministratorService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
+  ) {}
 
   ngOnInit(): void {
-    this.getProfesori();
-    this.getSluzba();
-    this.getAdmin();
+    this.loadAll();
   }
 
-  getPodaci(){
-    this.getProfesori();
-    this.getSluzba();
-    this.getAdmin();
+  loadAll() {
+    this.getTeachers();
+    this.getOfficeStaff();
+    this.getAdministrators();
   }
 
-  getProfesori(){
-    this.nastavnikService.getAll().subscribe(x=>{
-      this.profesori = x;
-      this.filtriraniProfesori = this.profesori;
-      // console.log(this.profesori);
-    })
+  getTeachers() {
+    this.teacherService.getAll().subscribe(x => {
+      this.teachers = x;
+      this.filteredTeachers = this.teachers;
+    });
   }
 
-  getSluzba(){
-    this.ssluzbaService.getAll().subscribe(x=>{
-      this.sluzba = x;
-      // console.log(this.sluzba);
-      this.filtriranaSluzba = this.sluzba;
-    })
+  getOfficeStaff() {
+    this.studentOfficeService.getAll().subscribe(x => {
+      this.officeStaff = x;
+      this.filteredOfficeStaff = this.officeStaff;
+    });
   }
 
-  getAdmin(){
-    this.adminService.getAll().subscribe(x=>{
-      this.administratori = x;
-      console.log(this.administratori);
-      this.filtriraniAdministratori = this.administratori;
-    })
+  getAdministrators() {
+    this.adminService.getAll().subscribe(x => {
+      this.administrators = x;
+      this.filteredAdministrators = this.administrators;
+    });
   }
 
-
-  hideDialogProfesor(){
-    this.izmeniProfesoraVisible = false;
+  closeTeacherDialog() {
+    this.editTeacherVisible = false;
   }
 
-  izmeniProfesora(profesor: Nastavnik){
-    this.noviProfesor = {...profesor};
-    console.log(this.noviProfesor);
-    this.izmeniProfesoraVisible = true;
+  openEditTeacherDialog(teacher: Teacher) {
+    this.selectedTeacher = { ...teacher };
+    this.editTeacherVisible = true;
   }
 
-  izmenaProfesora(){
-    this.nastavnikService.update(this.noviProfesor.id, this.noviProfesor).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Profesor izmenjen', 
-          detail: 'Profesor je uspešno izmenjen.'
-        });
-        this.noviProfesor = {}; 
-        this.getPodaci();    
-        this.hideDialogProfesor();
+  updateTeacher() {
+    this.teacherService.update(this.selectedTeacher.id, this.selectedTeacher).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Teacher updated successfully.' });
+        this.selectedTeacher = {};
+        this.loadAll();
+        this.closeTeacherDialog();
       },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri izmeni profesora.'
-        });
-        console.error('Greška:', err); 
-      }
-    })
-  }
-
-  ukloniProfesora(id: number, event: Event){
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Zelite da uklonite izabranog profesora?',
-      icon: 'pi pi-info-circle',
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      accept: () => {
-        this.nastavnikService.delete(id).subscribe({
-               next: () => {
-                 this.getPodaci();
-                 this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Profesor je uklonjen' });
-               },
-                error: err => {
-                 this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-               }
-             });
-      },
-      reject: () => {
-          this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating teacher.' });
       }
     });
   }
 
-
-
-  hideDialogSluzba(){
-    this.izmeniSSluzbuVisible = false;
-  }
-
-  izmeniSluzbu(sluzba: StudentskaSluzba){
-    this.novaSluzba = {...sluzba};
-    this.izmeniSSluzbuVisible = true;
-  }
-
-  izmenaSluzbe(){
-    this.ssluzbaService.update(this.novaSluzba.id, this.novaSluzba).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Sluzba izmenjena', 
-          detail: 'Sluzba je uspešno izmenjena.'
-        });
-        this.novaSluzba = {}; 
-        this.getPodaci();    
-        this.hideDialogSluzba();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri izmeni sluzbe.'
-        });
-        console.error('Greška:', err); 
-      }
-    })
-  }
-
-  ukloniSluzbu(id: number, event: Event){
+  removeTeacher(id: number, event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Zelite da uklonite izabranog zaposlenog sluzbe?',
+      message: 'Are you sure you want to remove this teacher?',
       icon: 'pi pi-info-circle',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       accept: () => {
-        this.ssluzbaService.delete(id).subscribe({
-               next: () => {
-                 this.getPodaci();
-                 this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Zaposleni je uklonjen' });
-               },
-                error: err => {
-                 this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-               }
-             });
+        this.teacherService.delete(id).subscribe({
+          next: () => {
+            this.loadAll();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Teacher removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
+          }
+        });
       },
       reject: () => {
-          this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
       }
     });
   }
 
-  hideDialogAdmin(){
-    this.izmeniAdminaVisible = false;
+  closeOfficeDialog() {
+    this.editOfficeVisible = false;
   }
 
-  izmeniAdmina(admin: Administrator){
-    this.noviAdmin = {...admin};
-    this.izmeniAdminaVisible = true;
+  openEditOfficeDialog(office: StudentOffice) {
+    this.selectedOffice = { ...office };
+    this.editOfficeVisible = true;
   }
 
-  izmenaAdmina(){
-    this.adminService.update(this.noviAdmin.id, this.noviAdmin).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Admin izmenjen', 
-          detail: 'Admin je uspešno izmenjen.'
-        });
-        this.noviAdmin = {}; 
-        this.getPodaci();    
-        this.hideDialogAdmin();
+  updateOfficeStaff() {
+    this.studentOfficeService.update(this.selectedOffice.id, this.selectedOffice).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Office staff updated successfully.' });
+        this.selectedOffice = {};
+        this.loadAll();
+        this.closeOfficeDialog();
       },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri izmeni admina.'
-        });
-        console.error('Greška:', err); 
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating.' });
       }
-    })
+    });
   }
 
-  ukloniAdmina(id: number, event: Event){
+  removeOfficeStaff(id: number, event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Zelite da uklonite izabranog admina?',
+      message: 'Are you sure you want to remove this office staff member?',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      accept: () => {
+        this.studentOfficeService.delete(id).subscribe({
+          next: () => {
+            this.loadAll();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Office staff removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
+          }
+        });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
+      }
+    });
+  }
+
+  closeAdminDialog() {
+    this.editAdminVisible = false;
+  }
+
+  openEditAdminDialog(admin: Administrator) {
+    this.selectedAdmin = { ...admin };
+    this.editAdminVisible = true;
+  }
+
+  updateAdmin() {
+    this.adminService.update(this.selectedAdmin.id, this.selectedAdmin).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Administrator updated successfully.' });
+        this.selectedAdmin = {};
+        this.loadAll();
+        this.closeAdminDialog();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating.' });
+      }
+    });
+  }
+
+  removeAdmin(id: number, event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to remove this administrator?',
       icon: 'pi pi-info-circle',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       accept: () => {
         this.adminService.delete(id).subscribe({
-               next: () => {
-                 this.getPodaci();
-                 this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Admin je uklonjen' });
-               },
-                error: err => {
-                 this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-               }
-             });
+          next: () => {
+            this.loadAll();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Administrator removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
+          }
+        });
       },
       reject: () => {
-          this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
       }
     });
   }
 
-  pretraziProfesore(){
-    this.filtriraniProfesori = this.profesori.filter(p =>
-      (this.pretragaProfesora.ime ? p.ime.toLowerCase().includes(this.pretragaProfesora.ime.toLowerCase()) : true) &&
-      (this.pretragaProfesora.prezime ? p.prezime.toLowerCase().includes(this.pretragaProfesora.prezime.toLowerCase()) : true) &&
-      (this.pretragaProfesora.email ? p.email.toLowerCase().includes(this.pretragaProfesora.email.toLowerCase()) : true) 
+  searchTeachers() {
+    this.filteredTeachers = this.teachers.filter(p =>
+      (this.teacherSearch.firstName ? p.firstName.toLowerCase().includes(this.teacherSearch.firstName.toLowerCase()) : true) &&
+      (this.teacherSearch.lastName ? p.lastName.toLowerCase().includes(this.teacherSearch.lastName.toLowerCase()) : true) &&
+      (this.teacherSearch.email ? p.email.toLowerCase().includes(this.teacherSearch.email.toLowerCase()) : true)
     );
   }
 
-  pretraziSluzbe(){
-    this.filtriranaSluzba = this.sluzba.filter(s =>
-      (this.pretragaSluzbe.ime ? s.ime.toLowerCase().includes(this.pretragaSluzbe.ime.toLowerCase()) : true) &&
-      (this.pretragaSluzbe.prezime ? s.prezime.toLowerCase().includes(this.pretragaSluzbe.prezime.toLowerCase()) : true) &&
-      (this.pretragaSluzbe.email ? s.email.toLowerCase().includes(this.pretragaSluzbe.email.toLowerCase()) : true) 
+  searchOfficeStaff() {
+    this.filteredOfficeStaff = this.officeStaff.filter(s =>
+      (this.officeSearch.firstName ? s.firstName.toLowerCase().includes(this.officeSearch.firstName.toLowerCase()) : true) &&
+      (this.officeSearch.lastName ? s.lastName.toLowerCase().includes(this.officeSearch.lastName.toLowerCase()) : true) &&
+      (this.officeSearch.email ? s.email.toLowerCase().includes(this.officeSearch.email.toLowerCase()) : true)
     );
   }
 
-  pretraziAdmina(){
-    this.filtriraniAdministratori = this.administratori.filter(a =>
-      (this.pretragaAdmina.ime ? a.ime.toLowerCase().includes(this.pretragaAdmina.ime.toLowerCase()) : true) &&
-      (this.pretragaAdmina.prezime ? a.prezime.toLowerCase().includes(this.pretragaAdmina.prezime.toLowerCase()) : true)
+  searchAdministrators() {
+    this.filteredAdministrators = this.administrators.filter(a =>
+      (this.adminSearch.firstName ? a.firstName.toLowerCase().includes(this.adminSearch.firstName.toLowerCase()) : true) &&
+      (this.adminSearch.lastName ? a.lastName.toLowerCase().includes(this.adminSearch.lastName.toLowerCase()) : true)
     );
   }
 
-  ponistiPretragu(){
-    this.pretragaProfesora= {};
-    this.pretragaSluzbe = {};
-    this.pretragaAdmina = {};
-
-    this.filtriraniProfesori = this.profesori;
-    this.filtriranaSluzba = this.sluzba;
-    this.filtriraniAdministratori = this.administratori;
+  clearSearch() {
+    this.teacherSearch = {};
+    this.officeSearch = {};
+    this.adminSearch = {};
+    this.filteredTeachers = this.teachers;
+    this.filteredOfficeStaff = this.officeStaff;
+    this.filteredAdministrators = this.administrators;
   }
-
 }

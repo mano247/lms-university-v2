@@ -1,13 +1,13 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { StudijskiProgramService } from '../../services/studijski-program.service';
-import { StudijskiProgram } from '../../model/academic/studijskiProgram';
-import { PredmetService } from '../../services/predmet.service';
-import { Predmet } from '../../model/academic/predmet';
+import { StudyProgramService } from '../../services/studijski-program.service';
+import { StudyProgram } from '../../model/academic/studijskiProgram';
+import { CourseService } from '../../services/predmet.service';
+import { Course } from '../../model/academic/predmet';
 import { DividerModule } from 'primeng/divider';
-import { Fakultet } from '../../model/academic/fakultet';
-import { FakultetService } from '../../services/fakultet.service';
-import { NastavniMaterijalService } from '../../services/nastavni-materijal.service';
+import { Faculty } from '../../model/academic/fakultet';
+import { FacultyService } from '../../services/fakultet.service';
+import { CourseMaterialService } from '../../services/nastavni-materijal.service';
 import { NgFor } from '@angular/common';
 
 @Component({
@@ -18,75 +18,68 @@ import { NgFor } from '@angular/common';
   templateUrl: './predmet.component.html',
   styleUrl: './predmet.component.css'
 })
-export class PredmetComponent implements OnInit{
-  fakultetSifra: string | null = null;
-  sifraSP: string | null = null;
-  sifraPredmeta: string | null = null;
-  // nastavniMaterijal: any[] = [];
+export class PredmetComponent implements OnInit {
+  facultyCode: string | null = null;
+  studyProgramCode: string | null = null;
+  courseCode: string | null = null;
 
-  fakultet: Fakultet | null = null;
-  predmet: Predmet | null = null;
-  smer: StudijskiProgram | null = null;
+  faculty: Faculty | null = null;
+  course: Course | null = null;
+  studyProgram: StudyProgram | null = null;
 
-
-  constructor(private route: ActivatedRoute,private nmService: NastavniMaterijalService,
-     private spService: StudijskiProgramService, private fakultetService: FakultetService, private predmetService: PredmetService){}
+  constructor(
+    private route: ActivatedRoute,
+    private courseMaterialService: CourseMaterialService,
+    private studyProgramService: StudyProgramService,
+    private facultyService: FacultyService,
+    private courseService: CourseService
+  ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      this.fakultetSifra = params.get('sifraFakulteta');
-      this.sifraSP = params.get('sifraSP');
-      this.sifraPredmeta = params.get('sifraPredmeta');
+      this.facultyCode = params.get('sifraFakulteta');
+      this.studyProgramCode = params.get('sifraSP');
+      this.courseCode = params.get('sifraPredmeta');
 
-      this.getPredmet();
-      this.getSmer();
-      this.getFakultet();
+      this.getCourse();
+      this.getStudyProgram();
+      this.getFaculty();
     });
-    // this.getNMaterijal();
   }
 
-  getPredmet(){
-    if(this.sifraPredmeta !== null){
-      this.predmetService.getBySifra(this.sifraPredmeta).subscribe(x=>{
-        this.predmet = x;
-      })
-    }
-  }
-
-  getFakultet(){
-    if(this.fakultetSifra !== null){
-      this.fakultetService.getBySifra(this.fakultetSifra).subscribe(x=>{
-        this.fakultet = x;
-      })
-    }
-  }
-
-  getSmer(){
-    if(this.sifraSP !== null){
-      this.spService.getBySifra(this.sifraSP).subscribe(x=>{
-        this.smer = x;
+  getCourse() {
+    if (this.courseCode !== null) {
+      this.courseService.getByCode(this.courseCode).subscribe(x => {
+        this.course = x;
       });
     }
   }
 
-  // getNMaterijal(){
-  //   this.nmService.getAll().subscribe(x=>{
-  //     this.nastavniMaterijal = x;
-  //     // console.log(this.nastavniMaterijal);
-  //   })
-  // }
+  getFaculty() {
+    if (this.facultyCode !== null) {
+      this.facultyService.getByCode(this.facultyCode).subscribe(x => {
+        this.faculty = x;
+      });
+    }
+  }
 
-  formatSilabus(silabus: string | undefined): string{
-    if(!silabus) return "silabus";
-    
-    let formatted = silabus
-    .replace(/"/g, '')
+  getStudyProgram() {
+    if (this.studyProgramCode !== null) {
+      this.studyProgramService.getByCode(this.studyProgramCode).subscribe(x => {
+        this.studyProgram = x;
+      });
+    }
+  }
 
-    .replace(/\n\n/g, '</p><p><br>')
+  formatSyllabus(syllabus: string | undefined): string {
+    if (!syllabus) return 'syllabus';
 
-    .replace(/\n/g, '<br>');
+    let formatted = syllabus
+      .replace(/"/g, '')
+      .replace(/\n\n/g, '</p><p><br>')
+      .replace(/\n/g, '<br>');
 
-  formatted = formatted.replace(/\[([^\]]+)\]/g, (match, p1) => {
+    formatted = formatted.replace(/\[([^\]]+)\]/g, (match, p1) => {
       const items = p1.split(';').map((item: string) => `<p>${item.trim()}</p>`).join('');
       return `<div>${items}</div>`;
     });
@@ -94,18 +87,14 @@ export class PredmetComponent implements OnInit{
     return formatted;
   }
 
-  formatirajDatum(vreme: Date | undefined){
-    if(vreme){
-      const datum = new Date(vreme);
-
-      const godina = datum.getUTCFullYear();
-      const mesec = (datum.getUTCMonth() + 1).toString().padStart(2, '0'); 
-      const dan = datum.getUTCDate().toString().padStart(2, '0');
-
-      return `${godina}-${mesec}-${dan}`;
-    }else{
-      return "";
+  formatDate(date: Date | undefined): string {
+    if (date) {
+      const d = new Date(date);
+      const year = d.getUTCFullYear();
+      const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+      const day = d.getUTCDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
+    return '';
   }
-  
 }

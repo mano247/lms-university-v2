@@ -1,11 +1,11 @@
-import { Permission } from "../permission";
+import { Permission } from '../permission';
 
-export interface RegistrovaniKorisnik{
+export interface RegisteredUser {
     id?: number;
-    korisnickoIme: string;
-    lozinka: string;
+    username: string;
+    password: string;
     email: string;
-    ime: string;
-    prezime: string;
+    firstName: string;
+    lastName: string;
     permissions: Permission[];
 }

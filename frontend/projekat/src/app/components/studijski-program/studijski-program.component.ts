@@ -1,12 +1,12 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { FakultetService } from '../../services/fakultet.service';
-import { StudijskiProgramService } from '../../services/studijski-program.service';
-import { StudijskiProgram } from '../../model/academic/studijskiProgram';
-import { Fakultet } from '../../model/academic/fakultet';
+import { FacultyService } from '../../services/fakultet.service';
+import { StudyProgramService } from '../../services/studijski-program.service';
+import { StudyProgram } from '../../model/academic/studijskiProgram';
+import { Faculty } from '../../model/academic/fakultet';
 import { DividerModule } from 'primeng/divider';
-import { Predmet } from '../../model/academic/predmet';
-import { PredmetService } from '../../services/predmet.service';
+import { Course } from '../../model/academic/predmet';
+import { CourseService } from '../../services/predmet.service';
 import { NgFor } from '@angular/common';
 import { map, switchMap, tap } from 'rxjs';
 
@@ -18,52 +18,44 @@ import { map, switchMap, tap } from 'rxjs';
   templateUrl: './studijski-program.component.html',
   styleUrl: './studijski-program.component.css'
 })
-export class StudijskiProgramComponent implements OnInit{
-  fakultetSifra: string | null = null;
-  sifraSP: string | null = null;
-  smer: StudijskiProgram | null = null;
-  predmeti: Predmet[] = [];
+export class StudijskiProgramComponent implements OnInit {
+  facultyCode: string | null = null;
+  studyProgramCode: string | null = null;
+  studyProgram: StudyProgram | null = null;
+  courses: Course[] = [];
 
-  fakultet: Fakultet = {
-    naziv: '',
-    kontakt: '',
-    tekstualniOpis: '',
-    dekan: '',
-    slika: '',
-    adresa: '',
-    nazivUniverziteta: '',
-    sifraFakulteta: ''
-  }
+  faculty: Faculty = {
+    name: '',
+    contact: '',
+    description: '',
+    dean: '',
+    image: '',
+    address: '',
+    facultyCode: ''
+  };
 
+  constructor(
+    private route: ActivatedRoute,
+    private studyProgramService: StudyProgramService,
+    private courseService: CourseService,
+    private facultyService: FacultyService
+  ) {}
 
-  constructor(private route: ActivatedRoute, private spService: StudijskiProgramService, private predmetiService: PredmetService, private fakultetService: FakultetService) { }
-  
   ngOnInit(): void {
-
-    // this.route.paramMap.subscribe(params => {
-    //   this.fakultetSifra = params.get('sifraFakulteta');
-    //   this.sifraSP = params.get('sifraSP');
-    //   this.getSmer();
-    // });
-
-    // this.getSmer();
-    // this.getPredmeti();
-    // this.getFakultet();
-
     this.route.paramMap.pipe(
       switchMap(params => {
-        this.fakultetSifra = params.get('sifraFakulteta');
-        this.sifraSP = params.get('sifraSP');
+        this.facultyCode = params.get('sifraFakulteta');
+        this.studyProgramCode = params.get('sifraSP');
 
-        if (this.fakultetSifra) {
-          return this.fakultetService.getBySifra(this.fakultetSifra).pipe(
-            tap(fakultet => this.fakultet = fakultet),
+        if (this.facultyCode) {
+          return this.facultyService.getByCode(this.facultyCode).pipe(
+            tap(faculty => this.faculty = faculty),
             switchMap(() => {
-              if (this.sifraSP) {
-                return this.spService.getBySifra(this.sifraSP).pipe(
-                  tap(smer => {
-                    this.smer = smer;
-                    this.getPredmeti();
+              if (this.studyProgramCode) {
+                return this.studyProgramService.getByCode(this.studyProgramCode).pipe(
+                  tap(studyProgram => {
+                    this.studyProgram = studyProgram;
+                    this.getCourses();
                   })
                 );
               } else {
@@ -78,29 +70,27 @@ export class StudijskiProgramComponent implements OnInit{
     ).subscribe();
   }
 
-  getFakultet(){
-    if(this.fakultetSifra !== null){
-      this.fakultetService.getBySifra(this.fakultetSifra).subscribe(x=>{
-        this.fakultet = x;
-      })
-    }
-  }
-
-  getSmer(){
-    if(this.sifraSP !== null){
-      this.spService.getBySifra(this.sifraSP).subscribe(x=>{
-        this.smer = x;
-        console.log(this.smer);
+  getFaculty() {
+    if (this.facultyCode !== null) {
+      this.facultyService.getByCode(this.facultyCode).subscribe(x => {
+        this.faculty = x;
       });
     }
   }
 
-  getPredmeti(){
-    this.predmetiService.getAll().pipe(
-      map(pr => pr.filter(p => p.smer.naziv === this.smer?.naziv))
-    ).subscribe(filteredPredmeti => {
-      this.predmeti = filteredPredmeti;
-    });
+  getStudyProgram() {
+    if (this.studyProgramCode !== null) {
+      this.studyProgramService.getByCode(this.studyProgramCode).subscribe(x => {
+        this.studyProgram = x;
+      });
+    }
   }
 
+  getCourses() {
+    this.courseService.getAll().pipe(
+      map(courses => courses.filter(c => c.studyProgram.name === this.studyProgram?.name))
+    ).subscribe(filteredCourses => {
+      this.courses = filteredCourses;
+    });
+  }
 }

@@ -4,15 +4,14 @@ import { AuthService } from './auth.service';
 
 /**
  * Thin wrapper around AuthService kept for backward compatibility.
- * Existing components (header, dashboard, etc.) that were not yet migrated
- * continue to use LoginService; new components should inject AuthService directly.
+ * New components should inject AuthService directly.
  */
 @Injectable({ providedIn: 'root' })
 export class LoginService {
   constructor(private authService: AuthService) {}
 
-  loginUser(data: { email: string; password?: string; lozinka?: string }): Observable<any> {
-    const password = data.password ?? data.lozinka ?? '';
+  loginUser(data: { email: string; password?: string }): Observable<any> {
+    const password = data.password ?? '';
     return this.authService.login(data.email, password);
   }
 

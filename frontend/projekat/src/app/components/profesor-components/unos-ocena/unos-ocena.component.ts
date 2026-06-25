@@ -5,12 +5,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
-import { Predmet } from '../../../model/academic/predmet';
+import { Course } from '../../../model/academic/predmet';
 import { Student } from '../../../model/users/student';
-import { StudentiService } from '../../../services/studenti.service';
-import { NastavnikService } from '../../../services/nastavnik.service';
-import { PolaganjeService } from '../../../services/polaganje.service';
-import { Polaganje } from '../../../model/polaganje';
+import { StudentService } from '../../../services/studenti.service';
+import { TeacherService } from '../../../services/nastavnik.service';
+import { ExamAttemptService } from '../../../services/polaganje.service';
+import { ExamAttempt } from '../../../model/polaganje';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
@@ -24,131 +24,126 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './unos-ocena.component.css',
   providers: [ConfirmationService, MessageService]
 })
-export class UnosOcenaComponent implements OnInit{
-  predmeti: Predmet[] = [];
-  studenti: Student[] = [];
-  ocene: number[] | undefined;
+export class UnosOcenaComponent implements OnInit {
+  courses: Course[] = [];
+  students: Student[] = [];
+  grades: number[] | undefined;
 
-  profId: number = 0;
-
-  izabranoPolaganje:any = {};
-
-  rezultat:any = {
-    osvojeniBodovi: 0,
-    ocena: 0,
-    napomena: ""
-  }
+  teacherId: number = 0;
+  selectedExamAttempt: any = {};
+  result: any = {
+    points: 0,
+    grade: 0,
+    note: ''
+  };
 
   visible: boolean = false;
+  selectedCourseId: number | undefined;
+  examAttempts: ExamAttempt[] = [];
 
-  izabraniPredmetID: number | undefined;
-
-  polaganja: Polaganje[] = [];
-
-  constructor(private confirmationService: ConfirmationService, private messageService: MessageService,
-    private nastavnikService: NastavnikService, private studentService: StudentiService, private polaganjeService: PolaganjeService
-  ){}
+  constructor(
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
+    private teacherService: TeacherService,
+    private studentService: StudentService,
+    private examAttemptService: ExamAttemptService
+  ) {}
 
   ngOnInit(): void {
-    this.ocene = [
-      6, 7, 8, 9, 10
-    ]
+    this.grades = [6, 7, 8, 9, 10];
 
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.profId = parsedUser.id;
-      this.getPredmeti(id);
-      this.getStudenti();
+      this.teacherId = parsedUser.id;
+      this.getCourses(id);
+      this.getStudents();
     }
   }
 
-  potvrdaOcene(event: Event){
+  confirmGrade(event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Zelite da unesete ocenu?',
-      header: 'Potvrda ocene',
+      message: 'Do you want to submit this grade?',
+      header: 'Confirm grade',
       icon: 'pi pi-exclamation-triangle',
-      acceptIcon:"none",
-      rejectIcon:"none",
-      rejectButtonStyleClass:"p-button-text",
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-          this.messageService.add({ severity: 'info', summary: 'Potvcrdjeno!', detail: 'Ocena uspesno unesena' });
+        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Grade submitted successfully.' });
       },
       reject: () => {
-          this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Potvrda odbijena', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Grade submission cancelled.', life: 3000 });
       }
     });
   }
 
-  onPredmetChange(event: any) {
-    const predmetID = event.value; 
-    console.log(predmetID);
-    if (predmetID) {
-      this.polaganjeService.getPrijavljeniPoPredmetu(predmetID).subscribe(x => {
-        this.polaganja = x; 
-        console.log("polaganja", this.polaganja);
+  onCourseChange(event: any) {
+    const courseId = event.value;
+    if (courseId) {
+      this.examAttemptService.getRegisteredByCourse(courseId).subscribe(x => {
+        this.examAttempts = x;
       });
     }
   }
 
-  getPredmeti(id: number){
-    this.nastavnikService.mojiPredmeti(id).subscribe(x=>{
-      this.predmeti = x;
-    })
+  getCourses(id: number) {
+    this.teacherService.getMyCourses(id).subscribe(x => {
+      this.courses = x;
+    });
   }
 
-  getStudenti(){
-    this.studentService.getAll().subscribe(x=>{
-      this.studenti = x;
-    })
+  getStudents() {
+    this.studentService.getAll().subscribe(x => {
+      this.students = x;
+    });
   }
 
-  upisiOcenu(polaganje: any){
+  enterGrade(examAttempt: any) {
     this.visible = true;
-    this.izabranoPolaganje = polaganje;
+    this.selectedExamAttempt = examAttempt;
   }
 
-  upisOcene(){
-    if (this.izabranoPolaganje && this.izabranoPolaganje.id) {
-      const updatedPolaganje = {
-        ...this.izabranoPolaganje, 
-        konacnaOcena: this.rezultat.ocena, 
-        bodovi: this.rezultat.osvojeniBodovi, 
-        napomena: this.rezultat.napomena 
+  submitGrade() {
+    if (this.selectedExamAttempt && this.selectedExamAttempt.id) {
+      const updatedAttempt = {
+        ...this.selectedExamAttempt,
+        finalGrade: this.result.grade,
+        points: this.result.points,
+        note: this.result.note
       };
-      console.log(updatedPolaganje);
-      this.polaganjeService.update(updatedPolaganje.id, updatedPolaganje).subscribe({
+
+      this.examAttemptService.update(updatedAttempt.id, updatedAttempt).subscribe({
         next: () => {
-          this.getPredmeti(this.profId);
-          this.messageService.add({severity:'success', summary: 'Uspeh', detail: 'Ocena uspešno upisana'});
-          if(this.izabraniPredmetID){
-            this.polaganjeService.getPrijavljeniPoPredmetu(this.izabraniPredmetID).subscribe(x => {
-              this.polaganja = x; 
-              console.log("polaganja", this.polaganja);
+          this.getCourses(this.teacherId);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Grade submitted successfully.' });
+          if (this.selectedCourseId) {
+            this.examAttemptService.getRegisteredByCourse(this.selectedCourseId).subscribe(x => {
+              this.examAttempts = x;
             });
           }
-          this.ponistiDialog();
+          this.cancelDialog();
         },
         error: () => {
-          this.messageService.add({severity:'error', summary: 'Greška', detail: 'Greška prilikom upisa ocene'});
-          this.ponistiDialog();
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error submitting grade.' });
+          this.cancelDialog();
         }
       });
     } else {
-      this.messageService.add({severity:'error', summary: 'Greška', detail: 'Polaganje nema definisan ID'});
-      this.ponistiDialog();
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Exam attempt has no defined ID.' });
+      this.cancelDialog();
     }
   }
 
-  ponistiDialog(){
+  cancelDialog() {
     this.visible = false;
-    this.izabranoPolaganje = {};
-    this.rezultat = {
-      osvojeniBodovi: 0,
-      ocena: 0,
-      napomena: ""
-    }
+    this.selectedExamAttempt = {};
+    this.result = {
+      points: 0,
+      grade: 0,
+      note: ''
+    };
   }
 }

@@ -5,7 +5,6 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 
-
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-dashboard',
@@ -14,7 +13,7 @@ import { Router } from '@angular/router';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit{
+export class DashboardComponent implements OnInit {
   roles: string[] = [];
   selectedTabIndex: number = 0;
 
@@ -24,24 +23,23 @@ export class DashboardComponent implements OnInit{
     this.roles = this.loginService.getUserRole();
   }
 
-
-  univerzitet(){
+  goToUniversity() {
     this.router.navigate(['']);
   }
 
-  eStudent(){
+  goToStudentPortal() {
     this.router.navigate(['eStudent']);
   }
 
-  eProfesor(){
+  goToTeacherPortal() {
     this.router.navigate(['eProfesor']);
   }
 
-  eSSluzba(){
+  goToOfficePortal() {
     this.router.navigate(['eSSluzba']);
   }
 
-  eAdmin(){
+  goToAdminPortal() {
     this.router.navigate(['eAdmin']);
   }
 }

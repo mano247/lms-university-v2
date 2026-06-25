@@ -6,10 +6,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
-import { Predmet } from '../../../model/academic/predmet';
-import { StudentiService } from '../../../services/studenti.service';
-import { PolaganjeService } from '../../../services/polaganje.service';
-import { Polaganje } from '../../../model/polaganje';
+import { Course } from '../../../model/academic/predmet';
+import { StudentService } from '../../../services/studenti.service';
+import { ExamAttemptService } from '../../../services/polaganje.service';
+import { ExamAttempt } from '../../../model/polaganje';
 import { Student } from '../../../model/users/student';
 
 @Component({
@@ -21,131 +21,127 @@ import { Student } from '../../../model/users/student';
   styleUrl: './prijava-ispita.component.css',
   providers: [ConfirmationService, MessageService]
 })
-export class PrijavaIspitaComponent implements OnInit{
-  balans: number = 1200.0;
+export class PrijavaIspitaComponent implements OnInit {
+  balance: number = 1200.0;
   visible: boolean = false;
 
-  mojiPredmeti: any[] = [];
-  izabraniPredmet: any | undefined;
-  prijavljeniIspiti: any[] = [];
+  availableCourses: any[] = [];
+  selectedCourse: any | undefined;
+  registeredExams: any[] = [];
 
   studentId: number | undefined;
   student: Student | undefined;
 
-  constructor(private confirmationService: ConfirmationService, private messageService: MessageService, 
-    private studentService: StudentiService, private polaganjeService: PolaganjeService) {}
+  constructor(
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
+    private studentService: StudentService,
+    private examAttemptService: ExamAttemptService
+  ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       this.studentId = parsedUser.id;
-      if(this.studentId){
-        this.getIspitiZaPrijavu(this.studentId);
+      if (this.studentId) {
+        this.getAvailableExams(this.studentId);
         this.getStudent(this.studentId);
-        this.getPrijavljeniIspiti(this.studentId);
-
+        this.getRegisteredExams(this.studentId);
       }
     }
-    
   }
 
-  prijavaIspita(event: Event, predmet: Predmet) {
-    this.izabraniPredmet = predmet;
+  registerForExam(event: Event, course: Course) {
+    this.selectedCourse = course;
 
     this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Prijava ispita kosta 1000 dinara, zelite li da nastavite?',
-        header: 'Prijava ispita',
-        icon: 'pi pi-question-circle',
-        acceptIcon:"none",
-        rejectIcon:"none",
-        rejectButtonStyleClass:"p-button-text",
-        accept: () => {
-          if (this.balans >= 1000) {
-            this.balans -= 1000;
-            this.messageService.add({ severity: 'info', summary: 'Prijava uspesna', detail: 'Prijavili ste uspesno ispit' });
+      target: event.target as EventTarget,
+      message: 'Exam registration costs 1000 RSD. Do you want to continue?',
+      header: 'Exam Registration',
+      icon: 'pi pi-question-circle',
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => {
+        if (this.balance >= 1000) {
+          this.balance -= 1000;
+          this.messageService.add({ severity: 'info', summary: 'Registration successful', detail: 'You have successfully registered for the exam.' });
 
-            const polaganje: Polaganje = {
-              predmet: this.izabraniPredmet,
-              student: this.student,
-              nastavnik: this.izabraniPredmet.nastavnik
-            };
+          const examAttempt: ExamAttempt = {
+            course: this.selectedCourse,
+            student: this.student,
+            teacher: this.selectedCourse.teacher
+          };
 
-
-
-            this.polaganjeService.create(polaganje).subscribe(
-              response => {
-                this.messageService.add({ severity: 'success', summary: 'Uspesno', detail: 'Ispit prijavljen' });
-                if(this.studentId){
-                  this.getPrijavljeniIspiti(this.studentId);
-                }
-              },
-              error => {
-                this.messageService.add({ severity: 'error', summary: 'Greska', detail: 'Neuspesna prijava ispita' });
+          this.examAttemptService.create(examAttempt).subscribe(
+            () => {
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Exam registered successfully.' });
+              if (this.studentId) {
+                this.getRegisteredExams(this.studentId);
               }
-            );
-            
-          } else {
-            this.messageService.add({ severity: 'error', summary: 'Nedovoljno sredstava', detail: 'Nemate dovoljno sredstava za uplatu' });
-          }
-        },
-        reject: () => {
-          this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Prijava ispita ponistena', life: 3000 });
+            },
+            () => {
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to register for exam.' });
+            }
+          );
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Insufficient funds', detail: 'You do not have enough funds.' });
         }
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Exam registration cancelled.', life: 3000 });
+      }
     });
   }
 
-
-  getIspitiZaPrijavu(id: number) {
-    this.studentService.getIspitiZaPrijavu(id).subscribe(x => {
-      this.mojiPredmeti = x;
-      console.log("m.p", this.mojiPredmeti);
+  getAvailableExams(id: number) {
+    this.studentService.getAvailableExams(id).subscribe(x => {
+      this.availableCourses = x;
     });
   }
 
-  getStudent(id: number){
-    this.studentService.getById(id).subscribe(x=>{
+  getStudent(id: number) {
+    this.studentService.getById(id).subscribe(x => {
       this.student = x;
-    })
+    });
   }
 
-  getPrijavljeniIspiti(id: number){
-    this.polaganjeService.getPrijavljeni(id).subscribe(x=>{
-      this.prijavljeniIspiti = x;
-    })
+  getRegisteredExams(id: number) {
+    this.examAttemptService.getRegisteredByStudent(id).subscribe(x => {
+      this.registeredExams = x;
+    });
   }
 
-  prikaziDialogZaUplatu(){
+  showPaymentDialog() {
     this.visible = true;
   }
 
-  potvrdiDialog(event: Event, iznos: number){
+  confirmPayment(event: Event, amount: number) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Zelite li da izvrsite uplatu?',
-      header: 'Potvrda',
+      message: 'Do you want to make this payment?',
+      header: 'Confirm payment',
       icon: 'pi pi-question-circle',
-      acceptIcon:"none",
-      rejectIcon:"none",
-      rejectButtonStyleClass:"p-button-text",
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-          this.balans += iznos;
-          this.visible = false;
-          this.messageService.add({ severity: 'info', summary: 'Potvrdjeno!', detail: 'Uplata sredstava izvrsena' });
+        this.balance += amount;
+        this.visible = false;
+        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Payment successful.' });
       },
       reject: () => {
-          this.messageService.add({ severity: 'error', summary: 'Ponisteno!', detail: 'Uplata ponistena', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Cancelled!', detail: 'Payment cancelled.', life: 3000 });
       }
     });
   }
 
-  ponistiUplatu(){
+  cancelPayment() {
     this.visible = false;
   }
 
-  jePredmetPrijavljen(predmet: Predmet): boolean {
-    return this.prijavljeniIspiti.some(prijavljeni => prijavljeni.predmet.id === predmet.id);
+  isExamRegistered(course: Course): boolean {
+    return this.registeredExams.some(exam => exam.course.id === course.id);
   }
-
 }

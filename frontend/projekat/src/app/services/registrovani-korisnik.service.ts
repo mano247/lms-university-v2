@@ -1,35 +1,34 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { RegistrovaniKorisnik } from '../model/users/registrovaniKorisnik';
+import { RegisteredUser } from '../model/users/registrovaniKorisnik';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RegistrovaniKorisnikService {
-
+export class RegisteredUserService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<RegistrovaniKorisnik[]>("http://localhost:8080/api/registrovaniKorisnici");
+  getAll() {
+    return this.http.get<RegisteredUser[]>('http://localhost:8080/api/registered-users');
   }
 
-  getById(id: number){
-    return this.http.get<RegistrovaniKorisnik>(`http://localhost:8080/api/registrovaniKorisnici/${id}`);
+  getById(id: number) {
+    return this.http.get<RegisteredUser>(`http://localhost:8080/api/registered-users/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<RegistrovaniKorisnik>(`http://localhost:8080/api/registrovaniKorisnici/${id}`);
+  delete(id: number) {
+    return this.http.delete<RegisteredUser>(`http://localhost:8080/api/registered-users/${id}`);
   }
 
-  update(id: number, registrovaniKorisnik: RegistrovaniKorisnik){
-    return this.http.put<RegistrovaniKorisnik>(`http://localhost:8080/api/registrovaniKorisnici/${id}`, registrovaniKorisnik);
+  update(id: number, user: RegisteredUser) {
+    return this.http.put<RegisteredUser>(`http://localhost:8080/api/registered-users/${id}`, user);
   }
 
-  create(registrovaniKorisnik: RegistrovaniKorisnik){
-    return this.http.post<RegistrovaniKorisnik>("http://localhost:8080/api/registrovaniKorisnici", registrovaniKorisnik);
+  create(user: RegisteredUser) {
+    return this.http.post<RegisteredUser>('http://localhost:8080/api/registered-users', user);
   }
 
-  dodeliStudenta(id: number, student: any){
-    return this.http.put<any>(`http://localhost:8080/api/registrovaniKorisnici/${id}/dodeliStudenta`, student);
+  assignStudent(id: number, student: any) {
+    return this.http.put<any>(`http://localhost:8080/api/registered-users/${id}/enroll-student`, student);
   }
 }

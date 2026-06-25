@@ -1,45 +1,43 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StudentskaSluzba } from '../model/users/studentskaSluzba';
-import { NastavniMaterijal } from '../model/academic/nastavniMaterijal';
+import { StudentOffice } from '../model/users/studentskaSluzba';
+import { CourseMaterial } from '../model/academic/nastavniMaterijal';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StudentskaSluzbaService {
-
+export class StudentOfficeService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<StudentskaSluzba[]>("http://localhost:8080/api/studentskaSluzba");
+  getAll() {
+    return this.http.get<StudentOffice[]>('http://localhost:8080/api/student-affairs-office');
   }
 
-  getById(id: number){
-    return this.http.get<StudentskaSluzba>(`http://localhost:8080/api/studentskaSluzba/${id}`);
+  getById(id: number) {
+    return this.http.get<StudentOffice>(`http://localhost:8080/api/student-affairs-office/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<StudentskaSluzba>(`http://localhost:8080/api/studentskaSluzba/${id}`);
+  delete(id: number) {
+    return this.http.delete<StudentOffice>(`http://localhost:8080/api/student-affairs-office/${id}`);
   }
 
-  update(id: number, studentskaSluzba: StudentskaSluzba){
-    return this.http.put<StudentskaSluzba>(`http://localhost:8080/api/studentskaSluzba/${id}`, studentskaSluzba);
+  update(id: number, officeStaff: StudentOffice) {
+    return this.http.put<StudentOffice>(`http://localhost:8080/api/student-affairs-office/${id}`, officeStaff);
   }
 
-  create(studentskaSluzba: StudentskaSluzba){
-    return this.http.post<StudentskaSluzba>("http://localhost:8080/api/studentskaSluzba", studentskaSluzba);
+  create(officeStaff: StudentOffice) {
+    return this.http.post<StudentOffice>('http://localhost:8080/api/student-affairs-office', officeStaff);
   }
 
-  getKorisnici(){
-    return this.http.get<any[]>("http://localhost:8080/api/registrovaniKorisnici");
+  getUsers() {
+    return this.http.get<any[]>('http://localhost:8080/api/registered-users');
   }
 
-  getUdzbenici(){
-    return this.http.get<NastavniMaterijal[]>("http://localhost:8080/api/nastavnimaterijal");
+  getTextbooks() {
+    return this.http.get<CourseMaterial[]>('http://localhost:8080/api/teaching-materials');
   }
 
-  upisiNaGodinu(sng: any){
-    return this.http.post<any>("http://localhost:8080//api/sng", sng)
+  enrollInYear(enrollment: any) {
+    return this.http.post<any>('http://localhost:8080/api/enrollments', enrollment);
   }
-
 }

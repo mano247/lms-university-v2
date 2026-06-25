@@ -1,10 +1,10 @@
-import { Nastavnik } from "./users/nastavnik";
-import { Student } from "./users/student";
+import { Teacher } from './users/nastavnik';
+import { Student } from './users/student';
 
-export interface ZavrsniRad{
+export interface Thesis {
     id?: number;
-    tema: string;
+    topic: string;
     link: string;
     student: Student;
-    profesor: Nastavnik;
+    professor: Teacher;
 }

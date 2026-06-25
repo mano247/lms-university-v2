@@ -2,18 +2,14 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TableModule } from 'primeng/table';
-import { Nastavnik } from '../../../model/users/nastavnik';
-import { NastavniMaterijalService } from '../../../services/nastavni-materijal.service';
-import { NastavnikService } from '../../../services/nastavnik.service';
+import { Teacher } from '../../../model/users/nastavnik';
+import { TeacherService } from '../../../services/nastavnik.service';
 import { NgClass, NgIf } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { Predmet } from '../../../model/academic/predmet';
-import { StudentiService } from '../../../services/studenti.service';
+import { Course } from '../../../model/academic/predmet';
+import { StudentService } from '../../../services/studenti.service';
 import { Student } from '../../../model/users/student';
 import { InputGroupModule } from 'primeng/inputgroup';
-// import { jsPDF } from 'jspdf';
-
-
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -26,82 +22,68 @@ import { InputGroupModule } from 'primeng/inputgroup';
 export class IzdavanjeDokumenataComponent implements OnInit {
   visible: boolean = false;
 
-  profesori: Nastavnik[] = [];
-  filtriraniProfesori: Nastavnik[] = [];
+  teachers: Teacher[] = [];
+  filteredTeachers: Teacher[] = [];
 
-  studenti: Student[] = [];
-  filtriraniStudenti: Student[] = [];
+  students: Student[] = [];
+  filteredStudents: Student[] = [];
 
-  profesorPredmeti: Predmet[] = [];
+  teacherCourses: Course[] = [];
 
-  pretraga = {
-    ime: '',
-    prezime: '',
+  search = {
+    firstName: '',
+    lastName: '',
     email: ''
-  }
+  };
 
-  constructor(private nastavnikService: NastavnikService, private studentService: StudentiService){}
+  constructor(private teacherService: TeacherService, private studentService: StudentService) {}
 
   ngOnInit(): void {
-    this.getNastavnici();
-    this.getStudenti();
+    this.getTeachers();
+    this.getStudents();
   }
 
-  getNastavnici(){
-    this.nastavnikService.getAll().subscribe(x=>{
-      this.profesori = x;
-      this.filtriraniProfesori = this.profesori;
-      console.log(this.profesori);
-    })
+  getTeachers() {
+    this.teacherService.getAll().subscribe(x => {
+      this.teachers = x;
+      this.filteredTeachers = this.teachers;
+    });
   }
 
-  getStudenti(){
-    this.studentService.getAll().subscribe(x=>{
-      this.studenti = x;
-      this.filtriraniStudenti = this.studenti;
-    })
+  getStudents() {
+    this.studentService.getAll().subscribe(x => {
+      this.students = x;
+      this.filteredStudents = this.students;
+    });
   }
 
-  pretraziProfesore(){
-    this.filtriraniProfesori = this.profesori.filter(p =>
-      (this.pretraga.ime ? p.ime.toLowerCase().includes(this.pretraga.ime.toLowerCase()) : true) &&
-      (this.pretraga.prezime ? p.prezime.toLowerCase().includes(this.pretraga.prezime.toLowerCase()) : true) &&
-      (this.pretraga.email ? p.email.toLowerCase().includes(this.pretraga.email.toLowerCase()) : true)
+  searchTeachers() {
+    this.filteredTeachers = this.teachers.filter(p =>
+      (this.search.firstName ? p.firstName.toLowerCase().includes(this.search.firstName.toLowerCase()) : true) &&
+      (this.search.lastName ? p.lastName.toLowerCase().includes(this.search.lastName.toLowerCase()) : true) &&
+      (this.search.email ? p.email.toLowerCase().includes(this.search.email.toLowerCase()) : true)
     );
   }
 
-  pretraziStudente(){
-    this.filtriraniStudenti = this.studenti.filter(s =>
-      (this.pretraga.ime ? s.ime.toLowerCase().includes(this.pretraga.ime.toLowerCase()) : true) &&
-      (this.pretraga.prezime ? s.prezime.toLowerCase().includes(this.pretraga.prezime.toLowerCase()) : true) &&
-      (this.pretraga.email ? s.email.toLowerCase().includes(this.pretraga.email.toLowerCase()) : true)
+  searchStudents() {
+    this.filteredStudents = this.students.filter(s =>
+      (this.search.firstName ? s.firstName.toLowerCase().includes(this.search.firstName.toLowerCase()) : true) &&
+      (this.search.lastName ? s.lastName.toLowerCase().includes(this.search.lastName.toLowerCase()) : true) &&
+      (this.search.email ? s.email.toLowerCase().includes(this.search.email.toLowerCase()) : true)
     );
   }
 
-  ponistiPretragu(){
-    this.filtriraniStudenti = this.studenti;
-    this.filtriraniProfesori = this.profesori;
-    this.pretraga = {
-      ime: '',
-      prezime: '',
-      email: ''
-    }
-
+  clearSearch() {
+    this.filteredStudents = this.students;
+    this.filteredTeachers = this.teachers;
+    this.search = { firstName: '', lastName: '', email: '' };
   }
 
-  xmlProfesor(profesor: Nastavnik){
-   
-  }
+  exportTeacherXml(teacher: Teacher) {}
 
-  pdfProfesor(profesor: Nastavnik){
+  exportTeacherPdf(teacher: Teacher) {}
 
-  }
+  exportStudentXml(student: Student) {}
 
-  xmlStudent(student: Student){
-
-  }
-
-  pdfStudent(student: Student){
-
-  }
+  exportStudentPdf(student: Student) {}
 }

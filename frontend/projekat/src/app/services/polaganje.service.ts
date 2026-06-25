@@ -1,39 +1,38 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Polaganje } from '../model/polaganje';
+import { ExamAttempt } from '../model/polaganje';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PolaganjeService {
-
+export class ExamAttemptService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Polaganje[]>("http://localhost:8080/api/polaganja");
+  getAll() {
+    return this.http.get<ExamAttempt[]>('http://localhost:8080/api/examAttempts');
   }
 
-  getById(id: number){
-    return this.http.get<Polaganje>(`http://localhost:8080/api/polaganja/${id}`);
+  getById(id: number) {
+    return this.http.get<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Polaganje>(`http://localhost:8080/api/polaganja/${id}`);
+  delete(id: number) {
+    return this.http.delete<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`);
   }
 
-  update(id: number, polaganje: Polaganje){
-    return this.http.put<Polaganje>(`http://localhost:8080/api/polaganja/${id}`, polaganje);
+  update(id: number, examAttempt: ExamAttempt) {
+    return this.http.put<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`, examAttempt);
   }
 
-  create(polaganje: Polaganje){
-    return this.http.post<Polaganje>("http://localhost:8080/api/polaganja/c", polaganje);
+  create(examAttempt: ExamAttempt) {
+    return this.http.post<ExamAttempt>('http://localhost:8080/api/examAttempts/register', examAttempt);
   }
 
-  getPrijavljeni(id: number){
-    return this.http.get<any[]>(`http://localhost:8080/api/polaganja/prijavljeni/${id}`);
+  getRegisteredByStudent(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/examAttempts/registered/${id}`);
   }
 
-  getPrijavljeniPoPredmetu(id: number){
-    return this.http.get<any[]>(`http://localhost:8080/api/polaganja/prijavljeniPoPredmetu/${id}`)
+  getRegisteredByCourse(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/examAttempts/registered-by-course/${id}`);
   }
 }

@@ -1,15 +1,11 @@
-import { GodinaStudija } from "../godinaStudija";
-import { Fakultet } from "./fakultet";
-import { Predmet } from "./predmet";
+import { Faculty } from './fakultet';
 
-export interface StudijskiProgram{
-    id?: number; 
-    opis: string;
-    naziv: string;
-    rukovodilac: string;
-    godineStudija: GodinaStudija[]; 
-    // fakultet: Fakultet; 
-    fakultet: Fakultet;
-    predmeti: Predmet[];
-    sifraSP: string;
+export interface StudyProgram {
+    id?: number;
+    programCode: string;
+    description: string;
+    name: string;
+    programDirector: any;
+    faculty: Faculty;
+    courses: any[];
 }

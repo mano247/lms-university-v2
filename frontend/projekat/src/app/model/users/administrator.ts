@@ -1,5 +1,5 @@
-import { RegistrovaniKorisnik } from "./registrovaniKorisnik";
+import { RegisteredUser } from './registrovaniKorisnik';
 
-export interface Administrator extends RegistrovaniKorisnik{
-    
+export interface Administrator extends RegisteredUser {
+
 }

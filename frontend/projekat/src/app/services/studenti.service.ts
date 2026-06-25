@@ -1,68 +1,63 @@
 import { Injectable } from '@angular/core';
 import { Student } from '../model/users/student';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Predmet } from '../model/academic/predmet';
-import { Obavestenje } from '../model/obavestenje';
+import { HttpClient } from '@angular/common/http';
+import { Course } from '../model/academic/predmet';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StudentiService {
-
+export class StudentService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Student[]>("http://localhost:8080/api/studenti");
+  getAll() {
+    return this.http.get<Student[]>('http://localhost:8080/api/students');
   }
 
-  getById(id: number){
-    return this.http.get<Student>(`http://localhost:8080/api/studenti/${id}`);
+  getById(id: number) {
+    return this.http.get<Student>(`http://localhost:8080/api/students/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Student>(`http://localhost:8080/api/studenti/${id}`);
+  delete(id: number) {
+    return this.http.delete<Student>(`http://localhost:8080/api/students/${id}`);
   }
 
-  update(id: number, student: Student){
-    return this.http.put<Student>(`http://localhost:8080/api/studenti/${id}`, student);
+  update(id: number, student: Student) {
+    return this.http.put<Student>(`http://localhost:8080/api/students/${id}`, student);
   }
 
-  create(student: Student){
-    return this.http.post<Student>("http://localhost:8080/api/studenti", student);
+  create(student: Student) {
+    return this.http.post<Student>('http://localhost:8080/api/students', student);
   }
 
-
-  sviIspiti(id: number){
-    return this.http.get<Predmet[]>(`http://localhost:8080/api/studenti/${id}/sviIspiti`);
+  getAllCourses(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/all-courses`);
   }
 
-  polozeniIspiti(id: number){
-    return this.http.get<any[]>(`http://localhost:8080/api/studenti/${id}/polozeniIspiti`);
+  getPassedExams(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/students/${id}/passed-exams`);
   }
 
-  nepolozeniIspiti(id: number){
-    return this.http.get<Predmet[]>(`http://localhost:8080/api/studenti/${id}/nepolozeniIspiti`);
+  getFailedExams(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/failed-exams`);
   }
 
-  getAktivniPredmeti(id: number){
-    return this.http.get<Predmet[]>(`http://localhost:8080/api/studenti/${id}/sviAPredmeti`)
+  getActiveCourses(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/active-courses`);
   }
 
-  getIspitiZaPrijavu(id: number){
-    return this.http.get<Predmet[]>(`http://localhost:8080/api/studenti/${id}/ispitiZaPrijavu`);
+  getAvailableExams(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/available-exams`);
   }
 
-  getUpisi(id: number){
-    return this.http.get<any[]>(`http://localhost:8080/api/sng/fbs/${id}`);
+  getEnrollments(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/enrollments/by-student/${id}`);
   }
 
-  upisiNaGodinu(sng: any){
-    return this.http.post<any>("http://localhost:8080/api/sng", sng);
+  enrollInYear(enrollment: any) {
+    return this.http.post<any>('http://localhost:8080/api/enrollments', enrollment);
   }
 
-  dodajStudentaNaPredmet(idSmer: number, student: any){
-    return this.http.put<any>(`http://localhost:8080/api/studenti/dsp/${idSmer}`, student);
-  } 
-
+  addStudentToCourse(programId: number, student: any) {
+    return this.http.put<any>(`http://localhost:8080/api/students/assign-courses/${programId}`, student);
+  }
 }

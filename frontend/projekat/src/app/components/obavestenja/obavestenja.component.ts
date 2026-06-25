@@ -1,18 +1,15 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { Obavestenje } from '../../model/obavestenje';
+import { GlobalNotification } from '../../model/gObavestenje';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
-import { ObavestenjeService } from '../../services/obavestenje.service';
 import { DividerModule } from 'primeng/divider';
-import { GlobalnaObavestenjaService } from '../../services/globalna-obavestenja.service';
-import { GObavestenje } from '../../model/gObavestenje';
+import { GlobalNotificationsService } from '../../services/globalna-obavestenja.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -23,33 +20,35 @@ import { MessageService } from 'primeng/api';
   styleUrl: './obavestenja.component.css',
   providers: [MessageService]
 })
-
-export class ObavestenjaComponent implements OnInit{
-  obavestenja: GObavestenje[] = [];
+export class ObavestenjaComponent implements OnInit {
+  announcements: GlobalNotification[] = [];
   displayDialog: boolean = false;
 
-  novoObavestenje: GObavestenje = {
-    datum: new Date(),
-    sadrzaj: '',
-    naslov: '',
-    slika: '',
-    vremePocetka: new Date(),
-    vremeKraja: new Date()
-  }
+  newAnnouncement: GlobalNotification = {
+    date: new Date(),
+    content: '',
+    title: '',
+    image: '',
+    startDate: new Date(),
+    endDate: new Date()
+  };
 
-  constructor(private globalObavestenjeService: GlobalnaObavestenjaService, private messageService: MessageService){}
+  constructor(
+    private globalNotificationsService: GlobalNotificationsService,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
-    this.getObavestenja();
+    this.getAnnouncements();
   }
 
-  getObavestenja(){
-    this.globalObavestenjeService.getAll().subscribe(x=>{
-      this.obavestenja = x;
-    })
+  getAnnouncements() {
+    this.globalNotificationsService.getAll().subscribe(x => {
+      this.announcements = x;
+    });
   }
 
-  prilagodiDatum(date: any): string {
+  formatDate(date: any): string {
     let d: Date;
 
     if (typeof date === 'string') {
@@ -57,63 +56,60 @@ export class ObavestenjaComponent implements OnInit{
     } else if (date instanceof Date) {
       d = date;
     } else {
-      console.error('Nevalidan datum:', date);
       return '';
     }
-  
+
     if (isNaN(d.getTime())) {
-      console.error('Nevalidan datum:', date);
       return '';
     }
-  
+
     const hours = d.getUTCHours().toString().padStart(2, '0');
     const minutes = d.getUTCMinutes().toString().padStart(2, '0');
-  
     const day = d.getUTCDate().toString().padStart(2, '0');
-    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0'); 
+    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
     const year = d.getUTCFullYear();
-  
+
     return `${hours}:${minutes}, ${day}-${month}-${year}`;
   }
 
-  showDialog(){
+  openDialog() {
     this.displayDialog = true;
   }
 
-  dodajObavestenje() {
-    this.globalObavestenjeService.create(this.novoObavestenje).subscribe({
-      next: (response) => {
-        this.getObavestenja();
-        this.resetModel();
-        this.hideDialog();
+  addAnnouncement() {
+    this.globalNotificationsService.create(this.newAnnouncement).subscribe({
+      next: () => {
+        this.getAnnouncements();
+        this.resetForm();
+        this.closeDialog();
         this.messageService.add({
           severity: 'success',
-          summary: 'Uspešno dodato',
-          detail: 'Obaveštenje je uspešno dodato.'
+          summary: 'Success',
+          detail: 'Announcement added successfully.'
         });
       },
-      error: (error) => {
+      error: () => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Greška',
-          detail: 'Došlo je do greške pri dodavanju obaveštenja.'
+          summary: 'Error',
+          detail: 'An error occurred while adding the announcement.'
         });
       }
     });
   }
 
-  hideDialog(){
+  closeDialog() {
     this.displayDialog = false;
   }
 
-  resetModel(){
-    this.novoObavestenje = {
-      datum: new Date(),
-      sadrzaj: '',
-      naslov: '',
-      slika: '',
-      vremePocetka: new Date(),
-      vremeKraja: new Date()
-    }
+  resetForm() {
+    this.newAnnouncement = {
+      date: new Date(),
+      content: '',
+      title: '',
+      image: '',
+      startDate: new Date(),
+      endDate: new Date()
+    };
   }
 }

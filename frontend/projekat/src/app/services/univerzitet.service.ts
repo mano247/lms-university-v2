@@ -1,31 +1,30 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Univerzitet } from '../model/academic/univerzitet';
+import { University } from '../model/academic/univerzitet';
 
 @Injectable({
   providedIn: 'root'
 })
-export class UniverzitetService {
-
+export class UniversityService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Univerzitet[]>("http://localhost:8080/api/univerziteti");
+  getAll() {
+    return this.http.get<University[]>('http://localhost:8080/api/universities');
   }
 
-  getById(id: number){
-    return this.http.get<Univerzitet>(`http://localhost:8080/api/univerziteti/${id}`);
+  getById(id: number) {
+    return this.http.get<University>(`http://localhost:8080/api/universities/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Univerzitet>(`http://localhost:8080/api/univerziteti/${id}`);
+  delete(id: number) {
+    return this.http.delete<University>(`http://localhost:8080/api/universities/${id}`);
   }
 
-  update(id: number, univerzitet: Univerzitet){
-    return this.http.put<Univerzitet>(`http://localhost:8080/api/univerziteti/${id}`, univerzitet);
+  update(id: number, university: University) {
+    return this.http.put<University>(`http://localhost:8080/api/universities/${id}`, university);
   }
 
-  create(univerzitet: Univerzitet){
-    return this.http.post<Univerzitet>("http://localhost:8080/api/univerziteti", univerzitet);
+  create(university: University) {
+    return this.http.post<University>('http://localhost:8080/api/universities', university);
   }
 }

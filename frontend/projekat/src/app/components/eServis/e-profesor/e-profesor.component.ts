@@ -14,21 +14,15 @@ import { ObavestenjaProfComponent } from "../../profesor-components/obavestenja-
   templateUrl: './e-profesor.component.html',
   styleUrl: './e-profesor.component.css'
 })
-export class EProfesorComponent implements OnInit{
-
+export class EProfesorComponent implements OnInit {
   selectedTabIndex: number = 0;
 
   ngOnInit(): void {
     const savedIndex = localStorage.getItem('selectedTabIndex');
-    if (savedIndex) {
-      this.selectedTabIndex = +savedIndex;
-    }else{
-      this.selectedTabIndex = 0;
-    }
+    this.selectedTabIndex = savedIndex ? +savedIndex : 0;
   }
 
   onTabChange(event: any) {
     localStorage.setItem('selectedTabIndex', event.index);
   }
-
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { UniverzitetService } from '../../services/univerzitet.service';
+import { UniversityService } from '../../services/univerzitet.service';
 import { DividerModule } from 'primeng/divider';
 
 @Component({
@@ -10,18 +10,17 @@ import { DividerModule } from 'primeng/divider';
   templateUrl: './kontakt.component.html',
   styleUrl: './kontakt.component.css'
 })
-export class KontaktComponent implements OnInit{
-  private univerzitet_id = 1;
-  univerzitetKontakt: string | undefined;
-  univerzitetAdresa: string | undefined;
+export class KontaktComponent implements OnInit {
+  private universityId = 1;
+  universityContact: string | undefined;
+  universityAddress: string | undefined;
 
-  constructor(private univerzitetService: UniverzitetService) {}
+  constructor(private universityService: UniversityService) {}
 
   ngOnInit(): void {
-    this.univerzitetService.getById(this.univerzitet_id).subscribe(x => {
-      this.univerzitetAdresa = x.adresa;
-      this.univerzitetKontakt = x.kontakt;
-    })
+    this.universityService.getById(this.universityId).subscribe(x => {
+      this.universityAddress = x.address;
+      this.universityContact = x.contact;
+    });
   }
-
 }

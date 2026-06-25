@@ -1,31 +1,30 @@
 import { Injectable } from '@angular/core';
-import { Rektorat } from '../model/rektorat';
+import { Rectorate } from '../model/rektorat';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RektoratService {
-
+export class RectorateService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Rektorat[]>("http://localhost:8080/api/rektorati");
+  getAll() {
+    return this.http.get<Rectorate[]>('http://localhost:8080/api/rectorates');
   }
 
-  getById(id: number){
-    return this.http.get<Rektorat>(`http://localhost:8080/api/rektorati/${id}`);
+  getById(id: number) {
+    return this.http.get<Rectorate>(`http://localhost:8080/api/rectorates/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Rektorat>(`http://localhost:8080/api/rektorati/${id}`);
+  delete(id: number) {
+    return this.http.delete<Rectorate>(`http://localhost:8080/api/rectorates/${id}`);
   }
 
-  update(id: number, rektorat: Rektorat){
-    return this.http.put<Rektorat>(`http://localhost:8080/api/rektorati/${id}`, rektorat);
+  update(id: number, rectorate: Rectorate) {
+    return this.http.put<Rectorate>(`http://localhost:8080/api/rectorates/${id}`, rectorate);
   }
 
-  create(rektorat: Rektorat){
-    return this.http.post<Rektorat>("http://localhost:8080/api/rektorati", rektorat);
+  create(rectorate: Rectorate) {
+    return this.http.post<Rectorate>('http://localhost:8080/api/rectorates', rectorate);
   }
 }

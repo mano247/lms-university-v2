@@ -1,12 +1,12 @@
-import { Predmet } from "../academic/predmet";
-import { Univerzitet } from "../academic/univerzitet";
-import { Polaganje } from "../polaganje";
-import { RegistrovaniKorisnik } from "./registrovaniKorisnik";
+import { Course } from '../academic/predmet';
+import { University } from '../academic/univerzitet';
+import { ExamAttempt } from '../polaganje';
+import { RegisteredUser } from './registrovaniKorisnik';
 
-export interface Nastavnik extends RegistrovaniKorisnik{
-    biografija: string;
-    jmbg: string;
-    univerzitet: Univerzitet; 
-    predmeti: Predmet[]; 
-    polaganja: Polaganje[];
+export interface Teacher extends RegisteredUser {
+    biography: string;
+    personalIdNumber: string;
+    university: University;
+    courses: Course[];
+    examAttempts: ExamAttempt[];
 }

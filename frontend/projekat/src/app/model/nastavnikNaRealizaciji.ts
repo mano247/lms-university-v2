@@ -1,8 +1,8 @@
-import { TipNastave } from "./tipNastave";
+import { TeachingType } from './tipNastave';
 
-export interface NastavnikNaRealizaciji{
-    id?: number; 
-    brojCasova: number; 
-    nastavnik_id: number; 
-    tip_nastave: TipNastave;
+export interface TeacherOnCourse {
+    id?: number;
+    hoursCount: number;
+    teacherId: number;
+    teachingType: TeachingType;
 }

@@ -1,31 +1,30 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Obavestenje } from '../model/obavestenje';
+import { Notification } from '../model/obavestenje';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PredmetnoObavestenjeService {
-
+export class CourseNotificationService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Obavestenje[]>("http://localhost:8080/api/predmetnaObavestenja");
+  getAll() {
+    return this.http.get<Notification[]>('http://localhost:8080/api/course-announcements');
   }
 
-  getById(id: number){
-    return this.http.get<Obavestenje>(`http://localhost:8080/api/predmetnaObavestenja/${id}`);
+  getById(id: number) {
+    return this.http.get<Notification>(`http://localhost:8080/api/course-announcements/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Obavestenje>(`http://localhost:8080/api/predmetnaObavestenja/${id}`);
+  delete(id: number) {
+    return this.http.delete<Notification>(`http://localhost:8080/api/course-announcements/${id}`);
   }
 
-  update(id: number, obavestenje: Obavestenje){
-    return this.http.put<Obavestenje>(`http://localhost:8080/api/predmetnaObavestenja/${id}`, obavestenje);
+  update(id: number, notification: Notification) {
+    return this.http.put<Notification>(`http://localhost:8080/api/course-announcements/${id}`, notification);
   }
 
-  create(obavestenje: Obavestenje){
-    return this.http.post<Obavestenje>("http://localhost:8080/api/predmetnaObavestenja", obavestenje);
+  create(notification: Notification) {
+    return this.http.post<Notification>('http://localhost:8080/api/course-announcements', notification);
   }
 }

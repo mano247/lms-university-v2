@@ -1,13 +1,10 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
-import { ObavestenjeService } from '../../services/obavestenje.service';
 import { DividerModule } from 'primeng/divider';
-import { GObavestenje } from '../../model/gObavestenje';
+import { GlobalNotification } from '../../model/gObavestenje';
 import { DatePipe } from '@angular/common';
-import { GlobalnaObavestenjaService } from '../../services/globalna-obavestenja.service';
-
-
+import { GlobalNotificationsService } from '../../services/globalna-obavestenja.service';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -18,26 +15,26 @@ import { GlobalnaObavestenjaService } from '../../services/globalna-obavestenja.
   styleUrl: './globalna-obavestenja.component.css',
   providers: [DatePipe]
 })
-export class GlobalnaObavestenjaComponent implements OnInit{
+export class GlobalnaObavestenjaComponent implements OnInit {
+  announcements: GlobalNotification[] = [];
 
-  obavestenja: GObavestenje[] = [];
-
-  constructor(private globalObavestenjeService: GlobalnaObavestenjaService, private datePipe: DatePipe){}
+  constructor(
+    private globalNotificationsService: GlobalNotificationsService,
+    private datePipe: DatePipe
+  ) {}
 
   ngOnInit(): void {
-    this.getObavestenja();
+    this.getAnnouncements();
   }
 
-  getObavestenja(){
-    this.globalObavestenjeService.getAll().subscribe(x=>{
-      this.obavestenja = x;
-    })
+  getAnnouncements() {
+    this.globalNotificationsService.getAll().subscribe(x => {
+      this.announcements = x;
+    });
   }
 
-  formatDatuma(date: Date): string {
-    const formattedDate = this.datePipe.transform(date, 'HH:mm, d. MMM yyyy.');
-    return formattedDate ?? '';
+  formatDate(date: Date): string {
+    const formatted = this.datePipe.transform(date, 'HH:mm, d. MMM yyyy.');
+    return formatted ?? '';
   }
-
-
 }

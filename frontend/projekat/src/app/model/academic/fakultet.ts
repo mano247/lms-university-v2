@@ -1,16 +1,10 @@
-import { StudijskiProgram } from "./studijskiProgram";
-import { Univerzitet } from "./univerzitet";
-
-export interface Fakultet{
+export interface Faculty {
     id?: number;
-    naziv: string;
-    kontakt: string;
-    tekstualniOpis: string;
-    dekan: string;
-    slika: string;
-    adresa: string;
-    nazivUniverziteta: string;
-    sifraFakulteta: string;
-    // univerzitet: Univerzitet;
-    // studijskiProgrami: StudijskiProgram[];
+    facultyCode: string;
+    name: string;
+    contact: string;
+    description: string;
+    dean: any;
+    image: string;
+    address: string;
 }

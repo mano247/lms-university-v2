@@ -1,24 +1,22 @@
-import { Obavestenje } from "../obavestenje";
-import { Polaganje } from "../polaganje";
-import { Nastavnik } from "../users/nastavnik";
-import { Student } from "../users/student";
-import { NastavniMaterijal } from "./nastavniMaterijal";
-import { StudijskiProgram } from "./studijskiProgram";
+import { Notification } from '../obavestenje';
+import { ExamAttempt } from '../polaganje';
+import { Teacher } from '../users/nastavnik';
+import { Student } from '../users/student';
+import { CourseMaterial } from './nastavniMaterijal';
 
-export interface Predmet{
-    id?: number; 
-    silabus: string; 
-    naziv: string; 
-    espb: number; 
-    vremePocetka: Date; 
-    vremeKraja: Date; 
-    opis: string; 
-    nastavniMaterijal: NastavniMaterijal[]; 
-    polaganje: Polaganje[]; 
-    nastavnik?: Nastavnik; 
-    studenti: Student[]; 
-    obavestenja: Obavestenje[]; 
-    smer: any; 
-    sifraPredmeta: string;
-    
+export interface Course {
+    id?: number;
+    courseCode: string;
+    syllabus: string;
+    name: string;
+    ects: number;
+    startDate: Date;
+    endDate: Date;
+    description: string;
+    teachingMaterials: CourseMaterial[];
+    examAttempts: ExamAttempt[];
+    teacher?: Teacher;
+    students: Student[];
+    announcements: Notification[];
+    studyProgram: any;
 }

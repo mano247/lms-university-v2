@@ -1,6 +1,6 @@
-export interface KancelarijskiMaterijal{
+export interface OfficeMaterial {
     id?: number;
-    naziv: string;
-    kolicina: number;
-    izdato: number;
+    name: string;
+    quantity: number;
+    issued: number;
 }

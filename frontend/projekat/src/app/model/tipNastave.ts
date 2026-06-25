@@ -1,5 +1,5 @@
-export enum TipNastave{
-    PREDAVANJA = 'PREDAVANJA',
-	VEZBE = 'VEZBE',
-	MENTORSKA_NASTAVA = 'MENTORSKA_NASTAVA'
+export enum TeachingType {
+    LECTURE = 'LECTURE',
+    EXERCISES = 'EXERCISES',
+    MENTORING = 'MENTORING'
 }

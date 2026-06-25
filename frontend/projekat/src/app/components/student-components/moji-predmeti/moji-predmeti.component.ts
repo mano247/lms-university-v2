@@ -2,8 +2,8 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
-import { Predmet } from '../../../model/academic/predmet';
-import { StudentiService } from '../../../services/studenti.service';
+import { Course } from '../../../model/academic/predmet';
+import { StudentService } from '../../../services/studenti.service';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -13,47 +13,36 @@ import { StudentiService } from '../../../services/studenti.service';
   templateUrl: './moji-predmeti.component.html',
   styleUrl: './moji-predmeti.component.css'
 })
-export class MojiPredmetiComponent  implements OnInit{
-  mojiPredmeti: Predmet[] = [];
+export class MojiPredmetiComponent implements OnInit {
+  myCourses: Course[] = [];
+  passed: Course[] = [];
+  failed: Course[] = [];
 
-  polozeni: Predmet[] = [];
-  nepolozeni: Predmet[] =[];
-
-
-  constructor(private studentService: StudentiService){}
+  constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.getMojiPredmeti(id);
-    }
-
-
-  }
-
-  getMojiPredmeti(id: number){
-    this.studentService.getAktivniPredmeti(id).subscribe(x=>{
-      this.mojiPredmeti = x;
-      console.log("mp", this.mojiPredmeti);
-    })
-  }
-
-
-  formatirajDatum(vreme: Date | undefined){
-    if(vreme){
-      const datum = new Date(vreme);
-
-      const godina = datum.getUTCFullYear();
-      const mesec = (datum.getUTCMonth() + 1).toString().padStart(2, '0'); 
-      const dan = datum.getUTCDate().toString().padStart(2, '0');
-
-      return `${godina}-${mesec}-${dan}`;
-    }else{
-      return "";
+      this.getMyCourses(id);
     }
   }
 
+  getMyCourses(id: number) {
+    this.studentService.getActiveCourses(id).subscribe(x => {
+      this.myCourses = x;
+    });
+  }
+
+  formatDate(date: Date | undefined): string {
+    if (date) {
+      const d = new Date(date);
+      const year = d.getUTCFullYear();
+      const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+      const day = d.getUTCDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return '';
+  }
 }
-

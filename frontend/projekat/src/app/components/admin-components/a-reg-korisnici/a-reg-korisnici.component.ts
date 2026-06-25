@@ -1,10 +1,10 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { RegistrovaniKorisnikService } from '../../../services/registrovani-korisnik.service';
+import { RegisteredUserService } from '../../../services/registrovani-korisnik.service';
 import { TableModule } from 'primeng/table';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { RegistrovaniKorisnik } from '../../../model/users/registrovaniKorisnik';
+import { RegisteredUser } from '../../../model/users/registrovaniKorisnik';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
@@ -22,146 +22,122 @@ import { AdministratorService } from '../../../services/administrator.service';
   styleUrl: './a-reg-korisnici.component.css',
   providers: [ConfirmationService, MessageService]
 })
-export class ARegKorisniciComponent implements OnInit{
-  korisnici: any[] = [];
-  filtriraniKorisnici: any[] = [];
+export class ARegKorisniciComponent implements OnInit {
+  users: any[] = [];
+  filteredUsers: any[] = [];
+  selectedUser: any;
 
-  izabraniKorisnik: any;
-
-  dodajKorisnikaDialog: boolean = false;
-
+  addUserDialog: boolean = false;
   visible: boolean = false;
-  tipDialog: boolean = false;
+  typeDialog: boolean = false;
 
-  korisnikZaIzmenuTipa: any = {};
-  tip: any;
+  userForTypeChange: any = {};
+  selectedType: any;
 
-  tipovi = [
-    {
-      naziv: "student",
-      tip: "student_premission"
-    },
-    {
-      naziv: "nastavnik",
-      tip: "nastavnik_premission"
-    },
-    {
-      naziv: "sluzba",
-      tip: "studentskaSluzba_premission"
-    },
-    {
-      naziv: "admin",
-      tip: "administrator_premission"
-    },
+  types = [
+    { label: 'student', value: 'student_premission' },
+    { label: 'teacher', value: 'nastavnik_premission' },
+    { label: 'office', value: 'studentskaSluzba_premission' },
+    { label: 'admin', value: 'administrator_premission' }
+  ];
 
-  ]
+  newUser: any = {};
 
-  noviKorisnik: any = {};
+  search = {
+    username: '',
+    email: ''
+  };
 
-  pretraga = {
-    korisnickoIme: "",
-    email: ""
-  }
-
-  constructor(private rkService: RegistrovaniKorisnikService, private confirmationService: ConfirmationService, 
-    private messageService: MessageService, private adminService: AdministratorService){}
+  constructor(
+    private registeredUserService: RegisteredUserService,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
+    private adminService: AdministratorService
+  ) {}
 
   ngOnInit(): void {
-    this.getKorisnici();
+    this.getUsers();
   }
-  
-  getKorisnici(){
-    this.rkService.getAll().subscribe(x=>{
-      this.korisnici = x;
-      this.filtriraniKorisnici = this.korisnici;
-    })
-  }
-  
 
-  pretragaKorisnika() {
-    this.filtriraniKorisnici = this.korisnici.filter(k => 
-      (this.pretraga.korisnickoIme ? (k.korisnickoIme || '').toLowerCase().includes(this.pretraga.korisnickoIme.toLowerCase()) : true) &&
-      (this.pretraga.email ? (k.email || '').toLowerCase().includes(this.pretraga.email.toLowerCase()) : true)
+  getUsers() {
+    this.registeredUserService.getAll().subscribe(x => {
+      this.users = x;
+      this.filteredUsers = this.users;
+    });
+  }
+
+  searchUsers() {
+    this.filteredUsers = this.users.filter(u =>
+      (this.search.username ? (u.username || '').toLowerCase().includes(this.search.username.toLowerCase()) : true) &&
+      (this.search.email ? (u.email || '').toLowerCase().includes(this.search.email.toLowerCase()) : true)
     );
   }
 
-  ponistiPretragu(){
-    this.pretraga = {
-      korisnickoIme: "",
-      email: ""
-    }
-    this.filtriraniKorisnici = this.korisnici;
+  clearSearch() {
+    this.search = { username: '', email: '' };
+    this.filteredUsers = this.users;
   }
 
-  ukloni(id: number, event: Event) {
+  removeUser(id: number, event: Event) {
     this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Zelite da uklonite izabranog korisnika?',
-        icon: 'pi pi-info-circle',
-        acceptButtonStyleClass: 'p-button-danger p-button-sm',
-        accept: () => {
-          this.rkService.delete(id).subscribe({
-                 next: () => {
-                   this.getKorisnici();
-                   this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Korisnik uklonjen' });
-                 },
-                  error: err => {
-                   this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-                 }
-               });
-        },
-        reject: () => {
-            this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
-        }
-    });
-}
-
-
-
-
-  izmeniTip(korisnik: any){
-    this.tipDialog = true;
-    this.korisnikZaIzmenuTipa = korisnik;
-    console.log(this.korisnikZaIzmenuTipa);
-  }
-
-  izmenaTipa(){
-    this.adminService.dodelaStatusa(this.tip.tip, this.korisnikZaIzmenuTipa).subscribe(x=>{
-      this.getKorisnici();
-      this.ponistiTipDialog();
-    })
-  }
-
-  ponistiTipDialog(){
-    this.tipDialog = false;
-    this.korisnikZaIzmenuTipa = {};
-  }
-
-
-  hideDialogKorisnik(){
-    this.dodajKorisnikaDialog = false;
-  }
-
-  korisnikDialog(){
-    this.dodajKorisnikaDialog = true;
-  }
-
-  dodajKorisnika(){
-    this.rkService.create(this.noviKorisnik).subscribe({
-      next: () => {
-        this.getKorisnici();
-        this.hideDialogKorisnik();
-        this.noviKorisnik = {};
-        this.messageService.add({ severity: 'success', summary: 'Uspešno dodato', detail: 'Novi korisnik je uspesno dodat' });
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to remove this user?',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      accept: () => {
+        this.registeredUserService.delete(id).subscribe({
+          next: () => {
+            this.getUsers();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'User removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing the user.' });
+          }
+        });
       },
-      error: err => {
-        this.hideDialogKorisnik();
-        this.messageService.add({ severity: 'error', summary: 'Greška pri dodavanju', detail: 'Došlo je do greške.' });
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
       }
     });
   }
 
+  openTypeDialog(user: any) {
+    this.typeDialog = true;
+    this.userForTypeChange = user;
+  }
 
+  changeType() {
+    this.adminService.assignStatus(this.selectedType.value, this.userForTypeChange).subscribe(() => {
+      this.getUsers();
+      this.cancelTypeDialog();
+    });
+  }
 
-  
+  cancelTypeDialog() {
+    this.typeDialog = false;
+    this.userForTypeChange = {};
+  }
+
+  closeAddUserDialog() {
+    this.addUserDialog = false;
+  }
+
+  openAddUserDialog() {
+    this.addUserDialog = true;
+  }
+
+  addUser() {
+    this.registeredUserService.create(this.newUser).subscribe({
+      next: () => {
+        this.getUsers();
+        this.closeAddUserDialog();
+        this.newUser = {};
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'New user added successfully.' });
+      },
+      error: () => {
+        this.closeAddUserDialog();
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding the user.' });
+      }
+    });
+  }
 }
