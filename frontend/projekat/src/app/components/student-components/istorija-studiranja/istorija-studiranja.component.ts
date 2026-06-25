@@ -1,11 +1,12 @@
 import { NgFor } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { StudentiService } from '../../../services/studenti.service';
 import { Predmet } from '../../../model/academic/predmet';
 import { SortEvent } from 'primeng/api';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-istorija-studiranja',
   standalone: true,
   imports: [TableModule, NgFor],

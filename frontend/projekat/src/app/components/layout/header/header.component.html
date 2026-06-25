@@ -11,7 +11,7 @@
             styleClass="mr-2" 
             size="large" 
             shape="circle" 
-            (click)="menu.toggle($event)" />
+            (click)="$any(menu).toggle($event)" />
         <p-tieredMenu #menu [model]="items" [popup]="true" />
     </div>
     <div class="avatar" *ngIf="!isLoggedIn()">

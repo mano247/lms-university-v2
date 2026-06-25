@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -16,6 +16,7 @@ import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-unos-ocena',
   standalone: true,
   imports: [DropdownModule, ButtonModule, DividerModule, ConfirmDialogModule, ToastModule, TableModule, DialogModule, FormsModule],

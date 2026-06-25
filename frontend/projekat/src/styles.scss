@@ -1,0 +1,301 @@
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (theme-type: light, primary: mat.$azure-palette),
+    density: 0,
+  ));
+}
+
+// ─── Ashford Institutional Design System ───────────────────────────────────
+
+:root {
+  // Brand palette
+  --color-primary: #002444;
+  --color-primary-container: #1a3a5c;
+  --color-on-primary: #ffffff;
+  --color-secondary: #545f72;
+  --color-tertiary: #4f3300;
+  --color-on-tertiary: #c49b5f;
+
+  // Surfaces
+  --color-background: #faf9fc;
+  --color-surface: #ffffff;
+  --color-surface-low: #f4f3f6;
+  --color-surface-container: #eeedf1;
+  --color-surface-high: #e9e8eb;
+
+  // Content
+  --color-on-surface: #1a1c1e;
+  --color-on-surface-variant: #43474e;
+  --color-outline: #73777f;
+  --color-outline-variant: #c3c6cf;
+
+  // Semantic
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-success: #2d7a4f;
+  --color-success-container: #e6f4ed;
+  --color-warning: #b45309;
+  --color-warning-container: #fef3c7;
+
+  // Material M3 token overrides
+  --mat-sys-primary: var(--color-primary);
+  --mat-sys-on-primary: var(--color-on-primary);
+  --mat-sys-primary-container: var(--color-primary-container);
+  --mat-sys-secondary: var(--color-secondary);
+  --mat-sys-background: var(--color-background);
+  --mat-sys-surface: var(--color-surface);
+  --mat-sys-surface-container-low: var(--color-surface-low);
+  --mat-sys-outline: var(--color-outline);
+  --mat-sys-outline-variant: var(--color-outline-variant);
+  --mat-sys-error: var(--color-error);
+  --mat-sys-on-surface: var(--color-on-surface);
+  --mat-sys-on-surface-variant: var(--color-on-surface-variant);
+
+  // Spacing (8px grid)
+  --space-xs: 4px;
+  --space-sm: 12px;
+  --space-md: 24px;
+  --space-lg: 48px;
+  --space-xl: 64px;
+
+  // Layout
+  --max-width: 1280px;
+  --gutter: 24px;
+  --gutter-mobile: 16px;
+
+  // Border radius
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  // Typography
+  --font-serif: 'Merriweather', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+// ─── Reset ─────────────────────────────────────────────────────────────────
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+  background: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ─── Layout utilities ──────────────────────────────────────────────────────
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+
+  @media (max-width: 767px) {
+    padding: 0 var(--gutter-mobile);
+  }
+}
+
+// ─── Surface card ──────────────────────────────────────────────────────────
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+
+  @media (max-width: 767px) {
+    padding: var(--space-sm);
+  }
+}
+
+// ─── Badges ────────────────────────────────────────────────────────────────
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &--primary   { background: var(--color-primary); color: var(--color-on-primary); }
+  &--secondary { background: var(--color-surface-low); color: var(--color-secondary); border: 1px solid var(--color-outline-variant); }
+  &--success   { background: var(--color-success-container); color: var(--color-success); }
+  &--error     { background: var(--color-error-container); color: var(--color-error); }
+  &--warning   { background: var(--color-warning-container); color: var(--color-warning); }
+  &--tertiary  { background: #fff1d9; color: var(--color-tertiary); }
+}
+
+// ─── Typography helpers ────────────────────────────────────────────────────
+
+.section-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-outline);
+}
+
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--color-secondary);
+  margin: 4px 0 0;
+}
+
+.mono { font-family: var(--font-mono); }
+
+// ─── Divider ───────────────────────────────────────────────────────────────
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-outline-variant);
+  margin: var(--space-md) 0;
+}
+
+// ─── Data tables ───────────────────────────────────────────────────────────
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-outline);
+    background: var(--color-surface-low);
+    border-bottom: 2px solid var(--color-outline-variant);
+    padding: 10px 14px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-outline-variant);
+    color: var(--color-on-surface);
+  }
+
+  tbody tr:hover { background: var(--color-surface-low); }
+
+  @media (max-width: 767px) {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+// ─── Buttons ───────────────────────────────────────────────────────────────
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px var(--space-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  text-decoration: none;
+
+  &:hover  { background: var(--color-primary-container); }
+  &:active { transform: scale(0.98); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px var(--space-md);
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  text-decoration: none;
+
+  &:hover  { background: var(--color-surface-low); }
+  &:active { transform: scale(0.98); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ─── Angular Material overrides ────────────────────────────────────────────
+
+// Form field borders use design system colors
+.mat-mdc-form-field {
+  width: 100%;
+
+  &.mat-focused .mat-mdc-notch-piece {
+    border-color: var(--color-primary) !important;
+  }
+
+  .mat-mdc-floating-label { color: var(--color-on-surface-variant); }
+
+  &.mat-focused .mat-mdc-floating-label { color: var(--color-primary); }
+}
+
+// Flat/raised primary buttons
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+// Snackbar
+.mat-mdc-snack-bar-container.error-snack {
+  --mdc-snackbar-container-color: var(--color-error);
+  --mat-snack-bar-button-color: #ffb4ab;
+}
+
+.mat-mdc-snack-bar-container.success-snack {
+  --mdc-snackbar-container-color: var(--color-success);
+}

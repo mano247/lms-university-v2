@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Univerzitet } from '../../../model/academic/univerzitet';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-footer',
   standalone: true,
   imports: [],

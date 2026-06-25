@@ -1,5 +1,5 @@
 import { NgFor, NgIf, NgStyle } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { Student } from '../../../model/users/student';
@@ -16,6 +16,7 @@ import { ZavrsniRadService } from '../../../services/zavrsni-rad.service';
 import { Predmet } from '../../../model/academic/predmet';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-spisak-studenata',
   standalone: true,
   imports: [TableModule, NgFor, DropdownModule, InputGroupModule, FormsModule, InputGroupAddonModule, 

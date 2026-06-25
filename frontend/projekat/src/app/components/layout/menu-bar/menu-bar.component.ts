@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
 import { Fakultet } from '../../../model/academic/fakultet';
@@ -8,6 +8,7 @@ import { StudijskiProgram } from '../../../model/academic/studijskiProgram';
 import { LoginService } from '../../../services/auth/login.service';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-menu-bar',
   standalone: true,
   imports: [MenubarModule],

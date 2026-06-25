@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Univerzitet } from '../../../model/academic/univerzitet';
 import { Router, RouterModule } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
@@ -9,6 +9,7 @@ import { NgIf } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-header',
   standalone: true,
   imports: [RouterModule, AvatarModule, TieredMenuModule, NgIf, ButtonModule],

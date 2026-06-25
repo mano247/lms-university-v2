@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor, NgIf } from '@angular/common';
@@ -20,6 +20,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { Nastavnik } from '../../../model/users/nastavnik';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-obavestenja-prof',
   standalone: true,
   imports: [NgFor, DataViewModule, DividerModule, DropdownModule, ButtonModule, ConfirmPopupModule, ToastModule, DialogModule, NgIf, FormsModule, CalendarModule],

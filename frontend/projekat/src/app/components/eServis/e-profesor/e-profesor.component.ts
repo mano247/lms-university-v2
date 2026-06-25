@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TabViewModule } from 'primeng/tabview';
 import { AngazovaniPredmetiComponent } from "../../profesor-components/angazovani-predmeti/angazovani-predmeti.component";
 import { PredmetnaObavestenjaComponent } from "../../student-components/predmetna-obavestenja/predmetna-obavestenja.component";
@@ -7,6 +7,7 @@ import { UnosOcenaComponent } from "../../profesor-components/unos-ocena/unos-oc
 import { ObavestenjaProfComponent } from "../../profesor-components/obavestenja-prof/obavestenja-prof.component";
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-e-profesor',
   standalone: true,
   imports: [TabViewModule, AngazovaniPredmetiComponent, PredmetnaObavestenjaComponent, SpisakStudenataComponent, UnosOcenaComponent, ObavestenjaProfComponent],

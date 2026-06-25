@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { StudijskiProgramService } from '../../services/studijski-program.service';
 import { StudijskiProgram } from '../../model/academic/studijskiProgram';
@@ -11,6 +11,7 @@ import { NastavniMaterijalService } from '../../services/nastavni-materijal.serv
 import { NgFor } from '@angular/common';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-predmet',
   standalone: true,
   imports: [RouterModule, DividerModule, NgFor],

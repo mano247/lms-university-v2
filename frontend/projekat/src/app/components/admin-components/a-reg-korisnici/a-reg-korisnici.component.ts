@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { RegistrovaniKorisnikService } from '../../../services/registrovani-korisnik.service';
 import { TableModule } from 'primeng/table';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -14,6 +14,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { AdministratorService } from '../../../services/administrator.service';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-a-reg-korisnici',
   standalone: true,
   imports: [TableModule, InputGroupModule, FormsModule, ButtonModule, ToastModule, DialogModule, NgIf, ConfirmPopupModule, DropdownModule],

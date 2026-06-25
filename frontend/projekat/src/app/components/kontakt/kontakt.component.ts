@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { UniverzitetService } from '../../services/univerzitet.service';
 import { DividerModule } from 'primeng/divider';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-kontakt',
   standalone: true,
   imports: [DividerModule],

@@ -1,5 +1,5 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -23,6 +23,7 @@ import { StudijskiProgramService } from '../../../services/studijski-program.ser
 import { StudijskiProgram } from '../../../model/academic/studijskiProgram';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-upis-studenata',
   standalone: true,
   imports: [InputSwitchModule, FormsModule, ButtonModule, NgIf, TableModule, NgClass, ToastModule, InputGroupModule, DialogModule, DropdownModule, NgFor],

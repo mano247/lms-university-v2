@@ -1,67 +1,42 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class LoginService{
-  private user: any;
-  private baseUrl = 'http://localhost:8080';
-  
-  constructor(private http: HttpClient, private router: Router) {
-    const userString = localStorage.getItem('user');
-    this.user = userString ? JSON.parse(userString) : null;
-   }
-  
-  loginUser(data: any){
-    return this.http.post(`${this.baseUrl}/api/auth/signin`, data).pipe(
-      tap((response) => {
-          localStorage.setItem('user', JSON.stringify(response));
-          this.user = response;
-      })
-    );
+/**
+ * Thin wrapper around AuthService kept for backward compatibility.
+ * Existing components (header, dashboard, etc.) that were not yet migrated
+ * continue to use LoginService; new components should inject AuthService directly.
+ */
+@Injectable({ providedIn: 'root' })
+export class LoginService {
+  constructor(private authService: AuthService) {}
+
+  loginUser(data: { email: string; password?: string; lozinka?: string }): Observable<any> {
+    const password = data.password ?? data.lozinka ?? '';
+    return this.authService.login(data.email, password);
   }
 
-  registerUser(data: any){
-    return this.http.post(`${this.baseUrl}/api/auth/signup`, data);
+  registerUser(data: any): Observable<any> {
+    return this.authService.register(data);
   }
 
   validateRoles(roles: string[]): boolean {
-    if (this.user) {
-      const userRoles = new Set(this.user.permissions);
-      for (const r of roles) {
-        if (userRoles.has(r)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return this.authService.hasAnyPermission(roles);
   }
 
-  loggedIn(): boolean{
-    return !!this.user;
+  loggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 
-  logout(): void{
-    localStorage.removeItem('user');
-    localStorage.removeItem('selectedTabIndex');
-    this.user = null;
-    this.router.navigate(['/']);
+  logout(): void {
+    this.authService.logout();
   }
 
   getUserRole(): string[] {
-    return this.user ? this.user.permissions : [];
+    return this.authService.getCurrentUser()?.permissions ?? [];
   }
 
-  getToken(): string | undefined {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
-      return parsedUser.accessToken; 
-    }
-    return undefined;
+  getToken(): string | null {
+    return this.authService.getToken();
   }
-
 }
