@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { HeaderComponent } from "./components/layout/header/header.component";
@@ -17,6 +17,7 @@ import { TabViewModule } from 'primeng/tabview';
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, NgFor, HeaderComponent, FooterComponent, MenubarModule, MenuBarComponent, TabViewModule],

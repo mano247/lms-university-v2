@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { KancelarijskiMaterijal } from '../model/kancelarijskiMaterijal';
@@ -10,7 +11,7 @@ export class KancelarijskiMaterijalService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<KancelarijskiMaterijal[]>("http://localhost:8080/api/kancelariskiMaterial");
+    return this.http.get<KancelarijskiMaterijal[]>(`${environment.apiUrl}/api/kancelariskiMaterial`);
   }
 
   getById(id: number){
@@ -26,6 +27,6 @@ export class KancelarijskiMaterijalService {
   }
 
   create(kMaterijal: KancelarijskiMaterijal){
-    return this.http.post<KancelarijskiMaterijal>("http://localhost:8080/api/kancelariskiMaterial", kMaterijal);
+    return this.http.post<KancelarijskiMaterijal>(`${environment.apiUrl}/api/kancelariskiMaterial`, kMaterijal);
   }
 }

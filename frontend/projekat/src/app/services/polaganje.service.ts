@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Polaganje } from '../model/polaganje';
@@ -10,7 +11,7 @@ export class PolaganjeService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Polaganje[]>("http://localhost:8080/api/polaganja");
+    return this.http.get<Polaganje[]>(`${environment.apiUrl}/api/polaganja`);
   }
 
   getById(id: number){
@@ -26,7 +27,7 @@ export class PolaganjeService {
   }
 
   create(polaganje: Polaganje){
-    return this.http.post<Polaganje>("http://localhost:8080/api/polaganja/c", polaganje);
+    return this.http.post<Polaganje>(`${environment.apiUrl}/api/polaganja/c`, polaganje);
   }
 
   getPrijavljeni(id: number){

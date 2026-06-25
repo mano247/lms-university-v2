@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FakultetService } from '../../services/fakultet.service';
 import { Fakultet } from '../../model/academic/fakultet';
 import { NgFor } from '@angular/common';
@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-fakulteti',
   standalone: true,
   imports: [NgFor, CardModule, ButtonModule],

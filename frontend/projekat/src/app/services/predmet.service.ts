@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Predmet } from '../model/academic/predmet';
@@ -10,7 +11,7 @@ export class PredmetService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Predmet[]>("http://localhost:8080/api/predmeti");
+    return this.http.get<Predmet[]>(`${environment.apiUrl}/api/predmeti`);
   }
 
   getById(id: number){
@@ -30,6 +31,6 @@ export class PredmetService {
   }
 
   create(predmet: Predmet){
-    return this.http.post<Predmet>("http://localhost:8080/api/predmeti", predmet);
+    return this.http.post<Predmet>(`${environment.apiUrl}/api/predmeti`, predmet);
   }
 }

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { StudijskiProgram } from '../model/academic/studijskiProgram';
@@ -10,7 +11,7 @@ export class StudijskiProgramService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<StudijskiProgram[]>("http://localhost:8080/api/studijskiProgrami");
+    return this.http.get<StudijskiProgram[]>(`${environment.apiUrl}/api/studijskiProgrami`);
   }
 
   getById(id: number){
@@ -30,6 +31,6 @@ export class StudijskiProgramService {
   }
 
   create(studijskiProgram: StudijskiProgram){
-    return this.http.post<StudijskiProgram>("http://localhost:8080/api/studijskiProgrami", studijskiProgram);
+    return this.http.post<StudijskiProgram>(`${environment.apiUrl}/api/studijskiProgrami`, studijskiProgram);
   }
 }

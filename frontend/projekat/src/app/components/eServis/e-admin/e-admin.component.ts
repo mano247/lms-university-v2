@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TabViewModule } from 'primeng/tabview';
 import { SifarnikComponent } from "../../admin-components/sifarnik/sifarnik.component";
 import { ARegKorisniciComponent } from "../../admin-components/a-reg-korisnici/a-reg-korisnici.component";
@@ -7,6 +7,7 @@ import { AOrganizacijaComponent } from "../../admin-components/a-organizacija/a-
 import { AZaposleniComponent } from "../../admin-components/a-zaposleni/a-zaposleni.component";
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-e-admin',
   standalone: true,
   imports: [TabViewModule, SifarnikComponent, ARegKorisniciComponent, AStudijskiProgramiComponent, AOrganizacijaComponent, AZaposleniComponent],

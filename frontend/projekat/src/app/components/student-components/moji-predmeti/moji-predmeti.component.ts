@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
@@ -6,6 +6,7 @@ import { Predmet } from '../../../model/academic/predmet';
 import { StudentiService } from '../../../services/studenti.service';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-moji-predmeti',
   standalone: true,
   imports: [NgFor, DataViewModule, DividerModule],

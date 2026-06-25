@@ -1,0 +1,392 @@
+// ─── Angular Material Base ────────────────────────────────────────────────────
+@use '@angular/material' as mat;
+
+// ─── Google Fonts ─────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap');
+
+// ─── Material M3 Theme ────────────────────────────────────────────────────────
+// Base palette: azure (closest to navy). All specific colors are overridden
+// below via CSS custom properties so Material components inherit our palette.
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
+}
+
+// ─── Design Tokens (CSS Custom Properties) ────────────────────────────────────
+:root {
+  // Colors — primary navy
+  --color-primary:            #002444;
+  --color-primary-container:  #1a3a5c;
+  --color-on-primary:         #ffffff;
+  --color-on-primary-container: #87a4cc;
+
+  // Colors — secondary slate
+  --color-secondary:          #545f72;
+  --color-secondary-container: #d5e0f7;
+  --color-on-secondary:       #ffffff;
+
+  // Colors — tertiary gold/amber
+  --color-tertiary:           #4f3300;
+  --color-tertiary-container: #4f3300;
+  --color-on-tertiary:        #c49b5f;
+
+  // Colors — surfaces
+  --color-background:         #faf9fc;
+  --color-surface:            #ffffff;
+  --color-surface-low:        #f4f3f6;
+  --color-surface-container:  #eeedf1;
+  --color-surface-high:       #e9e8eb;
+  --color-on-surface:         #1a1c1e;
+  --color-on-surface-variant: #43474e;
+
+  // Colors — outlines
+  --color-outline:            #73777f;
+  --color-outline-variant:    #c3c6cf;
+
+  // Colors — status
+  --color-error:              #ba1a1a;
+  --color-error-container:    #ffdad6;
+  --color-success:            #2d7a4f;
+
+  // Override Angular Material M3 system tokens to match our palette
+  --mat-sys-primary:          var(--color-primary);
+  --mat-sys-on-primary:       var(--color-on-primary);
+  --mat-sys-primary-container: var(--color-primary-container);
+  --mat-sys-secondary:        var(--color-secondary);
+  --mat-sys-background:       var(--color-background);
+  --mat-sys-surface:          var(--color-surface);
+  --mat-sys-outline:          var(--color-outline);
+  --mat-sys-outline-variant:  var(--color-outline-variant);
+  --mat-sys-error:            var(--color-error);
+
+  // Spacing — 8px base grid
+  --space-xs:   4px;
+  --space-sm:   12px;
+  --space-md:   24px;
+  --space-lg:   48px;
+  --space-xl:   64px;
+
+  // Layout
+  --max-width:  1280px;
+  --gutter:     24px;
+  --gutter-mobile: 16px;
+
+  // Border radius
+  --radius-sm:  2px;
+  --radius-md:  4px;
+  --radius-lg:  8px;
+  --radius-full: 9999px;
+
+  // Elevation shadows
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.10);
+
+  // Breakpoints (for use in JS — CSS media queries below)
+  --bp-mobile:  375px;
+  --bp-tablet:  768px;
+  --bp-desktop: 1280px;
+
+  // Typography scale
+  --font-serif: 'Merriweather', Georgia, serif;
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'Courier New', monospace;
+
+  --text-headline-lg:    32px;
+  --text-headline-md:    24px;
+  --text-headline-sm:    20px;
+  --text-body-lg:        18px;
+  --text-body-md:        16px;
+  --text-body-sm:        14px;
+  --text-label:          12px;
+
+  --leading-headline:    1.25;
+  --leading-body:        1.5;
+  --leading-label:       1.33;
+}
+
+// ─── Base Reset ───────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-md);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ─── Typography ───────────────────────────────────────────────────────────────
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  color: var(--color-primary);
+  line-height: var(--leading-headline);
+  margin: 0 0 var(--space-sm);
+  font-weight: 700;
+  // Remove old gradient text from original styles
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+h1 { font-size: var(--text-headline-lg); }
+h2 { font-size: var(--text-headline-md); }
+h3 { font-size: var(--text-headline-sm); }
+h4 { font-size: var(--text-body-lg); }
+
+p {
+  margin: 0 0 var(--space-sm);
+  line-height: var(--leading-body);
+}
+
+a {
+  color: var(--color-primary-container);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Monospace — for numeric data in tables
+.mono,
+td.mono,
+.data-table td {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+}
+
+// ─── Layout Utilities ─────────────────────────────────────────────────────────
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+
+  @media (max-width: 767px) {
+    padding-inline: var(--gutter-mobile);
+  }
+}
+
+// ─── Card ─────────────────────────────────────────────────────────────────────
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-md);
+}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-headline-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 var(--space-sm);
+}
+
+// ─── Badge / Status Pill ──────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-xs);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: var(--leading-label);
+  white-space: nowrap;
+
+  &.badge-primary {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  &.badge-secondary {
+    background-color: var(--color-secondary-container);
+    color: var(--color-secondary);
+  }
+
+  &.badge-gold {
+    background-color: var(--color-tertiary);
+    color: var(--color-on-tertiary);
+  }
+
+  &.badge-success {
+    background-color: #d6f0e0;
+    color: var(--color-success);
+  }
+
+  &.badge-error {
+    background-color: var(--color-error-container);
+    color: var(--color-error);
+  }
+
+  &.badge-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-on-surface-variant);
+  }
+}
+
+// ─── Section Label ────────────────────────────────────────────────────────────
+.section-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+  margin-bottom: var(--space-sm);
+}
+
+// ─── Divider ──────────────────────────────────────────────────────────────────
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-outline-variant);
+  margin: var(--space-md) 0;
+}
+
+// ─── Data Tables ──────────────────────────────────────────────────────────────
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body-sm);
+
+  thead th {
+    font-family: var(--font-serif);
+    font-size: var(--text-body-sm);
+    font-weight: 700;
+    color: var(--color-on-surface-variant);
+    border-bottom: 2px solid var(--color-primary);
+    padding: var(--space-xs) var(--space-sm);
+    text-align: left;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--color-outline-variant);
+
+    &:nth-child(even) {
+      background-color: var(--color-surface-low);
+    }
+
+    &:hover {
+      background-color: var(--color-secondary-container);
+    }
+  }
+
+  td {
+    padding: var(--space-xs) var(--space-sm);
+    vertical-align: middle;
+  }
+}
+
+// ─── Buttons (base overrides over Material) ───────────────────────────────────
+// Angular Material button overrides will go here in the redesign phase.
+// These globals ensure consistent baseline until Material components are wired.
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--color-primary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+}
+
+// ─── App Shell ────────────────────────────────────────────────────────────────
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+app-menu-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+}
+
+// ─── Responsive Breakpoints ───────────────────────────────────────────────────
+// Mobile  : max-width 767px
+// Tablet  : 768px – 1023px
+// Desktop : 1024px+
+
+@media (max-width: 767px) {
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 18px; }
+
+  .card {
+    padding: var(--space-sm);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  h1 { font-size: 28px; }
+}

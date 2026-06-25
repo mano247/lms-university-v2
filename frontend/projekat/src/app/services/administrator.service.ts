@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Administrator } from '../model/users/administrator';
 import { HttpClient } from '@angular/common/http';
@@ -10,7 +11,7 @@ export class AdministratorService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Administrator[]>("http://localhost:8080/api/administratori");
+    return this.http.get<Administrator[]>(`${environment.apiUrl}/api/administratori`);
   }
 
   getById(id: number){
@@ -26,7 +27,7 @@ export class AdministratorService {
   }
 
   create(administrator: Administrator){
-    return this.http.post<Administrator>("http://localhost:8080/api/administratori", administrator);
+    return this.http.post<Administrator>(`${environment.apiUrl}/api/administratori`, administrator);
   }
 
   dodelaStatusa( tip: string, student: any){

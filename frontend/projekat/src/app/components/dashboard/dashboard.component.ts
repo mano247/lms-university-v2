@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { LoginService } from '../../services/auth/login.service';
 import { NgIf } from '@angular/common';
 import { CardModule } from 'primeng/card';
@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-dashboard',
   standalone: true,
   imports: [NgIf, CardModule, ButtonModule],

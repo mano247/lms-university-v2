@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GObavestenje } from '../model/gObavestenje';
@@ -10,7 +11,7 @@ export class GlobalnaObavestenjaService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<GObavestenje[]>("http://localhost:8080/api/obavestenja");
+    return this.http.get<GObavestenje[]>(`${environment.apiUrl}/api/obavestenja`);
   }
 
   getById(id: number){
@@ -26,6 +27,6 @@ export class GlobalnaObavestenjaService {
   }
 
   create(obavestenje: GObavestenje){
-    return this.http.post<GObavestenje>("http://localhost:8080/api/obavestenja", obavestenje);
+    return this.http.post<GObavestenje>(`${environment.apiUrl}/api/obavestenja`, obavestenje);
   }
 }

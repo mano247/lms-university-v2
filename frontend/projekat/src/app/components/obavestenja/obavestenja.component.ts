@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Obavestenje } from '../../model/obavestenje';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
@@ -15,6 +15,7 @@ import { MessageService } from 'primeng/api';
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-obavestenja',
   standalone: true,
   imports: [NgFor, DataViewModule, DividerModule, ButtonModule, DialogModule, FormsModule, CalendarModule, ToastModule],

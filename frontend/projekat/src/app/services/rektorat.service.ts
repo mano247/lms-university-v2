@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Rektorat } from '../model/rektorat';
 import { HttpClient } from '@angular/common/http';
@@ -10,7 +11,7 @@ export class RektoratService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Rektorat[]>("http://localhost:8080/api/rektorati");
+    return this.http.get<Rektorat[]>(`${environment.apiUrl}/api/rektorati`);
   }
 
   getById(id: number){
@@ -26,6 +27,6 @@ export class RektoratService {
   }
 
   create(rektorat: Rektorat){
-    return this.http.post<Rektorat>("http://localhost:8080/api/rektorati", rektorat);
+    return this.http.post<Rektorat>(`${environment.apiUrl}/api/rektorati`, rektorat);
   }
 }

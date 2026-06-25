@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NastavniMaterijal } from '../../../model/academic/nastavniMaterijal';
 import { StudentskaSluzbaService } from '../../../services/studentska-sluzba.service';
 import { TableModule } from 'primeng/table';
@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-ss-biblioteka',
   standalone: true,
   imports: [TableModule, NgClass, ButtonModule, InputGroupModule, FormsModule, NgIf, DialogModule, DropdownModule, ToastModule],

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Univerzitet } from '../model/academic/univerzitet';
@@ -10,7 +11,7 @@ export class UniverzitetService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Univerzitet[]>("http://localhost:8080/api/univerziteti");
+    return this.http.get<Univerzitet[]>(`${environment.apiUrl}/api/univerziteti`);
   }
 
   getById(id: number){
@@ -26,6 +27,6 @@ export class UniverzitetService {
   }
 
   create(univerzitet: Univerzitet){
-    return this.http.post<Univerzitet>("http://localhost:8080/api/univerziteti", univerzitet);
+    return this.http.post<Univerzitet>(`${environment.apiUrl}/api/univerziteti`, univerzitet);
   }
 }

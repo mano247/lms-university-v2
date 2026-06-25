@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -9,6 +9,7 @@ import { LoginService } from '../../services/auth/login.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-registracija',
   standalone: true,
   imports: [ButtonModule, ReactiveFormsModule, NgIf, RouterModule, ToastModule, ProgressSpinnerModule],

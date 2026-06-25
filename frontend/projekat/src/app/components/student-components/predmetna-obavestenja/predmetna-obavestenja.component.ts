@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor, NgIf } from '@angular/common';
@@ -17,6 +17,7 @@ import { LoginService } from '../../../services/auth/login.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-predmetna-obavestenja',
   standalone: true,
   imports: [NgFor, DataViewModule, DividerModule, DropdownModule, ButtonModule, ConfirmPopupModule, ToastModule, DialogModule, NgIf, FormsModule],

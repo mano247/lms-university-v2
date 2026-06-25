@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NastavniMaterijal } from '../../model/academic/nastavniMaterijal';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NastavniMaterijalService } from '../../services/nastavni-materijal.service';
@@ -10,6 +10,7 @@ import { StudijskiProgramService } from '../../services/studijski-program.servic
 import { Predmet } from '../../model/academic/predmet';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-nastavni-materijal',
   standalone: true,
   imports: [RouterModule, DividerModule, NgFor],

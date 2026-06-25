@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TableModule } from 'primeng/table';
@@ -16,6 +16,7 @@ import { InputGroupModule } from 'primeng/inputgroup';
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-izdavanje-dokumenata',
   standalone: true,
   imports: [InputSwitchModule, FormsModule, TableModule, NgClass, ButtonModule, NgIf, InputGroupModule],

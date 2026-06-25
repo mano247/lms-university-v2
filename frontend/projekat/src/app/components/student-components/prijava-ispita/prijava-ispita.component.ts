@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -13,6 +13,7 @@ import { Polaganje } from '../../../model/polaganje';
 import { Student } from '../../../model/users/student';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-prijava-ispita',
   standalone: true,
   imports: [TableModule, ButtonModule, NgFor, ConfirmDialogModule, ToastModule, DialogModule, NgIf],

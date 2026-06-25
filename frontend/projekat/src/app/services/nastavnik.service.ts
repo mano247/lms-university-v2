@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Nastavnik } from '../model/users/nastavnik';
@@ -13,7 +14,7 @@ export class NastavnikService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Nastavnik[]>("http://localhost:8080/api/nastavnici");
+    return this.http.get<Nastavnik[]>(`${environment.apiUrl}/api/nastavnici`);
   }
 
   getById(id: number){
@@ -29,7 +30,7 @@ export class NastavnikService {
   }
 
   create(nastavnik: Nastavnik){
-    return this.http.post<Nastavnik>("http://localhost:8080/api/nastavnici", nastavnik);
+    return this.http.post<Nastavnik>(`${environment.apiUrl}/api/nastavnici`, nastavnik);
   }
 
   mojiPredmeti(id: number){
