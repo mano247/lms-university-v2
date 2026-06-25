@@ -1,5 +1,5 @@
 import { NgClass, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { FakultetService } from '../../../services/fakultet.service';
@@ -24,6 +24,7 @@ import { Nastavnik } from '../../../model/users/nastavnik';
 import { CalendarModule } from 'primeng/calendar';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-sifarnik',
   standalone: true,
   imports: [DropdownModule, FormsModule, NgIf, TableModule, NgClass, InputGroupModule, ButtonModule, DialogModule, 

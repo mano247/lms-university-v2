@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { StudijskiProgramService } from '../../../services/studijski-program.service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { FakultetService } from '../../../services/fakultet.service';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-a-studijski-programi',
   standalone: true,
   imports: [TableModule, ButtonModule, InputGroupModule, FormsModule, DialogModule, ToastModule, DropdownModule, ConfirmPopupModule],

@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { Fakultet } from '../../model/academic/fakultet';
@@ -11,6 +11,7 @@ import { StudijskiProgramService } from '../../services/studijski-program.servic
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-fakultet',
   standalone: true,
   imports: [MenuModule, DividerModule, NgIf, NgFor],

@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,7 +9,7 @@ import { tap } from 'rxjs';
 })
 export class LoginService{
   private user: any;
-  private baseUrl = 'http://localhost:8080';
+  private baseUrl = `${environment.apiUrl}`;
   
   constructor(private http: HttpClient, private router: Router) {
     const userString = localStorage.getItem('user');

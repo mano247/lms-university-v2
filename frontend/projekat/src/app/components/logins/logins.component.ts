@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -10,6 +10,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ProgressBarModule } from 'primeng/progressbar';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-logins',
   standalone: true,
   imports: [ButtonModule, ReactiveFormsModule, RouterModule, ToastModule, NgIf, ProgressSpinnerModule, ProgressBarModule],

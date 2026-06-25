@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RegistrovaniKorisnik } from '../model/users/registrovaniKorisnik';
@@ -10,7 +11,7 @@ export class RegistrovaniKorisnikService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<RegistrovaniKorisnik[]>("http://localhost:8080/api/registrovaniKorisnici");
+    return this.http.get<RegistrovaniKorisnik[]>(`${environment.apiUrl}/api/registrovaniKorisnici`);
   }
 
   getById(id: number){
@@ -26,7 +27,7 @@ export class RegistrovaniKorisnikService {
   }
 
   create(registrovaniKorisnik: RegistrovaniKorisnik){
-    return this.http.post<RegistrovaniKorisnik>("http://localhost:8080/api/registrovaniKorisnici", registrovaniKorisnik);
+    return this.http.post<RegistrovaniKorisnik>(`${environment.apiUrl}/api/registrovaniKorisnici`, registrovaniKorisnik);
   }
 
   dodeliStudenta(id: number, student: any){

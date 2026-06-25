@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { AdministratorService } from '../../services/administrator.service';
 import { LoginService } from '../../services/auth/login.service';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-profil',
   standalone: true,
   imports: [DividerModule, ButtonModule, ReactiveFormsModule, ToastModule, NgIf, DialogModule, ReactiveFormsModule],

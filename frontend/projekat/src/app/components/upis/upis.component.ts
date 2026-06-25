@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { UniverzitetService } from '../../services/univerzitet.service';
 import { RouterModule } from '@angular/router';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-upis',
   standalone: true,
   imports: [DividerModule, RouterModule],

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-angazovani-predmeti',
   standalone: true,
   imports: [NgFor, DataViewModule, DividerModule, ButtonModule, DialogModule, InputTextareaModule, FormsModule, ToastModule],

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Univerzitet } from '../../model/academic/univerzitet';
 import { UniverzitetService } from '../../services/univerzitet.service';
 import { FakultetService } from '../../services/fakultet.service';
@@ -8,6 +8,7 @@ import { DividerModule } from 'primeng/divider';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-univerzitet',
   standalone: true,
   imports: [NgFor, DividerModule, RouterModule],

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -10,7 +11,7 @@ export class FakultetService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Fakultet[]>("http://localhost:8080/api/fakulteti");
+    return this.http.get<Fakultet[]>(`${environment.apiUrl}/api/fakulteti`);
   }
 
   getById(id: number){
@@ -30,6 +31,6 @@ export class FakultetService {
   }
 
   create(fakultet: Fakultet){
-    return this.http.post<Fakultet>("http://localhost:8080/api/fakulteti", fakultet);
+    return this.http.post<Fakultet>(`${environment.apiUrl}/api/fakulteti`, fakultet);
   }
 }

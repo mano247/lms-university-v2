@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { UniverzitetService } from '../../../services/univerzitet.service';
 import { Univerzitet } from '../../../model/academic/univerzitet';
 import { ButtonModule } from 'primeng/button';
@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { RektoratService } from '../../../services/rektorat.service';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-a-organizacija',
   standalone: true,
   imports: [ButtonModule, DialogModule, FormsModule, CalendarModule, ToastModule],

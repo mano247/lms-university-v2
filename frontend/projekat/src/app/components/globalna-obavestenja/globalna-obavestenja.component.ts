@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { ObavestenjeService } from '../../services/obavestenje.service';
@@ -10,6 +10,7 @@ import { GlobalnaObavestenjaService } from '../../services/globalna-obavestenja.
 
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-globalna-obavestenja',
   standalone: true,
   imports: [NgFor, DataViewModule, DividerModule],

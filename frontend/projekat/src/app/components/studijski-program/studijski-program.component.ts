@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FakultetService } from '../../services/fakultet.service';
 import { StudijskiProgramService } from '../../services/studijski-program.service';
@@ -11,6 +11,7 @@ import { NgFor } from '@angular/common';
 import { map, switchMap, tap } from 'rxjs';
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-studijski-program',
   standalone: true,
   imports: [DividerModule, RouterModule, NgFor],

@@ -1,6 +1,7 @@
 # Claude Code fajlovi
 CLAUDE.md
 backend-analysis.md
+frontend-analysis.md
 prompts.md
 
 # Java/Spring Boot
@@ -19,7 +20,11 @@ target/
 # Frontend
 node_modules/
 dist/
+frontend/projekat/src/environments/environment.ts
 
 # OS
 .DS_Store
 Thumbs.db
+
+#design
+design/

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Student } from '../model/users/student';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -13,7 +14,7 @@ export class StudentiService {
   constructor(private http: HttpClient) { }
 
   getAll(){
-    return this.http.get<Student[]>("http://localhost:8080/api/studenti");
+    return this.http.get<Student[]>(`${environment.apiUrl}/api/studenti`);
   }
 
   getById(id: number){
@@ -29,7 +30,7 @@ export class StudentiService {
   }
 
   create(student: Student){
-    return this.http.post<Student>("http://localhost:8080/api/studenti", student);
+    return this.http.post<Student>(`${environment.apiUrl}/api/studenti`, student);
   }
 
 
@@ -58,7 +59,7 @@ export class StudentiService {
   }
 
   upisiNaGodinu(sng: any){
-    return this.http.post<any>("http://localhost:8080/api/sng", sng);
+    return this.http.post<any>(`${environment.apiUrl}/api/sng`, sng);
   }
 
   dodajStudentaNaPredmet(idSmer: number, student: any){

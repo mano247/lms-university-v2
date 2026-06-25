@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { UpisStudenataComponent } from "../../ssluzba-components/upis-studenata/upis-studenata.component";
 import { IzdavanjeDokumenataComponent } from "../../ssluzba-components/izdavanje-dokumenata/izdavanje-dokumenata.component";
 import { ObavestenjaComponent } from "../../obavestenja/obavestenja.component";
@@ -8,6 +8,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { RasporediComponent } from "../../ssluzba-components/rasporedi/rasporedi.component";
 
 @Component({
+  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-e-sluzba',
   standalone: true,
   imports: [UpisStudenataComponent, IzdavanjeDokumenataComponent, ObavestenjaComponent, SsBibliotekaComponent, SsKancComponent, TabViewModule, RasporediComponent],
