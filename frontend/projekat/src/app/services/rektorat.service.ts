@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Rectorate } from '../model/rektorat';
 import { HttpClient } from '@angular/common/http';
