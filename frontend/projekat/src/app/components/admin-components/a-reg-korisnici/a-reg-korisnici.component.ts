@@ -1,10 +1,10 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { RegisteredUserService } from '../../../services/registrovani-korisnik.service';
+import { RegisteredUserService } from '../../../services/registered-user.service';
 import { TableModule } from 'primeng/table';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { RegisteredUser } from '../../../model/users/registrovaniKorisnik';
+import { RegisteredUser } from '../../../model/users/registered-user';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
@@ -35,10 +35,10 @@ export class ARegKorisniciComponent implements OnInit {
   selectedType: any;
 
   types = [
-    { label: 'student', value: 'student_premission' },
-    { label: 'teacher', value: 'nastavnik_premission' },
-    { label: 'office', value: 'studentskaSluzba_premission' },
-    { label: 'admin', value: 'administrator_premission' }
+    { label: 'Student', value: 'STUDENT_PERMISSION' },
+    { label: 'Teacher', value: 'TEACHER_PERMISSION' },
+    { label: 'Student Affairs', value: 'STUDENT_AFFAIRS_PERMISSION' },
+    { label: 'Administrator', value: 'ADMINISTRATOR_PERMISSION' }
   ];
 
   newUser: any = {};

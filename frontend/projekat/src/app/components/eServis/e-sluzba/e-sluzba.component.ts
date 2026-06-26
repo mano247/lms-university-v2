@@ -1,17 +1,17 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { UpisStudenataComponent } from "../../ssluzba-components/upis-studenata/upis-studenata.component";
-import { IzdavanjeDokumenataComponent } from "../../ssluzba-components/izdavanje-dokumenata/izdavanje-dokumenata.component";
-import { ObavestenjaComponent } from "../../obavestenja/obavestenja.component";
-import { SsBibliotekaComponent } from "../../ssluzba-components/ss-biblioteka/ss-biblioteka.component";
-import { SsKancComponent } from "../../ssluzba-components/ss-kanc/ss-kanc.component";
+import { StudentEnrollmentComponent } from "../../student-affairs-components/student-enrollment/student-enrollment.component";
+import { DocumentIssuanceComponent } from "../../student-affairs-components/document-issuance/document-issuance.component";
+import { AnnouncementsComponent } from "../../announcements/announcements.component";
+import { LibraryComponent } from "../../student-affairs-components/library/library.component";
+import { OfficeSuppliesComponent } from "../../student-affairs-components/office-supplies/office-supplies.component";
 import { TabViewModule } from 'primeng/tabview';
-import { RasporediComponent } from "../../ssluzba-components/rasporedi/rasporedi.component";
+import { SchedulesComponent } from "../../student-affairs-components/schedules/schedules.component";
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-e-sluzba',
   standalone: true,
-  imports: [UpisStudenataComponent, IzdavanjeDokumenataComponent, ObavestenjaComponent, SsBibliotekaComponent, SsKancComponent, TabViewModule, RasporediComponent],
+  imports: [StudentEnrollmentComponent, DocumentIssuanceComponent, AnnouncementsComponent, LibraryComponent, OfficeSuppliesComponent, TabViewModule, SchedulesComponent],
   templateUrl: './e-sluzba.component.html',
   styleUrl: './e-sluzba.component.css'
 })

@@ -43,12 +43,12 @@ export class HeaderComponent {
   }
 
   goToProfile() {
-    this.router.navigate(['/moj-profil']);
+    this.router.navigate(['/my-profile']);
     this.closeMobileMenu();
   }
 
   goToAnnouncements() {
-    this.router.navigate(['/obavestenja']);
+    this.router.navigate(['/announcements']);
     this.closeMobileMenu();
   }
 

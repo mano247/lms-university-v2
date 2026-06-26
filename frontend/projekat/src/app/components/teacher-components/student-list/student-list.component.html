@@ -1,0 +1,111 @@
+<div class="content">
+    <h2>Student List</h2>
+    <p-dropdown
+        [options]="courses"
+        optionLabel="name"
+        [(ngModel)]="selectedCourse"
+        placeholder="Select a course"
+        (onChange)="onCourseChange($event)"
+    ></p-dropdown>
+
+    <div class="pretraga">
+        <p-inputGroup>
+            <input type="text" [(ngModel)]="search.firstName" pInputText placeholder="First Name" />
+        </p-inputGroup>
+        <p-inputGroup>
+            <input type="text" [(ngModel)]="search.lastName" pInputText placeholder="Last Name" />
+        </p-inputGroup>
+        <p-inputGroup>
+            <input type="text" [(ngModel)]="search.indexNumber" pInputText placeholder="Index Number" />
+        </p-inputGroup>
+        <p-button icon="pi pi-search" (onClick)="searchStudents()" rounded="true" [raised]="true"/>
+        <p-button icon="pi pi-times" (onClick)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
+    </div>
+
+    <div *ngIf="filteredStudents.length === 0" class="poruka">
+        No results found
+    </div>
+
+    <p-table *ngIf="filteredStudents.length > 0"  [value]="filteredStudents" styleClass="p-datatable-striped">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
+                <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+                <th pSortableColumn="indexNumber">Index Number <p-sortIcon field="indexNumber"></p-sortIcon></th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-s>
+            <tr>
+                <td>{{s.id}}</td>
+                <td>{{s.firstName}}</td>
+                <td>{{s.lastName}}</td>
+                <td>{{s.indexNumber}}</td>
+                <td>
+                    <p-button (onClick)="showStudentDetails(s)" label="Details" />
+                </td>
+                <div *ngIf="studentDetails">
+                    <p-dialog header="Student Details" [modal]="true" class="dialog" [(visible)]="visible" >
+                        <p><span>First Name:</span> {{studentDetails.firstName}}</p>
+                        <p-divider />
+                        <p><span>Last Name:</span> {{studentDetails.lastName}}</p>
+                        <p-divider />
+                        <p><span>Index Number:</span> {{studentDetails.indexNumber}}</p>
+                        <p-divider />
+                        <div *ngIf="studentDetails.enrollments && studentDetails.enrollments.length > 0">
+                            <p *ngFor="let enrollment of studentDetails.enrollments"><span>Enrollment Date:</span>{{ enrollment.enrollmentDate }}</p>
+                        </div>
+                        <p-divider />
+                        <p><span>Average Grade:</span> {{studentDetails.averageGrade}}</p>
+                        <p-divider />
+                        <p><span>ECTS:</span> {{studentDetails.totalEcts}}</p>
+                        <p-divider />
+                        <p><span>Enrollments:</span></p>
+                        <div *ngIf="studentDetails.enrollments && studentDetails.enrollments.length > 0">
+                            <p *ngFor="let enrollment of studentDetails.enrollments">
+                              <strong>Year:</strong> {{ enrollment?.studyYear?.year || 'N/A' }},
+                              <strong>Program:</strong> {{ enrollment?.studyProgram?.name || 'N/A' }},
+                              <strong>Date:</strong> {{ enrollment?.enrollmentDate || 'N/A' }}
+                            </p>
+                          </div>
+                        <p-divider />
+                        <p><span>Passed Exams:</span></p>
+                        <div *ngIf="studentDetails.passedExams && studentDetails.passedExams.length > 0">
+                            <p *ngFor="let exam of studentDetails.passedExams">
+                                {{ exam.course?.name }} - Grade: {{ exam.finalGrade }}, ECTS: {{ exam.ects }}
+                            </p>
+                        </div>
+                        <div *ngIf="studentDetails.passedExams?.length === 0">
+                            <p>No passed exams.</p>
+                        </div>
+                        <p-divider />
+                        <p><span>Failed Attempts: </span></p>
+                        <div *ngIf="studentDetails.failedExams && studentDetails.failedExams.length > 0">
+                            <p *ngFor="let attempt of studentDetails.failedExams">
+                                {{ attempt.course?.name }} - ECTS: {{ attempt.ects }}, Points: {{ attempt.points }}
+                            </p>
+                        </div>
+                        <div *ngIf="studentDetails.failedExams?.length === 0">
+                            <p>No failed attempts.</p>
+                        </div>
+                        <p-divider />
+                        <p><span>Registered Exams:</span></p>
+                        <div *ngIf="studentDetails.registeredExams">
+                            <p *ngFor="let exam of studentDetails.registeredExams">
+                               {{ exam.course?.name }}
+                            </p>
+                        </div>
+                        <p-divider />
+                        <p><span>Thesis: </span></p>
+                        <div *ngIf="studentDetails.thesis">
+                            <p>
+                              <strong>Topic:</strong> {{ studentDetails.thesis?.topic || 'No thesis data available' }}
+                            </p>
+                        </div>
+                    </p-dialog>
+                </div>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

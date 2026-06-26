@@ -1,18 +1,18 @@
 import { Routes } from '@angular/router';
-import { UniverzitetComponent } from './components/univerzitet/univerzitet.component';
-import { UpisComponent } from './components/upis/upis.component';
-import { KontaktComponent } from './components/kontakt/kontakt.component';
-import { RektoratComponent } from './components/rektorat/rektorat.component';
+import { UniversityComponent } from './components/university/university.component';
+import { EnrollmentComponent } from './components/enrollment/enrollment.component';
+import { ContactComponent } from './components/contact/contact.component';
+import { RectorateComponent } from './components/rectorate/rectorate.component';
 import { RegisterComponent } from './components/register/register.component';
-import { FakultetiComponent } from './components/fakulteti/fakulteti.component';
-import { FakultetComponent } from './components/fakultet/fakultet.component';
-import { StudijskiProgramComponent } from './components/studijski-program/studijski-program.component';
-import { PredmetComponent } from './components/predmet/predmet.component';
-import { NastavniMaterijalComponent } from './components/nastavni-materijal/nastavni-materijal.component';
-import { ProfilComponent } from './components/profil/profil.component';
-import { ObavestenjaComponent } from './components/obavestenja/obavestenja.component';
+import { FacultiesComponent } from './components/faculties/faculties.component';
+import { FacultyComponent } from './components/faculty/faculty.component';
+import { StudyProgramComponent } from './components/study-program/study-program.component';
+import { CourseComponent } from './components/course/course.component';
+import { TeachingMaterialComponent } from './components/teaching-material/teaching-material.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { AnnouncementsComponent } from './components/announcements/announcements.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { GlobalnaObavestenjaComponent } from './components/globalna-obavestenja/globalna-obavestenja.component';
+import { GlobalAnnouncementsComponent } from './components/global-announcements/global-announcements.component';
 import { LoginComponent } from './components/login/login.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { authGuard } from './guards/auth.guard';
@@ -23,34 +23,34 @@ import { ESluzbaComponent } from './components/eServis/e-sluzba/e-sluzba.compone
 import { EAdminComponent } from './components/eServis/e-admin/e-admin.component';
 
 export const routes: Routes = [
-  { path: '', component: UniverzitetComponent },
-  { path: 'upis', component: UpisComponent },
-  { path: 'kontakt', component: KontaktComponent },
-  { path: 'rektorat', component: RektoratComponent },
+  { path: '', component: UniversityComponent },
+  { path: 'enrollment', component: EnrollmentComponent },
+  { path: 'contact', component: ContactComponent },
+  { path: 'rectorate', component: RectorateComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'fakulteti', component: FakultetiComponent },
-  { path: 'fakultet/:sifraFakulteta', component: FakultetComponent },
+  { path: 'faculties', component: FacultiesComponent },
+  { path: 'faculty/:facultyCode', component: FacultyComponent },
   {
-    path: 'fakultet/:sifraFakulteta/studijski-program/:sifraSP',
-    component: StudijskiProgramComponent,
+    path: 'faculty/:facultyCode/study-program/:studyProgramCode',
+    component: StudyProgramComponent,
   },
   {
-    path: 'fakultet/:sifraFakulteta/studijski-program/:sifraSP/predmet/:sifraPredmeta',
-    component: PredmetComponent,
+    path: 'faculty/:facultyCode/study-program/:studyProgramCode/course/:courseCode',
+    component: CourseComponent,
   },
   {
-    path: 'fakultet/:sifraFakulteta/studijski-program/:sifraSP/predmet/:sifraPredmeta/nastavni-materijal/:nMaterijalNaziv',
-    component: NastavniMaterijalComponent,
+    path: 'faculty/:facultyCode/study-program/:studyProgramCode/course/:courseCode/course-material/:materialTitle',
+    component: TeachingMaterialComponent,
   },
   {
-    path: 'moj-profil',
-    component: ProfilComponent,
+    path: 'my-profile',
+    component: ProfileComponent,
     canActivate: [authGuard],
   },
   {
-    path: 'obavestenja',
-    component: ObavestenjaComponent,
+    path: 'announcements',
+    component: AnnouncementsComponent,
     canActivate: [authGuard],
   },
   {
@@ -58,7 +58,7 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
   },
-  { path: 'sva_obavestenja', component: GlobalnaObavestenjaComponent },
+  { path: 'all-announcements', component: GlobalAnnouncementsComponent },
   {
     path: 'eStudent',
     component: EStudentComponent,
@@ -72,13 +72,13 @@ export const routes: Routes = [
     data: { allowedPermissions: ['ADMINISTRATOR_PERMISSION'] },
   },
   {
-    path: 'eProfesor',
+    path: 'eTeacher',
     component: EProfesorComponent,
     canActivate: [authGuard, roleGuard],
     data: { allowedPermissions: ['TEACHER_PERMISSION'] },
   },
   {
-    path: 'eSSluzba',
+    path: 'eOffice',
     component: ESluzbaComponent,
     canActivate: [authGuard, roleGuard],
     data: { allowedPermissions: ['STUDENT_AFFAIRS_PERMISSION'] },

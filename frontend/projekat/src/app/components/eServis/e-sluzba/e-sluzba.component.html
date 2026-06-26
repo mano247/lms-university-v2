@@ -1,17 +1,17 @@
 <p-tabView [activeIndex]="selectedTabIndex" (onChange)="onTabChange($event)">
-    <p-tabPanel header="Upis studenata">
-        <app-upis-studenata></app-upis-studenata>
+    <p-tabPanel header="Student Enrollment">
+        <app-student-enrollment></app-student-enrollment>
     </p-tabPanel>
-    <p-tabPanel header="Izdavanje dokumenata">
-        <app-izdavanje-dokumenata></app-izdavanje-dokumenata>
+    <p-tabPanel header="Document Issuance">
+        <app-document-issuance></app-document-issuance>
     </p-tabPanel>
-    <p-tabPanel header="Obavestenja">
+    <p-tabPanel header="Announcements">
         <app-obavestenja></app-obavestenja>
     </p-tabPanel>
-    <p-tabPanel header="Biblioteka">
-        <app-ss-biblioteka></app-ss-biblioteka>
+    <p-tabPanel header="Library">
+        <app-library></app-library>
     </p-tabPanel>
-    <p-tabPanel header="Kancelarijski inventar">
-        <app-ss-kanc></app-ss-kanc>
+    <p-tabPanel header="Office Supplies">
+        <app-office-supplies></app-office-supplies>
     </p-tabPanel>
 </p-tabView>

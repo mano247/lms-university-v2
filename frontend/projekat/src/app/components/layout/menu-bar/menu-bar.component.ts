@@ -1,10 +1,10 @@
 import { Component, Input, OnChanges, SimpleChanges, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
-import { Faculty } from '../../../model/academic/fakultet';
+import { Faculty } from '../../../model/academic/faculty';
 import { Router } from '@angular/router';
-import { FacultyService } from '../../../services/fakultet.service';
-import { StudyProgram } from '../../../model/academic/studijskiProgram';
+import { FacultyService } from '../../../services/faculty.service';
+import { StudyProgram } from '../../../model/academic/study-program';
 import { LoginService } from '../../../services/auth/login.service';
 
 @Component({
@@ -78,23 +78,23 @@ export class MenuBarComponent implements OnChanges {
   }
 
   goToFaculty(facultyCode: string) {
-    this.router.navigate([`fakultet/${facultyCode}`]);
+    this.router.navigate([`faculty/${facultyCode}`]);
   }
 
   goToEnrollment() {
-    this.router.navigate(['upis']);
+    this.router.navigate(['enrollment']);
   }
 
   goToAnnouncements() {
-    this.router.navigate(['sva_obavestenja']);
+    this.router.navigate(['all-announcements']);
   }
 
   goToRectorate() {
-    this.router.navigate(['rektorat']);
+    this.router.navigate(['rectorate']);
   }
 
   goToContact() {
-    this.router.navigate(['kontakt']);
+    this.router.navigate(['contact']);
   }
 
   goToLogin() {
@@ -102,6 +102,6 @@ export class MenuBarComponent implements OnChanges {
   }
 
   goToFaculties() {
-    this.router.navigate(['fakulteti']);
+    this.router.navigate(['faculties']);
   }
 }

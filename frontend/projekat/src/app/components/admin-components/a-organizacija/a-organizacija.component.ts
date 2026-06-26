@@ -1,13 +1,13 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { UniversityService } from '../../../services/univerzitet.service';
-import { University } from '../../../model/academic/univerzitet';
+import { UniversityService } from '../../../services/university.service';
+import { University } from '../../../model/academic/university';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { RectorateService } from '../../../services/rektorat.service';
+import { RectorateService } from '../../../services/rectorate.service';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],

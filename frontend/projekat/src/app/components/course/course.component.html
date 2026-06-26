@@ -1,0 +1,35 @@
+<div class="content">
+    <a [routerLink]="['/faculty', facultyCode]"><h2>{{faculty?.name}}</h2></a>
+    <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode]"><h3>{{studyProgram?.name}}</h3></a>
+
+    <p-divider />
+    <h4>{{course?.name}}</h4>
+
+    <p>{{course?.description}}</p>
+    <p-divider />
+
+    <h5>Syllabus</h5>
+    <p class="silabus" [innerHTML]="formatSyllabus(course?.syllabus)"></p>
+    <p-divider />
+
+    <h5>Teaching Materials</h5>
+    <ul>
+        <li *ngFor="let nm of course?.teachingMaterials">
+           <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', course?.courseCode,
+           'course-material', nm.title]">{{nm.title}}</a>
+        </li>
+    </ul>
+    <p-divider />
+
+    <h5>Course Duration</h5>
+    <p>from: {{formatDate(course?.startDate)}}</p>
+    <p>to: {{formatDate(course?.endDate)}}</p>
+    <p-divider />
+
+    <h5>ECTS</h5>
+    <p>{{course?.ects}}</p>
+    <p-divider />
+
+    <h5>Teacher</h5>
+    <p>{{course?.teacher?.firstName}} {{course?.teacher?.lastName}}</p>
+</div>

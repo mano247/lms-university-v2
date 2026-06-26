@@ -32,11 +32,11 @@ export class DashboardComponent implements OnInit {
   }
 
   goToTeacherPortal() {
-    this.router.navigate(['eProfesor']);
+    this.router.navigate(['eTeacher']);
   }
 
   goToOfficePortal() {
-    this.router.navigate(['eSSluzba']);
+    this.router.navigate(['eOffice']);
   }
 
   goToAdminPortal() {

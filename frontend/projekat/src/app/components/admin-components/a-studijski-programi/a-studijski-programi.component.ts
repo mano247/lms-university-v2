@@ -1,5 +1,5 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { StudyProgramService } from '../../../services/studijski-program.service';
+import { StudyProgramService } from '../../../services/study-program.service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -7,10 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { StudyProgram } from '../../../model/academic/studijskiProgram';
+import { StudyProgram } from '../../../model/academic/study-program';
 import { DropdownModule } from 'primeng/dropdown';
-import { Faculty } from '../../../model/academic/fakultet';
-import { FacultyService } from '../../../services/fakultet.service';
+import { Faculty } from '../../../model/academic/faculty';
+import { FacultyService } from '../../../services/faculty.service';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 @Component({

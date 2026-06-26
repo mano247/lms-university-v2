@@ -6,11 +6,11 @@
     <!-- Desktop nav -->
     <nav class="desktop-nav" aria-label="Main navigation">
       <a routerLink="/" routerLinkActive="nav-active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">University</a>
-      <a routerLink="/fakulteti" routerLinkActive="nav-active" class="nav-link">Faculties</a>
-      <a routerLink="/upis" routerLinkActive="nav-active" class="nav-link">Enrollment</a>
-      <a routerLink="/sva_obavestenja" routerLinkActive="nav-active" class="nav-link">Announcements</a>
-      <a routerLink="/rektorat" routerLinkActive="nav-active" class="nav-link">Rectorate</a>
-      <a routerLink="/kontakt" routerLinkActive="nav-active" class="nav-link">Contact</a>
+      <a routerLink="/faculties" routerLinkActive="nav-active" class="nav-link">Faculties</a>
+      <a routerLink="/enrollment" routerLinkActive="nav-active" class="nav-link">Enrollment</a>
+      <a routerLink="/all-announcements" routerLinkActive="nav-active" class="nav-link">Announcements</a>
+      <a routerLink="/rectorate" routerLinkActive="nav-active" class="nav-link">Rectorate</a>
+      <a routerLink="/contact" routerLinkActive="nav-active" class="nav-link">Contact</a>
     </nav>
 
     <!-- Auth actions -->
@@ -48,7 +48,7 @@
         [class.open]="mobileMenuOpen"
         (click)="toggleMobileMenu()"
         aria-label="Toggle navigation menu"
-        aria-expanded="{{ mobileMenuOpen }}">
+        [attr.aria-expanded]="mobileMenuOpen">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -60,11 +60,11 @@
   @if (mobileMenuOpen) {
     <nav class="mobile-nav" aria-label="Mobile navigation">
       <a routerLink="/" routerLinkActive="mobile-active" [routerLinkActiveOptions]="{exact: true}" class="mobile-link" (click)="closeMobileMenu()">University</a>
-      <a routerLink="/fakulteti" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Faculties</a>
-      <a routerLink="/upis" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Enrollment</a>
-      <a routerLink="/sva_obavestenja" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Announcements</a>
-      <a routerLink="/rektorat" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Rectorate</a>
-      <a routerLink="/kontakt" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Contact</a>
+      <a routerLink="/faculties" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Faculties</a>
+      <a routerLink="/enrollment" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Enrollment</a>
+      <a routerLink="/all-announcements" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Announcements</a>
+      <a routerLink="/rectorate" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Rectorate</a>
+      <a routerLink="/contact" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Contact</a>
       <div class="mobile-auth">
         @if (authService.isLoggedIn()) {
           <button class="mobile-btn-primary" (click)="goToMenu()">My Dashboard</button>
