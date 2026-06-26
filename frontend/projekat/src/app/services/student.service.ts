@@ -42,6 +42,10 @@ export class StudentService {
     return this.http.get<any[]>(`http://localhost:8080/api/students/${id}/passed-exams`);
   }
 
+  polozeniIspiti(id: number) {
+    return this.http.get<any[]>(`${environment.apiUrl}/api/studenti/${id}/polozeniIspiti`);
+  }
+
   nepolozeniIspiti(id: number){
     return this.http.get<Course[]>(`http://localhost:8080/api/studenti/${id}/nepolozeniIspiti`);
   }

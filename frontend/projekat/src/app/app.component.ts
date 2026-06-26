@@ -25,7 +25,7 @@ import { TabViewModule } from 'primeng/tabview';
 export class AppComponent implements OnInit {
   title = "LMS";
 
-  univerzitet: University = {
+  university: University = {
     name: '',
     foundingDate: new Date(),
     contact: '',
@@ -55,7 +55,7 @@ export class AppComponent implements OnInit {
 
   getUniversity(){
     return this.universityService.getAll().subscribe(x=>{
-      this.univerzitet = x[0];
+      this.university = x[0];
     })
   }
 
