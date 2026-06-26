@@ -2,476 +2,408 @@ import { NgClass, NgIf } from '@angular/common';
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { FakultetService } from '../../../services/fakultet.service';
-import { Fakultet } from '../../../model/academic/fakultet';
-import { StudijskiProgram } from '../../../model/academic/studijskiProgram';
-import { Predmet } from '../../../model/academic/predmet';
-import { StudijskiProgramService } from '../../../services/studijski-program.service';
-import { PredmetService } from '../../../services/predmet.service';
+import { FacultyService } from '../../../services/fakultet.service';
+import { Faculty } from '../../../model/academic/fakultet';
+import { StudyProgram } from '../../../model/academic/studijskiProgram';
+import { Course } from '../../../model/academic/predmet';
+import { StudyProgramService } from '../../../services/studijski-program.service';
+import { CourseService } from '../../../services/predmet.service';
 import { TableModule } from 'primeng/table';
-import { PolaganjeService } from '../../../services/polaganje.service';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Univerzitet } from '../../../model/academic/univerzitet';
-import { UniverzitetService } from '../../../services/univerzitet.service';
+import { University } from '../../../model/academic/univerzitet';
+import { UniversityService } from '../../../services/univerzitet.service';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { NastavniMaterijal } from '../../../model/academic/nastavniMaterijal';
-import { NastavnikService } from '../../../services/nastavnik.service';
-import { Nastavnik } from '../../../model/users/nastavnik';
+import { TeacherService } from '../../../services/nastavnik.service';
+import { Teacher } from '../../../model/users/nastavnik';
 import { CalendarModule } from 'primeng/calendar';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-sifarnik',
   standalone: true,
-  imports: [DropdownModule, FormsModule, NgIf, TableModule, NgClass, InputGroupModule, ButtonModule, DialogModule, 
+  imports: [DropdownModule, FormsModule, NgIf, TableModule, NgClass, InputGroupModule, ButtonModule, DialogModule,
     ToastModule, ConfirmPopupModule, CalendarModule],
   templateUrl: './sifarnik.component.html',
   styleUrl: './sifarnik.component.css',
   providers: [MessageService, ConfirmationService]
 })
-export class SifarnikComponent implements OnInit{
-  fakulteti: Fakultet[] = [];
-  smerovi: StudijskiProgram[] = [];
-  predmeti: Predmet[] = [];
-  univerzitet: Univerzitet | undefined;
-  profesori: Nastavnik[] = [];
+export class SifarnikComponent implements OnInit {
+  faculties: Faculty[] = [];
+  studyPrograms: StudyProgram[] = [];
+  courses: Course[] = [];
+  university: University | undefined;
+  teachers: Teacher[] = [];
 
-  filtriraniFakulteti: Fakultet[] = [];
-  filtriraniSmerovi: StudijskiProgram[] = [];
-  filtriraniPredmeti: Predmet[] = [];
+  filteredFaculties: Faculty[] = [];
+  filteredStudyPrograms: StudyProgram[] = [];
+  filteredCourses: Course[] = [];
 
-  pretraga = {
-    naziv: "",
-    sifra: ""
-  }
+  search = {
+    name: '',
+    code: ''
+  };
 
   visible: boolean = false;
-  dodajFakultetVisible: boolean = false;
-  izmeniFakultetVisible: boolean = false;
-  dodajSmerVisible: boolean = false;
-  izmeniSmerVisible: boolean = false;
-  dodajPredmetVisible: boolean = false;
-  izmeniPredmetVisible: boolean = false;
+  addFacultyDialog: boolean = false;
+  editFacultyDialog: boolean = false;
+  addProgramDialog: boolean = false;
+  editProgramDialog: boolean = false;
+  addCourseDialog: boolean = false;
+  editCourseDialog: boolean = false;
 
   dialogHeader: string = '';
-  trenutniElement: any = null;
+  currentElement: any = null;
+  newCode: string = '';
 
-  novaSifra: string = "";
-  noviFakultet:any = {};
-  noviSmer:any = {};
-  noviPredmet:any = {};
+  newFaculty: any = {};
+  newProgram: any = {};
+  newCourse: any = {};
 
-  sifarnikSelect: { label: string, value: string }[] = [
-    { label: 'Fakulteti', value: 'fakulteti' },
-    { label: 'Smerovi', value: 'smerovi' },
-    { label: 'Predmeti', value: 'predmeti' }
+  categories: { label: string; value: string }[] = [
+    { label: 'Faculties', value: 'faculties' },
+    { label: 'Study Programs', value: 'studyPrograms' },
+    { label: 'Courses', value: 'courses' }
   ];
 
-  selected: string = "fakulteti";
+  selectedCategory: string = 'faculties';
 
-  constructor(private fakultetService: FakultetService, private smerService: StudijskiProgramService, 
-    private predmetService: PredmetService, private messageService: MessageService, 
-    private univerzitetService: UniverzitetService, private confirmationService: ConfirmationService,
-    private profesorService: NastavnikService){  }
+  constructor(
+    private facultyService: FacultyService,
+    private studyProgramService: StudyProgramService,
+    private courseService: CourseService,
+    private messageService: MessageService,
+    private universityService: UniversityService,
+    private confirmationService: ConfirmationService,
+    private teacherService: TeacherService
+  ) {}
 
   ngOnInit(): void {
-  this.getPodaci();    
-
+    this.loadAll();
   }
 
-  getPodaci(){
-    this.getFakulteti();
-    this.getSmerovi();
-    this.getPredmeti();
-    this.getUniverzitet();
-    this.getProfesori();
+  loadAll() {
+    this.getFaculties();
+    this.getStudyPrograms();
+    this.getCourses();
+    this.getUniversity();
+    this.getTeachers();
   }
 
-  getUniverzitet(){
-    this.univerzitetService.getById(1).subscribe(x=>{
-      this.univerzitet = x;
-    })
+  getUniversity() {
+    this.universityService.getById(1).subscribe(x => {
+      this.university = x;
+    });
   }
 
-  getFakulteti(){
-    this.fakultetService.getAll().subscribe(x=>{
-      this.fakulteti = x;
-      this.filtriraniFakulteti = this.fakulteti;
-      // console.log(this.fakulteti);
-    })
+  getFaculties() {
+    this.facultyService.getAll().subscribe(x => {
+      this.faculties = x;
+      this.filteredFaculties = this.faculties;
+    });
   }
 
-  getSmerovi(){
-    this.smerService.getAll().subscribe(x=>{
-      this.smerovi = x;
-      this.filtriraniSmerovi = this.smerovi;
-      // console.log(this.smerovi);
-    })
+  getStudyPrograms() {
+    this.studyProgramService.getAll().subscribe(x => {
+      this.studyPrograms = x;
+      this.filteredStudyPrograms = this.studyPrograms;
+    });
   }
 
-  getPredmeti(){
-    this.predmetService.getAll().subscribe(x=>{
-      this.predmeti = x;
-      this.filtriraniPredmeti = this.predmeti
-      // console.log(this.predmeti);
-    })
+  getCourses() {
+    this.courseService.getAll().subscribe(x => {
+      this.courses = x;
+      this.filteredCourses = this.courses;
+    });
   }
 
-  getProfesori(){
-    this.profesorService.getAll().subscribe(x=>{
-      this.profesori = x;
-    })
+  getTeachers() {
+    this.teacherService.getAll().subscribe(x => {
+      this.teachers = x;
+    });
   }
 
-  pretragaFakulteta(){
-    this.filtriraniFakulteti = this.fakulteti.filter(f =>
-      (this.pretraga.naziv ? f.naziv.toLowerCase().includes(this.pretraga.naziv.toLowerCase()) : true) &&
-      (this.pretraga.sifra ? f.sifraFakulteta.toLowerCase().includes(this.pretraga.sifra.toLowerCase()) : true)
+  searchFaculties() {
+    this.filteredFaculties = this.faculties.filter(f =>
+      (this.search.name ? f.name.toLowerCase().includes(this.search.name.toLowerCase()) : true) &&
+      (this.search.code ? f.facultyCode.toLowerCase().includes(this.search.code.toLowerCase()) : true)
     );
   }
 
-  pretragaSmerova(){
-    this.filtriraniSmerovi = this.smerovi.filter(s =>
-      (this.pretraga.naziv ? s.naziv.toLowerCase().includes(this.pretraga.naziv.toLowerCase()) : true) &&
-      (this.pretraga.sifra ? s.sifraSP.toLowerCase().includes(this.pretraga.sifra.toLowerCase()) : true)
+  searchPrograms() {
+    this.filteredStudyPrograms = this.studyPrograms.filter(s =>
+      (this.search.name ? s.name.toLowerCase().includes(this.search.name.toLowerCase()) : true) &&
+      (this.search.code ? s.programCode.toLowerCase().includes(this.search.code.toLowerCase()) : true)
     );
   }
 
-  pretragaPredmeta(){
-    this.filtriraniPredmeti = this.predmeti.filter(p =>
-      (this.pretraga.naziv ? p.naziv.toLowerCase().includes(this.pretraga.naziv.toLowerCase()) : true) &&
-      (this.pretraga.sifra ? p.sifraPredmeta.toLowerCase().includes(this.pretraga.sifra.toLowerCase()) : true)
+  searchCourses() {
+    this.filteredCourses = this.courses.filter(c =>
+      (this.search.name ? c.name.toLowerCase().includes(this.search.name.toLowerCase()) : true) &&
+      (this.search.code ? c.courseCode.toLowerCase().includes(this.search.code.toLowerCase()) : true)
     );
   }
 
-  ponistiPretragu(){
-    this.pretraga = {
-      naziv: "",
-      sifra: ""
-    }
-    this.filtriraniFakulteti = this.fakulteti;
-    this.filtriraniSmerovi = this.smerovi;
-    this.filtriraniPredmeti = this.predmeti
+  clearSearch() {
+    this.search = { name: '', code: '' };
+    this.filteredFaculties = this.faculties;
+    this.filteredStudyPrograms = this.studyPrograms;
+    this.filteredCourses = this.courses;
   }
 
-  izmeniSifruFakulteta(fakultet: Fakultet) {
+  openCodeDialogFaculty(faculty: Faculty) {
     this.visible = true;
-    this.trenutniElement = fakultet;
-    this.dialogHeader = 'Izmeni šifru fakulteta';
-    this.novaSifra = fakultet.sifraFakulteta;
+    this.currentElement = faculty;
+    this.dialogHeader = 'Edit Faculty Code';
+    this.newCode = faculty.facultyCode;
   }
 
-  izmeniSifruSmer(smer: StudijskiProgram) {
+  openCodeDialogProgram(program: StudyProgram) {
     this.visible = true;
-    this.trenutniElement = smer;
-    this.dialogHeader = 'Izmeni šifru smerova';
-    this.novaSifra = smer.sifraSP;
+    this.currentElement = program;
+    this.dialogHeader = 'Edit Study Program Code';
+    this.newCode = program.programCode;
   }
 
-  izmeniSifruPredmeta(predmet: Predmet) {
+  openCodeDialogCourse(course: Course) {
     this.visible = true;
-    this.trenutniElement = predmet;
-    this.dialogHeader = 'Izmeni šifru predmeta';
-    this.novaSifra = predmet.sifraPredmeta;
+    this.currentElement = course;
+    this.dialogHeader = 'Edit Course Code';
+    this.newCode = course.courseCode;
   }
 
-  sacuvajSifru() {
-    if(this.trenutniElement.sifraFakulteta){
-      const updatedFakultet = { ...this.trenutniElement, univerzitet: this.univerzitet ,sifraFakulteta: this.novaSifra };
-      console.log(updatedFakultet);
-      this.fakultetService.update(updatedFakultet.id, updatedFakultet).subscribe(x=>{
-        this.getPodaci();
-        this.trenutniElement = null;
-        this.ponistiDialog();
-      })
-      
-    }else if(this.trenutniElement.sifraSP){
-      const updatedSmer = { ...this.trenutniElement, sifraSP: this.novaSifra };
-      console.log(updatedSmer);
-      this.smerService.update(updatedSmer.id, updatedSmer).subscribe(x=>{
-        this.getPodaci();
-        this.trenutniElement = null;
-        this.ponistiDialog();
-      })
-
-    }else if(this.trenutniElement.sifraPredmeta){
-      const updatedPredmet = { ...this.trenutniElement, sifraPredmeta: this.novaSifra, studijskiProgram: {id:this.trenutniElement.smer.id} };
-      console.log(updatedPredmet);
-      this.predmetService.update(updatedPredmet.id, updatedPredmet).subscribe(x=>{
-        this.getPodaci();
-        this.trenutniElement = null;
-        this.ponistiDialog();
-      })
+  saveCode() {
+    if (this.currentElement.facultyCode !== undefined) {
+      const updatedFaculty = { ...this.currentElement, university: this.university, facultyCode: this.newCode };
+      this.facultyService.update(updatedFaculty.id, updatedFaculty).subscribe(() => {
+        this.loadAll();
+        this.currentElement = null;
+        this.cancelDialog();
+      });
+    } else if (this.currentElement.programCode !== undefined) {
+      const updatedProgram = { ...this.currentElement, programCode: this.newCode };
+      this.studyProgramService.update(updatedProgram.id, updatedProgram).subscribe(() => {
+        this.loadAll();
+        this.currentElement = null;
+        this.cancelDialog();
+      });
+    } else if (this.currentElement.courseCode !== undefined) {
+      const updatedCourse = { ...this.currentElement, courseCode: this.newCode, studyProgram: { id: this.currentElement.studyProgram.id } };
+      this.courseService.update(updatedCourse.id, updatedCourse).subscribe(() => {
+        this.loadAll();
+        this.currentElement = null;
+        this.cancelDialog();
+      });
     }
   }
 
-  ponistiDialog(){
+  cancelDialog() {
     this.visible = false;
   }
 
-  dodajFakultetDialog(){
-    this.dodajFakultetVisible = true;
+  openAddFacultyDialog() {
+    this.addFacultyDialog = true;
   }
 
-  dodajFakultet(){
-    const newFakultet = {...this.noviFakultet, univerzitet: this.univerzitet}
-    this.fakultetService.create(newFakultet).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Fakultet dodat', 
-          detail: 'Fakultet je uspešno dodat.'
-        });
-        this.noviFakultet = {}; 
-        this.getFakulteti();    
-        this.hideDialogFakultet();
+  addFaculty() {
+    const newFacultyData = { ...this.newFaculty, university: this.university };
+    this.facultyService.create(newFacultyData).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Faculty added successfully.' });
+        this.newFaculty = {};
+        this.getFaculties();
+        this.closeFacultyDialog();
       },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri dodavanju fakulteta.'
-        });
-        console.error('Greška:', err); 
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding faculty.' });
       }
-    })
-  }
-
-  hideDialogFakultet(){
-    this.dodajFakultetVisible = false;
-    this.izmeniFakultetVisible = false;
-    this.noviFakultet = {};
-  }
-
-  izmeniFakultet(fakultet: Fakultet){
-    this.noviFakultet = {...fakultet};
-    console.log(this.noviFakultet);
-    this.izmeniFakultetVisible = true;
-  }
-
-  izmenaFakulteta(){
-    const updatedFakultet = { ...this.noviFakultet, univerzitet: this.univerzitet}
-    this.fakultetService.update(updatedFakultet.id, updatedFakultet).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Fakultet izmenjen', 
-          detail: 'Fakultet je uspešno izmenjen.'
-        });
-        this.noviFakultet = {}; 
-        this.getFakulteti();    
-        this.hideDialogFakultet();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri izmeni fakulteta.'
-        });
-        console.error('Greška:', err); 
-      }
-    })
-    this.hideDialogFakultet();
-  }
-
-  ukloniFakultet(id: number, event: Event) {
-    this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Zelite da uklonite izabrani fakultet?',
-        icon: 'pi pi-info-circle',
-        acceptButtonStyleClass: 'p-button-danger p-button-sm',
-        accept: () => {
-          this.fakultetService.delete(id).subscribe({
-                 next: () => {
-                   this.getFakulteti();
-                   this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Fakultet uklonjen' });
-                 },
-                  error: err => {
-                   this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-                 }
-               });
-        },
-        reject: () => {
-            this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
-        }
     });
-  } 
-
-
-
-  dodajPredmetDialog(){
-    this.dodajPredmetVisible = true;
   }
 
-  dodajPredmet(){
-    this.noviPredmet = { ...this.noviPredmet, studijskiProgram: {id:this.noviPredmet.smer.id}}
-    console.log("np", this.noviPredmet);
-    this.predmetService.create(this.noviPredmet).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Predmet dodat', 
-          detail: 'Predmet je uspešno dodat.'
-        });
-        this.noviPredmet = {}; 
-        this.getPredmeti();    
-        this.hideDialogPredmet();
+  closeFacultyDialog() {
+    this.addFacultyDialog = false;
+    this.editFacultyDialog = false;
+    this.newFaculty = {};
+  }
+
+  openEditFacultyDialog(faculty: Faculty) {
+    this.newFaculty = { ...faculty };
+    this.editFacultyDialog = true;
+  }
+
+  updateFaculty() {
+    const updatedFaculty = { ...this.newFaculty, university: this.university };
+    this.facultyService.update(updatedFaculty.id, updatedFaculty).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Faculty updated successfully.' });
+        this.newFaculty = {};
+        this.getFaculties();
+        this.closeFacultyDialog();
       },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri dodavanju predmeta.'
-        });
-        console.error('Greška:', err); 
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating faculty.' });
       }
-    })
-  }
-
-  hideDialogPredmet(){
-    this.dodajPredmetVisible = false;
-    this.izmeniPredmetVisible = false;
-    this.noviPredmet = {};
-  }
-
-  izmeniPredmet(predmet: Predmet){
-    this.noviPredmet = {...predmet};
-    this.izmeniPredmetVisible = true;
-  }
-
-  izmenaPredmeta(){
-    const predmetIzmena = {...this.noviPredmet, studijskiProgram: {id:this.noviPredmet.smer.id}}
-    this.predmetService.update(this.noviPredmet.id, predmetIzmena).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Predmet izmenjen', 
-          detail: 'Predmet je uspešno izmenjen.'
-        });
-        this.noviPredmet = {}; 
-        this.getPredmeti();    
-        this.hideDialogPredmet();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri izmeni predmeta.'
-        });
-        console.error('Greška:', err); 
-      }
-    })
-  }
-
-  ukloniPredmet(id: number, event: Event) {
-    this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Zelite da uklonite izabrani predmet?',
-        icon: 'pi pi-info-circle',
-        acceptButtonStyleClass: 'p-button-danger p-button-sm',
-        accept: () => {
-          this.predmetService.delete(id).subscribe({
-                 next: () => {
-                   this.getPredmeti();
-                   this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Predmet uklonjen' });
-                 },
-                  error: err => {
-                   this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-                 }
-               });
-        },
-        reject: () => {
-            this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
-        }
     });
-  } 
-
-
-  dodajSmerDialog(){
-    this.dodajSmerVisible = true;
+    this.closeFacultyDialog();
   }
 
-  dodajSmer(){
-    this.smerService.create(this.noviSmer).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Smer dodat', 
-          detail: 'Smer je uspešno dodat.'
-        });
-        this.noviSmer = {}; 
-        this.getSmerovi();    
-        this.hideDialogSmer();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri dodavanju smera.'
-        });
-        console.error('Greška:', err); 
-      }
-    })
-  }
-
-  hideDialogSmer(){
-    this.dodajSmerVisible = false;
-    this.izmeniSmerVisible = false;
-    this.noviSmer = {};
-  }
-
-  izmeniSmer(smer: NastavniMaterijal){
-    this.noviSmer = {...smer};
-    this.izmeniSmerVisible = true;
-  }
-
-  izmenaSmera(){
-    this.smerService.update(this.noviSmer.id, this.noviSmer).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Smer izmenjen', 
-          detail: 'Smer je uspešno izmenjen.'
-        });
-        this.noviSmer = {}; 
-        this.getSmerovi();    
-        this.hideDialogSmer();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri izmeni smera.'
-        });
-        console.error('Greška:', err); 
-      }
-    })
-  }
-
-  ukloniSmer(id: number, event: Event) {
+  removeFaculty(id: number, event: Event) {
     this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Zelite da uklonite izabrani smer?',
-        icon: 'pi pi-info-circle',
-        acceptButtonStyleClass: 'p-button-danger p-button-sm',
-        accept: () => {
-          this.smerService.delete(id).subscribe({
-                 next: () => {
-                   this.getSmerovi();
-                   this.messageService.add({ severity: 'info', summary: 'Uspešno uklonjeno', detail: 'Smer uklonjen' });
-                 },
-                  error: err => {
-                   this.messageService.add({ severity: 'error', summary: 'Greška pri uklanjanju', detail: 'Došlo je do greške.' });
-                 }
-               });
-        },
-        reject: () => {
-            this.messageService.add({ severity: 'error', summary: 'Ponisteno', detail: 'Uklanjanje ponisteno', life: 3000 });
-        }
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to remove this faculty?',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      accept: () => {
+        this.facultyService.delete(id).subscribe({
+          next: () => {
+            this.getFaculties();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Faculty removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
+          }
+        });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
+      }
     });
-  } 
+  }
+
+  openAddCourseDialog() {
+    this.addCourseDialog = true;
+  }
+
+  addCourse() {
+    this.newCourse = { ...this.newCourse, studyProgram: { id: this.newCourse.studyProgram.id } };
+    this.courseService.create(this.newCourse).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Course added successfully.' });
+        this.newCourse = {};
+        this.getCourses();
+        this.closeCourseDialog();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding course.' });
+      }
+    });
+  }
+
+  closeCourseDialog() {
+    this.addCourseDialog = false;
+    this.editCourseDialog = false;
+    this.newCourse = {};
+  }
+
+  openEditCourseDialog(course: Course) {
+    this.newCourse = { ...course };
+    this.editCourseDialog = true;
+  }
+
+  updateCourse() {
+    const courseData = { ...this.newCourse, studyProgram: { id: this.newCourse.studyProgram.id } };
+    this.courseService.update(this.newCourse.id, courseData).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Course updated successfully.' });
+        this.newCourse = {};
+        this.getCourses();
+        this.closeCourseDialog();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating course.' });
+      }
+    });
+  }
+
+  removeCourse(id: number, event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to remove this course?',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      accept: () => {
+        this.courseService.delete(id).subscribe({
+          next: () => {
+            this.getCourses();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Course removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
+          }
+        });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
+      }
+    });
+  }
+
+  openAddProgramDialog() {
+    this.addProgramDialog = true;
+  }
+
+  addProgram() {
+    this.studyProgramService.create(this.newProgram).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Study program added successfully.' });
+        this.newProgram = {};
+        this.getStudyPrograms();
+        this.closeProgramDialog();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding study program.' });
+      }
+    });
+  }
+
+  closeProgramDialog() {
+    this.addProgramDialog = false;
+    this.editProgramDialog = false;
+    this.newProgram = {};
+  }
+
+  openEditProgramDialog(program: StudyProgram) {
+    this.newProgram = { ...program };
+    this.editProgramDialog = true;
+  }
+
+  updateProgram() {
+    this.studyProgramService.update(this.newProgram.id, this.newProgram).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Study program updated successfully.' });
+        this.newProgram = {};
+        this.getStudyPrograms();
+        this.closeProgramDialog();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating study program.' });
+      }
+    });
+  }
+
+  removeProgram(id: number, event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to remove this study program?',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      accept: () => {
+        this.studyProgramService.delete(id).subscribe({
+          next: () => {
+            this.getStudyPrograms();
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Study program removed successfully.' });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
+          }
+        });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
+      }
+    });
+  }
 }

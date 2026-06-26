@@ -1,13 +1,12 @@
-import { Predmet } from "./academic/predmet";
-import { Nastavnik } from "./users/nastavnik";
+import { Course } from './academic/predmet';
 
-export interface Obavestenje{
-    id?: number; 
-    datum: Date; 
-    sadrzaj: string; 
-    naslov: string;
-    slika: string;
-    vremePocetka: Date; 
-    vremeKraja: Date; 
-    predmet?: Predmet;
+export interface Notification {
+    id?: number;
+    date: Date;
+    content: string;
+    title: string;
+    image: string;
+    startDate: Date;
+    endDate: Date;
+    course?: Course;
 }

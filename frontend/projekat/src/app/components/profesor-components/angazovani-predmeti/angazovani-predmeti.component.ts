@@ -2,13 +2,13 @@ import { ChangeDetectorRef, Component, OnInit, NO_ERRORS_SCHEMA } from '@angular
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
-import { Predmet } from '../../../model/academic/predmet';
+import { Course } from '../../../model/academic/predmet';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
-import { FormsModule} from '@angular/forms';
-import { NastavnikService } from '../../../services/nastavnik.service';
-import { PredmetService } from '../../../services/predmet.service';
+import { FormsModule } from '@angular/forms';
+import { TeacherService } from '../../../services/nastavnik.service';
+import { CourseService } from '../../../services/predmet.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
@@ -21,68 +21,67 @@ import { MessageService } from 'primeng/api';
   styleUrl: './angazovani-predmeti.component.css',
   providers: [MessageService]
 })
-export class AngazovaniPredmetiComponent implements OnInit{
+export class AngazovaniPredmetiComponent implements OnInit {
   visible: boolean = false;
+  courses: Course[] = [];
+  syllabus: string | undefined;
+  teacherId: any;
+  selectedCourse: any = null;
 
-  predmeti: Predmet[] = [];
-
-  predmetSilabus: String | undefined;
-  profId: any;
-
-  selectedPredmet: any = null;
-
-  constructor(private nastavnikService: NastavnikService, private predmetService: PredmetService, private messageService: MessageService){}
+  constructor(
+    private teacherService: TeacherService,
+    private courseService: CourseService,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.profId = parsedUser.id;
-      this.getPredmeti(id);
+      this.teacherId = parsedUser.id;
+      this.getCourses(id);
     }
   }
 
-  getPredmeti(id: number){
-    this.nastavnikService.mojiPredmeti(id).subscribe(x=>{
-      this.predmeti = x;
-    })
+  getCourses(id: number) {
+    this.teacherService.getMyCourses(id).subscribe(x => {
+      this.courses = x;
+    });
   }
 
-  silabusDialog(predmet: Predmet){
-    this.selectedPredmet = predmet;
-    this.predmetSilabus = predmet.silabus;
+  openSyllabusDialog(course: Course) {
+    this.selectedCourse = course;
+    this.syllabus = course.syllabus;
     this.visible = true;
   }
 
-  urediSilabus(){
-    if (this.selectedPredmet) {
-      const updatedPredmet: Predmet = {
-        ...this.selectedPredmet,
-        silabus: this.predmetSilabus
+  updateSyllabus() {
+    if (this.selectedCourse) {
+      const updatedCourse: Course = {
+        ...this.selectedCourse,
+        syllabus: this.syllabus
       };
 
-      if (updatedPredmet.id !== undefined) {
-        this.nastavnikService.izmenaSilabusa(updatedPredmet.id, updatedPredmet).subscribe({
+      if (updatedCourse.id !== undefined) {
+        this.teacherService.updateSyllabus(updatedCourse.id, updatedCourse).subscribe({
           next: () => {
             this.visible = false;
-            this.predmetSilabus = undefined;
-            this.getPredmeti(this.profId);
-
-            this.messageService.add({severity:'success', summary: 'Uspeh', detail: 'Silabus uspešno ažuriran'});
+            this.syllabus = undefined;
+            this.getCourses(this.teacherId);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Syllabus updated successfully.' });
           },
           error: () => {
-            this.messageService.add({severity:'error', summary: 'Greška', detail: 'Greška prilikom ažuriranja silabusa'});
-            this.predmetSilabus = undefined;
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating syllabus.' });
+            this.syllabus = undefined;
           }
         });
       }
-
     }
   }
 
-  ponistiDialog(){
+  cancelDialog() {
     this.visible = false;
-    this.predmetSilabus = undefined;
+    this.syllabus = undefined;
   }
 }

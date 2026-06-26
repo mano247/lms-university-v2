@@ -9,7 +9,7 @@
                 Pocetna stranica LMS univerziteta
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Univerzitet" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
         <p-card header="eStudent" [style]="{ height: '400px' }" >
@@ -20,7 +20,7 @@
                 Prijava ispita, istorija studiranja...
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="eStudent" (onClick)="eStudent()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="eStudent" (onClick)="goToStudentPortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
@@ -36,7 +36,7 @@
                 Pocetna stranica LMS univerziteta
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Univerzitet" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
         <p-card header="eProfesor" [style]="{ height: '400px' }" >
@@ -47,7 +47,7 @@
                 Predmeti, studenti, ocene...
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="eProfesor" (onClick)="eProfesor()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="eProfesor" (onClick)="goToTeacherPortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
@@ -63,7 +63,7 @@
                 Pocetna stranica LMS univerziteta
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Univerzitet" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
         <p-card header="eSSluzba" [style]="{ height: '400px' }" >
@@ -74,7 +74,7 @@
                 Upis, obavestenja, biblioteka...
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="eSSluzba" (onClick)="eSSluzba()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="eSSluzba" (onClick)="goToOfficePortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
@@ -90,7 +90,7 @@
                 Pocetna stranica LMS univerziteta
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Univerzitet" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
         <p-card header="eAdmin" [style]="{ height: '400px' }" >
@@ -101,7 +101,7 @@
                 Administracija, zaposleni, sifarnik...
             </p>
             <ng-template pTemplate="footer">
-                <p-button label="eAdmin" (onClick)="eAdmin()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="eAdmin" (onClick)="goToAdminPortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>

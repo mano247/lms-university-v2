@@ -1,13 +1,13 @@
 <div class="content">
     <h2>Obavestenja</h2>
-    <p-dataView  #dv [value]="obavestenja">
+    <p-dataView  #dv [value]="announcements">
         <ng-template  pTemplate="list">
-            <div *ngFor="let o of obavestenja">
+            <div *ngFor="let o of announcements">
                 <div class="gObavestenje">
-                    <h4>{{o.naslov}}</h4>
-                    <p><span>datum: </span> <br> {{formatDatuma(o.datum)}}</p>
-                    <p><span>od:</span><br>  {{formatDatuma(o.vremePocetka)}}, <br><span>do:</span><br> {{formatDatuma(o.vremeKraja)}}</p>
-                    <p>{{o.sadrzaj}}</p>
+                    <h4>{{o.title}}</h4>
+                    <p><span>datum: </span> <br> {{formatDate(o.date)}}</p>
+                    <p><span>od:</span><br>  {{formatDate(o.startDate)}}, <br><span>do:</span><br> {{formatDate(o.endDate)}}</p>
+                    <p>{{o.content}}</p>
                 </div>
                 <p-divider class="custom-divider"/>
             </div>

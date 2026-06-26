@@ -1,11 +1,11 @@
-import { Univerzitet } from "./academic/univerzitet";
+import { University } from './academic/univerzitet';
 
-export interface Rektorat{
-    id?: number; 
-    naziv: string;
-    kontakt: string;
-    slika: string;
-    adresa: string;
-    univerziteti: Univerzitet[];
-    ime_rektora: string;
+export interface Rectorate {
+    id?: number;
+    name: string;
+    contact: string;
+    image: string;
+    address: string;
+    universities: University[];
+    rectorName: string;
 }

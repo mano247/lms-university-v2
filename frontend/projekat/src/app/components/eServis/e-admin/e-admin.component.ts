@@ -14,21 +14,15 @@ import { AZaposleniComponent } from "../../admin-components/a-zaposleni/a-zaposl
   templateUrl: './e-admin.component.html',
   styleUrl: './e-admin.component.css'
 })
-export class EAdminComponent implements OnInit{
-
+export class EAdminComponent implements OnInit {
   selectedTabIndex: number = 0;
 
   ngOnInit(): void {
     const savedIndex = localStorage.getItem('selectedTabIndex');
-    if (savedIndex) {
-      this.selectedTabIndex = +savedIndex;
-    }else{
-      this.selectedTabIndex = 0;
-    }
+    this.selectedTabIndex = savedIndex ? +savedIndex : 0;
   }
 
   onTabChange(event: any) {
     localStorage.setItem('selectedTabIndex', event.index);
   }
-
 }

@@ -8,6 +8,4 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
   templateUrl: './rasporedi.component.html',
   styleUrl: './rasporedi.component.css'
 })
-export class RasporediComponent {
-
-}
+export class RasporediComponent {}

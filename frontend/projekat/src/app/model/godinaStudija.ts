@@ -1,9 +1,4 @@
-import { StudijskiProgram } from "./academic/studijskiProgram";
-import { Student } from "./users/student";
-
-export interface GodinaStudija{
-    id?: number; 
-    godina: number; 
-    studijskiProgram: StudijskiProgram; 
-    studenti: Student[];
+export interface StudyYear {
+    id?: number;
+    year: number;
 }

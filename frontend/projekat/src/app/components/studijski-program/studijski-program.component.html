@@ -1,20 +1,20 @@
 <div class="content">
-    <a [routerLink]="['/fakultet', fakultetSifra]"><h2>{{fakultet.naziv}}</h2></a>
-    <h3>{{smer?.naziv}}</h3>
+    <a [routerLink]="['/fakultet', facultyCode]"><h2>{{faculty.name}}</h2></a>
+    <h3>{{studyProgram?.name}}</h3>
 
-    <p>{{smer?.opis}}</p>
+    <p>{{studyProgram?.description}}</p>
 
     <p-divider />
 
     <h4>Predmeti</h4>
     <ul>
-        <li *ngFor="let p of predmeti">
-            <a [routerLink]="['/fakultet', fakultetSifra, 'studijski-program', sifraSP, 'predmet', p.sifraPredmeta]">{{p.naziv}}</a>
+        <li *ngFor="let p of courses">
+            <a [routerLink]="['/fakultet', facultyCode, 'studijski-program', studyProgramCode, 'predmet', p.courseCode]">{{p.name}}</a>
         </li>
     </ul>
 
     <p-divider />
 
     <h4>Rukovodilac smera</h4>
-    <p>{{smer?.rukovodilac}}</p>
+    <p>{{studyProgram?.programDirector}}</p>
 </div>

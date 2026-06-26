@@ -1,36 +1,35 @@
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Predmet } from '../model/academic/predmet';
+import { Course } from '../model/academic/predmet';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PredmetService {
-
+export class CourseService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Predmet[]>(`${environment.apiUrl}/api/predmeti`);
+  getAll() {
+    return this.http.get<Course[]>('http://localhost:8080/api/courses');
   }
 
-  getById(id: number){
-    return this.http.get<Predmet>(`http://localhost:8080/api/predmeti/${id}`);
+  getById(id: number) {
+    return this.http.get<Course>(`http://localhost:8080/api/courses/${id}`);
   }
 
-  getBySifra(sifra: string){
-    return this.http.get<Predmet>(`http://localhost:8080/api/predmeti/s/${sifra}`);
+  getByCode(code: string) {
+    return this.http.get<Course>(`http://localhost:8080/api/courses/code/${code}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Predmet>(`http://localhost:8080/api/predmeti/${id}`);
+  delete(id: number) {
+    return this.http.delete<Course>(`http://localhost:8080/api/courses/${id}`);
   }
 
-  update(id: number, predmet: Predmet){
-    return this.http.put<Predmet>(`http://localhost:8080/api/predmeti/${id}`, predmet);
+  update(id: number, course: Course) {
+    return this.http.put<Course>(`http://localhost:8080/api/courses/${id}`, course);
   }
 
-  create(predmet: Predmet){
-    return this.http.post<Predmet>(`${environment.apiUrl}/api/predmeti`, predmet);
+  create(course: Course) {
+    return this.http.post<Course>('http://localhost:8080/api/courses', course);
   }
 }

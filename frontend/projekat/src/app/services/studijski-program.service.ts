@@ -1,36 +1,35 @@
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StudijskiProgram } from '../model/academic/studijskiProgram';
+import { StudyProgram } from '../model/academic/studijskiProgram';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StudijskiProgramService {
-
+export class StudyProgramService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<StudijskiProgram[]>(`${environment.apiUrl}/api/studijskiProgrami`);
+  getAll() {
+    return this.http.get<StudyProgram[]>('http://localhost:8080/api/studyPrograms');
   }
 
-  getById(id: number){
-    return this.http.get<StudijskiProgram>(`http://localhost:8080/api/studijskiProgrami/${id}`);
+  getById(id: number) {
+    return this.http.get<StudyProgram>(`http://localhost:8080/api/studyPrograms/${id}`);
   }
 
-  getBySifra(sifraSP: any){
-    return this.http.get<StudijskiProgram>(`http://localhost:8080/api/studijskiProgrami/s/${sifraSP}`);
+  getByCode(code: any) {
+    return this.http.get<StudyProgram>(`http://localhost:8080/api/studyPrograms/code/${code}`);
   }
 
-  delete(id: number){
-    return this.http.delete<StudijskiProgram>(`http://localhost:8080/api/studijskiProgrami/${id}`);
+  delete(id: number) {
+    return this.http.delete<StudyProgram>(`http://localhost:8080/api/studyPrograms/${id}`);
   }
 
-  update(id: number, studijskiProgram: StudijskiProgram){
-    return this.http.put<StudijskiProgram>(`http://localhost:8080/api/studijskiProgrami/${id}`, studijskiProgram);
+  update(id: number, studyProgram: StudyProgram) {
+    return this.http.put<StudyProgram>(`http://localhost:8080/api/studyPrograms/${id}`, studyProgram);
   }
 
-  create(studijskiProgram: StudijskiProgram){
-    return this.http.post<StudijskiProgram>(`${environment.apiUrl}/api/studijskiProgrami`, studijskiProgram);
+  create(studyProgram: StudyProgram) {
+    return this.http.post<StudyProgram>('http://localhost:8080/api/studyPrograms', studyProgram);
   }
 }

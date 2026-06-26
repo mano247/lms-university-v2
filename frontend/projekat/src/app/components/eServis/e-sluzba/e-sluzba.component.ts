@@ -15,21 +15,15 @@ import { RasporediComponent } from "../../ssluzba-components/rasporedi/rasporedi
   templateUrl: './e-sluzba.component.html',
   styleUrl: './e-sluzba.component.css'
 })
-export class ESluzbaComponent implements OnInit{
-
+export class ESluzbaComponent implements OnInit {
   selectedTabIndex: number = 0;
 
   ngOnInit(): void {
     const savedIndex = localStorage.getItem('selectedTabIndex');
-    if (savedIndex) {
-      this.selectedTabIndex = +savedIndex;
-    }else{
-      this.selectedTabIndex = 0;
-    }
+    this.selectedTabIndex = savedIndex ? +savedIndex : 0;
   }
 
   onTabChange(event: any) {
     localStorage.setItem('selectedTabIndex', event.index);
   }
-
 }

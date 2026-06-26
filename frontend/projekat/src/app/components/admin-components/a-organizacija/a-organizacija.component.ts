@@ -1,13 +1,13 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { UniverzitetService } from '../../../services/univerzitet.service';
-import { Univerzitet } from '../../../model/academic/univerzitet';
+import { UniversityService } from '../../../services/univerzitet.service';
+import { University } from '../../../model/academic/univerzitet';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { RektoratService } from '../../../services/rektorat.service';
+import { RectorateService } from '../../../services/rektorat.service';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -18,61 +18,56 @@ import { RektoratService } from '../../../services/rektorat.service';
   styleUrl: './a-organizacija.component.css',
   providers: [MessageService]
 })
-export class AOrganizacijaComponent implements OnInit{
-  univerzitet: Univerzitet | undefined;
-  rektorat: any;
-
-  univerzitetZaIzmenu: any = {};
-
+export class AOrganizacijaComponent implements OnInit {
+  university: University | undefined;
+  rectorate: any;
+  universityForEdit: any = {};
   visible: boolean = false;
 
-
-  constructor(private univerzitetService: UniverzitetService, private messageService: MessageService, private rektoratService: RektoratService){}
+  constructor(
+    private universityService: UniversityService,
+    private messageService: MessageService,
+    private rectorateService: RectorateService
+  ) {}
 
   ngOnInit(): void {
-    this.getUniverzitet();
+    this.getUniversity();
   }
 
-  getUniverzitet(){
-    this.univerzitetService.getById(1).subscribe(x=>{
-      this.univerzitet = x;
-      console.log(this.univerzitet);
-    })
+  getUniversity() {
+    this.universityService.getById(1).subscribe(x => {
+      this.university = x;
+    });
   }
 
-  getRektorat(){
-    this.rektoratService.getById(1).subscribe(x=>{
-      this.rektorat = x;
-    })
+  getRectorate() {
+    this.rectorateService.getById(1).subscribe(x => {
+      this.rectorate = x;
+    });
   }
 
-  izmeniDialog(){
+  openEditDialog() {
     this.visible = true;
-    this.univerzitetZaIzmenu = {...this.univerzitet};
+    this.universityForEdit = { ...this.university };
   }
 
-  izmena(){
-    const uniZaIzmenu = {...this.univerzitetZaIzmenu, rektorat: this.univerzitetZaIzmenu.rektorat.id}
-    console.log(uniZaIzmenu);
-    this.univerzitetService.update(this.univerzitetZaIzmenu.id, uniZaIzmenu).subscribe({
+  saveChanges() {
+    const universityData = { ...this.universityForEdit, rectorate: this.universityForEdit.rectorate.id };
+    this.universityService.update(this.universityForEdit.id, universityData).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Uspešno', detail: 'Podaci o univerzitetu su uspešno izmenjeni.' });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'University data updated successfully.' });
         this.visible = false;
-        this.getUniverzitet();
-        this.univerzitetZaIzmenu = {};
+        this.getUniversity();
+        this.universityForEdit = {};
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Greška', detail: 'Došlo je do greške prilikom izmene podataka o univerzitetu.' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating university data.' });
       }
-    })
-
+    });
   }
 
-  ponistiDialog(){
+  cancelDialog() {
     this.visible = false;
-    this.univerzitetZaIzmenu = {};
+    this.universityForEdit = {};
   }
-
-
-
 }

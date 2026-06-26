@@ -1,20 +1,20 @@
 <div class="content">
     <h2>Moji predmeti</h2>
-    <p-dataView  #dv [value]="mojiPredmeti">
+    <p-dataView  #dv [value]="myCourses">
         <ng-template  pTemplate="list">
-            <div *ngFor="let p of mojiPredmeti">
+            <div *ngFor="let p of myCourses">
                 <div class="predmet">
-                    <h4>{{p.naziv}}</h4>
-                    <p><span>sifra predmeta: </span> <br> {{p.sifraPredmeta}}</p>
-                    <p><span>smer: </span> <br> {{p.smer.naziv}}</p>
-                    <p><span>trajanje kursa:</span> <br> {{formatirajDatum(p.vremePocetka)}}, do: {{formatirajDatum(p.vremeKraja)}}</p>
-                    <p><span>espb:</span> <br> {{p.espb}}</p>
-                    <p><span>profesor: </span> <br> {{p.nastavnik?.ime}} {{p.nastavnik?.prezime}}</p>
-                    <p><span>opis: </span> <br>  {{p.opis}}</p>
-                    <div class="udzbenici"><span>udzbenici:</span> <br> 
+                    <h4>{{p.name}}</h4>
+                    <p><span>sifra predmeta: </span> <br> {{p.courseCode}}</p>
+                    <p><span>smer: </span> <br> {{p.studyProgram?.name}}</p>
+                    <p><span>trajanje kursa:</span> <br> {{formatDate(p.startDate)}}, do: {{formatDate(p.endDate)}}</p>
+                    <p><span>espb:</span> <br> {{p.ects}}</p>
+                    <p><span>profesor: </span> <br> {{p.teacher?.firstName}} {{p.teacher?.lastName}}</p>
+                    <p><span>opis: </span> <br>  {{p.description}}</p>
+                    <div class="udzbenici"><span>udzbenici:</span> <br>
                         <ul>
-                          <li *ngFor="let materijal of p.nastavniMaterijal">
-                            <strong>{{materijal.naslov}}</strong> - Autor: {{materijal.autori}} 
+                          <li *ngFor="let materijal of p.teachingMaterials">
+                            <strong>{{materijal.title}}</strong> - Autor: {{materijal.authors}}
                           </li>
                         </ul>
                     </div>

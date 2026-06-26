@@ -1,36 +1,35 @@
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Fakultet } from '../model/academic/fakultet';
+import { Faculty } from '../model/academic/fakultet';
 
 @Injectable({
   providedIn: 'root'
 })
-export class FakultetService {
+export class FacultyService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Fakultet[]>(`${environment.apiUrl}/api/fakulteti`);
+  getAll() {
+    return this.http.get<Faculty[]>('http://localhost:8080/api/faculties');
   }
 
-  getById(id: number){
-    return this.http.get<Fakultet>(`http://localhost:8080/api/fakulteti/${id}`);
+  getById(id: number) {
+    return this.http.get<Faculty>(`http://localhost:8080/api/faculties/${id}`);
   }
 
-  getBySifra(sifra: string){
-    return this.http.get<Fakultet>(`http://localhost:8080/api/fakulteti/s/${sifra}`);
+  getByCode(code: string) {
+    return this.http.get<Faculty>(`http://localhost:8080/api/faculties/code/${code}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Fakultet>(`http://localhost:8080/api/fakulteti/${id}`);
+  delete(id: number) {
+    return this.http.delete<Faculty>(`http://localhost:8080/api/faculties/${id}`);
   }
 
-  update(id: number, fakultet: Fakultet){
-    return this.http.put<Fakultet>(`http://localhost:8080/api/fakulteti/${id}`, fakultet);
+  update(id: number, faculty: Faculty) {
+    return this.http.put<Faculty>(`http://localhost:8080/api/faculties/${id}`, faculty);
   }
 
-  create(fakultet: Fakultet){
-    return this.http.post<Fakultet>(`${environment.apiUrl}/api/fakulteti`, fakultet);
+  create(faculty: Faculty) {
+    return this.http.post<Faculty>('http://localhost:8080/api/faculties', faculty);
   }
 }

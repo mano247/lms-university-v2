@@ -1,7 +1,7 @@
 <div class="content">
     <h2>Istorija studiranja</h2>
     <h3>Polozeni predmeti</h3>
-    <p-table [value]="polozeniPredmeti" styleClass="p-datatable-striped">
+    <p-table [value]="passedExams" styleClass="p-datatable-striped">
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="nazivPredmeta">Predmet <p-sortIcon field="nazivPredmeta"></p-sortIcon></th>
@@ -17,19 +17,15 @@
                 <td>{{p.bodovi}}</td>
                 <td>{{p.profesor.ime}} {{p.profesor.prezime}}</td>
                 <td>{{p.ocena}}</td>
-                <td>{{p.espb}}</td> 
+                <td>{{p.espb}}</td>
             </tr>
         </ng-template>
         <ng-template pTemplate="footer">
-            <!-- <tr>
-                <td>Prosecna ocena: {{getProsecnaOcena()}}</td>
-                <td>ECTS Ukupno: {{getSumaETCS()}}</td>
-            </tr> -->
             <tr class="footer-row">
                 <td colspan="5">
                     <div class="footer-content">
-                        <span class="footer-item">Prosecna ocena: {{getProsecnaOcena()}}</span>
-                        <span class="footer-item">ECTS: {{getSumaETCS()}}</span>
+                        <span class="footer-item">Prosecna ocena: {{getAverageGrade()}}</span>
+                        <span class="footer-item">ECTS: {{getTotalEcts()}}</span>
                     </div>
                 </td>
             </tr>
@@ -38,7 +34,7 @@
 
 
     <h3>Upisi</h3>
-    <p-table [value]="upisi" styleClass="p-datatable-striped">
+    <p-table [value]="enrollments" styleClass="p-datatable-striped">
         <ng-template pTemplate="header">
             <tr>
                 <th>Godina studija</th>

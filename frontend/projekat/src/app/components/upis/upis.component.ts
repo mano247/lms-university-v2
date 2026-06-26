@@ -1,6 +1,6 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
-import { UniverzitetService } from '../../services/univerzitet.service';
+import { UniversityService } from '../../services/univerzitet.service';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -11,21 +11,19 @@ import { RouterModule } from '@angular/router';
   templateUrl: './upis.component.html',
   styleUrl: './upis.component.css'
 })
-export class UpisComponent implements OnInit{
-  private univerzitet_id = 1;
-  univerzitetKontakt: string | undefined;
-  univerzitetNaziv: string | undefined;
-  univerzitetAdresa: string | undefined;
-  
+export class UpisComponent implements OnInit {
+  private universityId = 1;
+  universityContact: string | undefined;
+  universityName: string | undefined;
+  universityAddress: string | undefined;
 
-  constructor(private univerzitetService: UniverzitetService,) {}
+  constructor(private universityService: UniversityService) {}
 
   ngOnInit(): void {
-    this.univerzitetService.getById(this.univerzitet_id).subscribe(x=>{
-      this.univerzitetKontakt = x.kontakt;
-      this.univerzitetNaziv = x.naziv;
-      this.univerzitetAdresa = x.adresa;
-    })
+    this.universityService.getById(this.universityId).subscribe(x => {
+      this.universityContact = x.contact;
+      this.universityName = x.name;
+      this.universityAddress = x.address;
+    });
   }
-
 }

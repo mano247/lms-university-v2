@@ -5,11 +5,10 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class ZavrsniRadService {
-
+export class ThesisService {
   constructor(private http: HttpClient) { }
 
-  findByStudent(id: number){
-    return this.http.get<any>(`http://localhost:8080/api/zavrsniRad/fbs/${id}`);
+  findByStudent(id: number) {
+    return this.http.get<any>(`http://localhost:8080/api/final-thesis/by-student/${id}`);
   }
 }

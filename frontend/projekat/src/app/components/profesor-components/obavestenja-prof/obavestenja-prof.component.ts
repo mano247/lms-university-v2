@@ -2,22 +2,21 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor, NgIf } from '@angular/common';
-import { Obavestenje } from '../../../model/obavestenje';
+import { Notification } from '../../../model/obavestenje';
 import { DropdownModule } from 'primeng/dropdown';
-import { Predmet } from '../../../model/academic/predmet';
-import { PredmetService } from '../../../services/predmet.service';
-import { ObavestenjeService } from '../../../services/obavestenje.service';
+import { Course } from '../../../model/academic/predmet';
+import { CourseService } from '../../../services/predmet.service';
+import { NotificationService } from '../../../services/obavestenje.service';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
-import { StudentiService } from '../../../services/studenti.service';
 import { LoginService } from '../../../services/auth/login.service';
-import { NastavnikService } from '../../../services/nastavnik.service';
+import { TeacherService } from '../../../services/nastavnik.service';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
-import { Nastavnik } from '../../../model/users/nastavnik';
+import { Teacher } from '../../../model/users/nastavnik';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -28,140 +27,138 @@ import { Nastavnik } from '../../../model/users/nastavnik';
   styleUrl: './obavestenja-prof.component.css',
   providers: [ConfirmationService, MessageService]
 })
-export class ObavestenjaProfComponent implements OnInit{
+export class ObavestenjaProfComponent implements OnInit {
   visible: boolean = false;
 
-  mojiPredmeti: Predmet[] | undefined;
-  nepolozeniPredmeti: Predmet[] | undefined;
+  myCourses: Course[] | undefined;
+  courseAnnouncements: Notification[] = [];
+  filteredAnnouncements: Notification[] | undefined;
 
-  filtriranaObavestenja: Obavestenje[] | undefined;
-  predmetnaObavestenja: Obavestenje[] = [];
+  selectedCourseId: number | undefined;
+  selectedCourse: Course | undefined;
+  teacher: Teacher | undefined;
 
-  izabraniPredmetID: number | undefined;
-  izabraniPredmet: Predmet | undefined;
+  newAnnouncement: Notification = {
+    date: new Date(),
+    content: '',
+    title: '',
+    image: '',
+    startDate: new Date(),
+    endDate: new Date(),
+    course: undefined
+  };
 
-  nastavnik: Nastavnik | undefined;
-
-  novoObavestenje: Obavestenje = {
-    datum: new Date(),
-    sadrzaj: '',
-    naslov: '',
-    slika: '',
-    vremePocetka: new Date(),
-    vremeKraja: new Date(),
-    predmet: undefined
-  }
-
-  constructor(private confirmationService: ConfirmationService, private messageService: MessageService,
-    private nastavnikService: NastavnikService, private loginService: LoginService, 
-    private obavestenjeService: ObavestenjeService, private predmetService: PredmetService){}
+  constructor(
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService,
+    private teacherService: TeacherService,
+    private loginService: LoginService,
+    private notificationService: NotificationService,
+    private courseService: CourseService
+  ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.getPredmeti(id);
+      this.getCourses(id);
     }
   }
 
-  getPredmeti(id: number): void {
-    this.nastavnikService.mojiPredmeti(id).subscribe(predmeti => {
-      this.mojiPredmeti = predmeti;
+  getCourses(id: number): void {
+    this.teacherService.getMyCourses(id).subscribe(courses => {
+      this.myCourses = courses;
 
-      if (this.mojiPredmeti && this.mojiPredmeti.length > 0) {
-        this.izabraniPredmetID = this.mojiPredmeti[0].id;
-
-        this.getObavestenja();
+      if (this.myCourses && this.myCourses.length > 0) {
+        this.selectedCourseId = this.myCourses[0].id;
+        this.getAnnouncements();
       }
     });
   }
 
-  onPredmetChange(event: any) {
+  onCourseChange(event: any) {
     if (event.value) {
-      this.izabraniPredmetID = event.value;
-      this.filterObavestenja();
+      this.selectedCourseId = event.value;
+      this.filterAnnouncements();
     }
   }
 
-
-  getNastavnik(id: number){
-    this.nastavnikService.getById(id).subscribe(x=>{
-      this.nastavnik = x;
-    })
-  }
-
-  getObavestenja(){
-      this.obavestenjeService.getAll().subscribe(x=>{
-        this.predmetnaObavestenja = x;
-        this.filterObavestenja();
-      })
-  }
-
-  filterObavestenja(): void {
-    if (this.izabraniPredmetID !== undefined) {
-      this.filtriranaObavestenja = this.predmetnaObavestenja.filter(obavestenje =>
-        obavestenje.predmet?.id === this.izabraniPredmetID
-      );
-    } else {
-      this.filtriranaObavestenja = [];
-    }
-  }
-  
-  
-
-  ukloniObavestenje(event: Event, obavestenje: Obavestenje) {
-    this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Zalite da uklonite ovo obavestenje?',
-        icon: 'pi pi-info-circle',
-        acceptButtonStyleClass: 'p-button-danger p-button-sm',
-        accept: () => {
-          if(obavestenje.id){
-            this.obavestenjeService.delete(obavestenje.id).subscribe(x=>{
-              this.messageService.add({ severity: 'info', summary: 'Uklonjeno!', detail: 'Obavestenje uspesno uklonjeno.', life: 3000 });
-              this.getObavestenja();
-            })
-          }  
-        },
-        reject: () => {
-            this.messageService.add({ severity: 'error', summary: 'Ponisteno!', detail: 'Uklanjanje ponisteno.', life: 3000 });
-        }
+  getTeacher(id: number) {
+    this.teacherService.getById(id).subscribe(x => {
+      this.teacher = x;
     });
   }
 
-  obavestenjeDialog(){
+  getAnnouncements() {
+    this.notificationService.getAll().subscribe(x => {
+      this.courseAnnouncements = x;
+      this.filterAnnouncements();
+    });
+  }
+
+  filterAnnouncements(): void {
+    if (this.selectedCourseId !== undefined) {
+      this.filteredAnnouncements = this.courseAnnouncements.filter(a =>
+        a.course?.id === this.selectedCourseId
+      );
+    } else {
+      this.filteredAnnouncements = [];
+    }
+  }
+
+  removeAnnouncement(event: Event, announcement: Notification) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to remove this announcement?',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      accept: () => {
+        if (announcement.id) {
+          this.notificationService.delete(announcement.id).subscribe(() => {
+            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Announcement removed successfully.', life: 3000 });
+            this.getAnnouncements();
+          });
+        }
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
+      }
+    });
+  }
+
+  openAnnouncementDialog() {
     this.visible = true;
   }
 
-  dodajObavestenje(){
-    this.obavestenjeService.create(this.novoObavestenje).subscribe({
-      next: (response) => {
-        this.messageService.add({ severity: 'success', summary: 'Uspešno', detail: 'Obaveštenje je uspešno dodato!' });
-        this.getObavestenja();
+  addAnnouncement() {
+    this.notificationService.create(this.newAnnouncement).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Announcement added successfully!' });
+        this.getAnnouncements();
         this.visible = false;
         this.resetForm();
       },
-      error: (error) => {
-        this.messageService.add({ severity: 'error', summary: 'Greška', detail: 'Došlo je do greške prilikom dodavanja obaveštenja.' });
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding the announcement.' });
         this.resetForm();
       }
     });
   }
 
   resetForm() {
-    this.novoObavestenje = {
-      datum: new Date(),
-      sadrzaj: '',
-      naslov: '',
-      slika: '',
-      vremePocetka: new Date(),
-      vremeKraja: new Date(),
-      predmet: undefined
+    this.newAnnouncement = {
+      date: new Date(),
+      content: '',
+      title: '',
+      image: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      course: undefined
     };
   }
 
-  prilagodiDatum(date: any): string {
+  formatDate(date: any): string {
     let d: Date;
 
     if (typeof date === 'string') {
@@ -169,23 +166,19 @@ export class ObavestenjaProfComponent implements OnInit{
     } else if (date instanceof Date) {
       d = date;
     } else {
-      console.error('Nevalidan datum:', date);
       return '';
     }
-  
+
     if (isNaN(d.getTime())) {
-      console.error('Nevalidan datum:', date);
       return '';
     }
-  
+
     const hours = d.getUTCHours().toString().padStart(2, '0');
     const minutes = d.getUTCMinutes().toString().padStart(2, '0');
-  
     const day = d.getUTCDate().toString().padStart(2, '0');
-    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0'); 
+    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
     const year = d.getUTCFullYear();
-  
+
     return `${hours}:${minutes}, ${day}-${month}-${year}`;
   }
-
 }

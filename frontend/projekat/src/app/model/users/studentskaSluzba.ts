@@ -1,5 +1,5 @@
-import { RegistrovaniKorisnik } from "./registrovaniKorisnik";
+import { RegisteredUser } from './registrovaniKorisnik';
 
-export interface StudentskaSluzba extends RegistrovaniKorisnik{
+export interface StudentOffice extends RegisteredUser {
 
 }

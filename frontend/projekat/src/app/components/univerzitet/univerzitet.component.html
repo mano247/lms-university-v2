@@ -1,21 +1,20 @@
 <div class="content">
 
-    <h2>{{univerzitet.naziv}}</h2>
-    
-    <p>{{univerzitet.opis}}</p>
+    <h2>{{university.name}}</h2>
+
+    <p>{{university.description}}</p>
 
     <p-divider />
 
     <h4>Datum osnivanja</h4>
-    <p>{{ getDatum() }}</p> 
+    <p>{{ getFoundingDate() }}</p>
 
     <p-divider />
 
     <h3>Fakulteti pri univerzitetu</h3>
     <ul>
-        <li *ngFor="let f of fakulteti">
-           <!-- <a [routerLink]="['/fakultet', f.naziv]">{{f.naziv}}</a> -->
-           <a [routerLink]="['/fakultet', f.sifraFakulteta]">{{f.naziv}}</a>
+        <li *ngFor="let f of faculties">
+           <a [routerLink]="['/fakultet', f.facultyCode]">{{f.name}}</a>
         </li>
     </ul>
 
@@ -23,23 +22,23 @@
     <p-divider />
 
     <h3>Rektor</h3>
-    <p>{{univerzitet.rektorat.ime_rektora}}</p>
-    <p>{{univerzitet.rektorat.kontakt}}</p>
+    <p>{{university.rectorate.rectorName}}</p>
+    <p>{{university.rectorate.contact}}</p>
     <p-divider class="kraci_divider"/>
     <a [routerLink]="['/rektorat']">Stranica rektorata</a>
 
     <p-divider />
 
     <h3>Lokacija</h3>
-    <p>{{univerzitet.adresa}} </p>
+    <p>{{university.address}} </p>
     <div class="map-container">
         <iframe loading="lazy"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs" >   
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs" >
         </iframe>
     </div>
 
     <p-divider />
 
     <h3>Kontakt</h3>
-    <p>{{univerzitet.kontakt}}</p>
+    <p>{{university.contact}}</p>
 </div>

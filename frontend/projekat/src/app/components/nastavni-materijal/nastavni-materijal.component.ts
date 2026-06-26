@@ -1,13 +1,13 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { NastavniMaterijal } from '../../model/academic/nastavniMaterijal';
+import { CourseMaterial } from '../../model/academic/nastavniMaterijal';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { NastavniMaterijalService } from '../../services/nastavni-materijal.service';
+import { CourseMaterialService } from '../../services/nastavni-materijal.service';
 import { DividerModule } from 'primeng/divider';
 import { NgFor } from '@angular/common';
-import { FakultetService } from '../../services/fakultet.service';
-import { PredmetService } from '../../services/predmet.service';
-import { StudijskiProgramService } from '../../services/studijski-program.service';
-import { Predmet } from '../../model/academic/predmet';
+import { FacultyService } from '../../services/fakultet.service';
+import { CourseService } from '../../services/predmet.service';
+import { StudyProgramService } from '../../services/studijski-program.service';
+import { Course } from '../../model/academic/predmet';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -17,76 +17,77 @@ import { Predmet } from '../../model/academic/predmet';
   templateUrl: './nastavni-materijal.component.html',
   styleUrl: './nastavni-materijal.component.css'
 })
-export class NastavniMaterijalComponent implements OnInit{
-  fakultetSifra: string | null = null;
-  sifraSP: string | null = null;
-  sifraPredmeta: string | null = null;
-  materijalNaziv: string | null = null;
+export class NastavniMaterijalComponent implements OnInit {
+  facultyCode: string | null = null;
+  studyProgramCode: string | null = null;
+  courseCode: string | null = null;
+  materialTitle: string | null = null;
 
-  fakultetNaziv: string | null = null;
-  programNaziv: string | null = null;
-  predmet: Predmet = {
-    silabus: '',
-    naziv: '',
-    espb: 0,
-    vremePocetka: new Date,
-    vremeKraja: new Date,
-    opis: '',
-    nastavniMaterijal: [],
-    polaganje: [],
-    nastavnik: undefined,
-    studenti: [],
-    obavestenja: [],
-    smer: '',
-    sifraPredmeta: '',
-  }
+  facultyName: string | null = null;
+  programName: string | null = null;
+  course: Course = {
+    syllabus: '',
+    name: '',
+    ects: 0,
+    startDate: new Date(),
+    endDate: new Date(),
+    description: '',
+    teachingMaterials: [],
+    examAttempts: [],
+    teacher: undefined,
+    students: [],
+    announcements: [],
+    studyProgram: '',
+    courseCode: ''
+  };
 
-  materijal: NastavniMaterijal | null = null;
+  material: CourseMaterial | null = null;
 
-
-  constructor(private route: ActivatedRoute, private fakultetService: FakultetService, 
-    private predmetService: PredmetService, private smerService: StudijskiProgramService){}
+  constructor(
+    private route: ActivatedRoute,
+    private facultyService: FacultyService,
+    private courseService: CourseService,
+    private studyProgramService: StudyProgramService
+  ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      this.fakultetSifra = params.get('sifraFakulteta');
-      this.sifraSP = params.get('sifraSP');
-      this.sifraPredmeta = params.get('sifraPredmeta');
-      this.materijalNaziv = params.get('nMaterijalNaziv');
+      this.facultyCode = params.get('sifraFakulteta');
+      this.studyProgramCode = params.get('sifraSP');
+      this.courseCode = params.get('sifraPredmeta');
+      this.materialTitle = params.get('nMaterijalNaziv');
     });
-    this.getFakultet();
-    this.getSmer();
-    this.getPredmet();
+    this.getFaculty();
+    this.getStudyProgram();
+    this.getCourse();
   }
 
-
-  getFakultet(){  
-    if(this.fakultetSifra !== null){
-      this.fakultetService.getBySifra(this.fakultetSifra).subscribe(x=>{
-        this.fakultetNaziv = x.naziv;
-      })
+  getFaculty() {
+    if (this.facultyCode !== null) {
+      this.facultyService.getByCode(this.facultyCode).subscribe(x => {
+        this.facultyName = x.name;
+      });
     }
   }
 
-  getPredmet(){
-    if(this.sifraPredmeta !== null){
-      this.predmetService.getBySifra(this.sifraPredmeta).subscribe(x=>{
-        this.predmet = x;
-        if (this.materijalNaziv) {
-          this.materijal = this.predmet.nastavniMaterijal.find(m => m.naslov === this.materijalNaziv) || null;
+  getCourse() {
+    if (this.courseCode !== null) {
+      this.courseService.getByCode(this.courseCode).subscribe(x => {
+        this.course = x;
+        if (this.materialTitle) {
+          this.material = this.course.teachingMaterials.find(m => m.title === this.materialTitle) || null;
         } else {
-          this.materijal = null; 
+          this.material = null;
         }
-      })
+      });
     }
   }
 
-  getSmer(){
-    if(this.sifraSP !== null){
-      this.smerService.getBySifra(this.sifraSP).subscribe(x=>{
-        this.programNaziv = x.naziv;
-      })
+  getStudyProgram() {
+    if (this.studyProgramCode !== null) {
+      this.studyProgramService.getByCode(this.studyProgramCode).subscribe(x => {
+        this.programName = x.name;
+      });
     }
   }
-
 }

@@ -1,39 +1,39 @@
 <div class="content">
-    <h2>Organizacija</h2>
-    <p-button label="izmeni" (onClick)="izmeniDialog()"/>
-    <p><span>naziv: </span> <br> {{univerzitet?.naziv}}</p>
-    <p><span>datum osnivanja:</span> <br> {{univerzitet?.datumOsnivanja}}</p>
-    <p><span>rektor:</span> <br> {{univerzitet?.rektorat?.ime_rektora}}</p>
-    <p><span>loakcija:</span> <br> {{univerzitet?.adresa}}</p>
-    <p><span>kontakt:</span> <br> {{univerzitet?.kontakt}}</p>
-    <p><span>opis:</span> <br> {{univerzitet?.opis}}</p>
+    <h2>Organisation</h2>
+    <p-button label="Edit" (onClick)="openEditDialog()"/>
+    <p><span>Name: </span> <br> {{university?.name}}</p>
+    <p><span>Founded:</span> <br> {{university?.foundingDate}}</p>
+    <p><span>Rector:</span> <br> {{university?.rectorate?.rectorName}}</p>
+    <p><span>Location:</span> <br> {{university?.address}}</p>
+    <p><span>Contact:</span> <br> {{university?.contact}}</p>
+    <p><span>Description:</span> <br> {{university?.description}}</p>
 
-    <p-dialog header="Izmeni" [(visible)]="visible" modal="modal" [closable]="true">
+    <p-dialog header="Edit" [(visible)]="visible" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="naziv">naziv</label>
-                <input id="naziv" type="text" pInputText [(ngModel)]="univerzitetZaIzmenu.naziv" />
+                <label for="name">Name</label>
+                <input id="name" type="text" pInputText [(ngModel)]="universityForEdit.name" />
             </div>
             <div class="p-field">
-                <label for="opis">opis</label>
-                <textarea id="opis" name="opis" [(ngModel)]="univerzitetZaIzmenu.opis" required></textarea>
+                <label for="description">Description</label>
+                <textarea id="description" name="description" [(ngModel)]="universityForEdit.description" required></textarea>
             </div>
             <div class="p-field">
-                <label for="datumOsnivanja">datum osnivanja</label>
-                <p-calendar id="datumOsnivanja" name="datumOsnivanja" [(ngModel)]="univerzitetZaIzmenu.datumOsnivanja" [showTime]="true" required></p-calendar>
+                <label for="foundingDate">Founded</label>
+                <p-calendar id="foundingDate" name="foundingDate" [(ngModel)]="universityForEdit.foundingDate" [showTime]="true" required></p-calendar>
             </div>
             <div class="p-field">
-                <label for="adresa">adresa</label>
-                <textarea id="adresa" name="adresa" [(ngModel)]="univerzitetZaIzmenu.adresa" required></textarea>
+                <label for="address">Address</label>
+                <textarea id="address" name="address" [(ngModel)]="universityForEdit.address" required></textarea>
             </div>
             <div class="p-field">
-                <label for="kontakt">kontakt</label>
-                <textarea id="kontakt" name="kontakt" [(ngModel)]="univerzitetZaIzmenu.kontakt" required></textarea>
+                <label for="contact">Contact</label>
+                <textarea id="contact" name="contact" [(ngModel)]="universityForEdit.contact" required></textarea>
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="izmena()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="ponistiDialog()" class="p-button-secondary" />
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="saveChanges()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="cancelDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
 

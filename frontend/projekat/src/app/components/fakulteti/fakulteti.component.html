@@ -1,14 +1,14 @@
 <div class="content" >
     <h2>Fakulteti</h2>
     <div class="kartice">
-        <p-card header="{{f.naziv}}" [style]="{ height: '400px' }"  *ngFor="let f of fakulteti">
+        <p-card header="{{f.name}}" [style]="{ height: '400px' }"  *ngFor="let f of faculties">
             <ng-template pTemplate="header">
-                <img alt="slika fakulteta" src="{{f.slika}}" />
+                <img alt="slika fakulteta" src="{{f.image}}" />
             </ng-template>
             <p>
-                {{skraceniOpis(f.tekstualniOpis)}}
+                {{truncateDescription(f.description)}}
             </p>
-            <p-button label="Saznaj vise" (onClick)="detaljnije(f)" [rounded]="true" severity="info" [raised]="true" class="button"/>
+            <p-button label="Saznaj vise" (onClick)="goToFaculty(f)" [rounded]="true" severity="info" [raised]="true" class="button"/>
         </p-card>
     </div>
 </div>

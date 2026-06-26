@@ -1,15 +1,15 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { NastavniMaterijal } from '../../../model/academic/nastavniMaterijal';
-import { StudentskaSluzbaService } from '../../../services/studentska-sluzba.service';
+import { CourseMaterial } from '../../../model/academic/nastavniMaterijal';
+import { StudentOfficeService } from '../../../services/studentska-sluzba.service';
 import { TableModule } from 'primeng/table';
 import { NgClass, NgIf } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { NastavniMaterijalService } from '../../../services/nastavni-materijal.service';
+import { CourseMaterialService } from '../../../services/nastavni-materijal.service';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
-import { PredmetService } from '../../../services/predmet.service';
-import { Predmet } from '../../../model/academic/predmet';
+import { CourseService } from '../../../services/predmet.service';
+import { Course } from '../../../model/academic/predmet';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -23,138 +23,121 @@ import { MessageService } from 'primeng/api';
   styleUrl: './ss-biblioteka.component.css',
   providers: [MessageService]
 })
-export class SsBibliotekaComponent implements OnInit{
-  uzdbenici: NastavniMaterijal[] = [];
-  filtriraniUdzbenici: NastavniMaterijal[] = [];
+export class SsBibliotekaComponent implements OnInit {
+  textbooks: CourseMaterial[] = [];
+  filteredTextbooks: CourseMaterial[] = [];
 
   visible: boolean = false;
-  dodajVisible: boolean = false;
+  addDialog: boolean = false;
 
-  udzbenikZaIzmenu: any;
+  textbookForEdit: any;
+  additionalQuantity = 0;
+  courses: Course[] = [];
+  newTextbook: any = {};
 
-  novaKolicina = 0
+  search: any = {
+    title: '',
+    author: ''
+  };
 
-  predmeti: Predmet[] = [];
-
-  noviUdzbenik:any = {};
-
-  pretraga: any = {
-    naslov: "",
-    autor: ""
-  }
-
-  constructor(private ssluzbaService: StudentskaSluzbaService, private udzbenikService: NastavniMaterijalService, private predmetService: PredmetService,
+  constructor(
+    private studentOfficeService: StudentOfficeService,
+    private textbookService: CourseMaterialService,
+    private courseService: CourseService,
     private messageService: MessageService
-  ){}
+  ) {}
 
   ngOnInit(): void {
-    this.getUdzbenici();
-    this.getPredmeti();
+    this.getTextbooks();
+    this.getCourses();
   }
 
-  getUdzbenici() {
-    this.ssluzbaService.getUdzbenici().subscribe(x => {
-      this.uzdbenici = x;
-      this.uzdbenici.sort((a, b) => {
-        if (a.kolicina <= 10 && b.kolicina > 10) {
+  getTextbooks() {
+    this.studentOfficeService.getTextbooks().subscribe(x => {
+      this.textbooks = x;
+      this.textbooks.sort((a, b) => {
+        if (a.quantity <= 10 && b.quantity > 10) {
           return -1;
-        } else if (a.kolicina > 10 && b.kolicina <= 10) {
+        } else if (a.quantity > 10 && b.quantity <= 10) {
           return 1;
         } else {
-          return a.kolicina - b.kolicina;
+          return a.quantity - b.quantity;
         }
       });
-      this.filtriraniUdzbenici = this.uzdbenici;
+      this.filteredTextbooks = this.textbooks;
     });
   }
 
-  getPredmeti(){
-    this.predmetService.getAll().subscribe(x=>{
-      this.predmeti = x;
-    })
+  getCourses() {
+    this.courseService.getAll().subscribe(x => {
+      this.courses = x;
+    });
   }
 
-  izdajUdzbenik(udzbenik: NastavniMaterijal){
-    if (udzbenik.kolicina <= 0) {
+  issueTextbook(textbook: CourseMaterial) {
+    if (textbook.quantity <= 0) {
       return;
-    }else{
-      const updatedUdzbenik = { ...udzbenik, kolicina: udzbenik.kolicina - 1 };
-      if(updatedUdzbenik.id){
-        this.udzbenikService.update(updatedUdzbenik.id, updatedUdzbenik).subscribe(x=>{
-          this.getUdzbenici();
-        })
+    } else {
+      const updated = { ...textbook, quantity: textbook.quantity - 1 };
+      if (updated.id) {
+        this.textbookService.update(updated.id, updated).subscribe(() => {
+          this.getTextbooks();
+        });
       }
     }
   }
 
-  trebujUdzbenik(udzbenik: NastavniMaterijal){
+  requestTextbook(textbook: CourseMaterial) {
     this.visible = true;
-    this.udzbenikZaIzmenu = udzbenik;
+    this.textbookForEdit = textbook;
   }
 
-  trebovanjeUdzbenika(){
-    const novaKolicina = Number(this.udzbenikZaIzmenu.kolicina) + Number(this.novaKolicina);
-    const updatedUdzbenik = { ...this.udzbenikZaIzmenu, kolicina: novaKolicina};
-    this.udzbenikService.update(updatedUdzbenik.id, updatedUdzbenik).subscribe(x=>{
-      this.messageService.add({
-        severity: 'success', 
-        summary: 'Kolicina uvecana', 
-        detail: 'Kolicina uvecana'
-      });
+  processRequest() {
+    const newQuantity = Number(this.textbookForEdit.quantity) + Number(this.additionalQuantity);
+    const updated = { ...this.textbookForEdit, quantity: newQuantity };
+    this.textbookService.update(updated.id, updated).subscribe(() => {
+      this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Quantity increased.' });
       this.visible = false;
-      this.getUdzbenici();
-      this.novaKolicina = 0;
-    })
+      this.getTextbooks();
+      this.additionalQuantity = 0;
+    });
   }
 
-  hideDialog(){
+  closeDialog() {
     this.visible = false;
   }
 
-  udzbenikForma(){
-    this.dodajVisible = true;
+  openAddDialog() {
+    this.addDialog = true;
   }
 
-  dodajUdzbenik(){
-    this.udzbenikService.create(this.noviUdzbenik).subscribe({
-      next: (x) => {
-        this.messageService.add({
-          severity: 'success', 
-          summary: 'Udžbenik dodat', 
-          detail: 'Udžbenik je uspešno dodat.'
-        });
-        this.noviUdzbenik = {}; 
-        this.getUdzbenici();    
-        this.hideDialogUdzbenik();
+  addTextbook() {
+    this.textbookService.create(this.newTextbook).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Textbook added successfully.' });
+        this.newTextbook = {};
+        this.getTextbooks();
+        this.closeAddDialog();
       },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error', 
-          summary: 'Greška', 
-          detail: 'Došlo je do greške pri dodavanju udžbenika.'
-        });
-        console.error('Greška:', err); 
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding textbook.' });
       }
     });
   }
 
-  hideDialogUdzbenik(){
-    this.dodajVisible = false;
+  closeAddDialog() {
+    this.addDialog = false;
   }
 
-  pretraziUdzbenike(){
-    this.filtriraniUdzbenici = this.uzdbenici.filter(u =>
-      (this.pretraga.naslov ? u.naslov.toLowerCase().includes(this.pretraga.naslov.toLowerCase()) : true) &&
-      (this.pretraga.autor ? u.autori.toLowerCase().includes(this.pretraga.autor.toLowerCase()) : true)
+  searchTextbooks() {
+    this.filteredTextbooks = this.textbooks.filter(u =>
+      (this.search.title ? u.title.toLowerCase().includes(this.search.title.toLowerCase()) : true) &&
+      (this.search.author ? u.authors.toLowerCase().includes(this.search.author.toLowerCase()) : true)
     );
   }
 
-  ponistiPretragu(){
-    this.pretraga = { 
-      naslov: "",
-      autor: "" 
-    };
-    this.filtriraniUdzbenici = this.uzdbenici;
+  clearSearch() {
+    this.search = { title: '', author: '' };
+    this.filteredTextbooks = this.textbooks;
   }
-
 }

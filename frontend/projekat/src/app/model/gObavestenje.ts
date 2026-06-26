@@ -1,9 +1,9 @@
-export interface GObavestenje{
-    id?: number; 
-    datum: Date; 
-    sadrzaj: string; 
-    naslov: string;
-    slika: string;
-    vremePocetka: Date; 
-    vremeKraja: Date; 
+export interface GlobalNotification {
+    id?: number;
+    date: Date;
+    content: string;
+    title: string;
+    image: string;
+    startDate: Date;
+    endDate: Date;
 }

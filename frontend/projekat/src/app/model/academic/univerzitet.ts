@@ -1,14 +1,12 @@
-import { Rektorat } from "../rektorat";
-import { Nastavnik } from "../users/nastavnik";
-import { Fakultet } from "./fakultet";
+import { Rectorate } from '../rektorat';
 
-export interface Univerzitet{
+export interface University {
     id?: number;
-    naziv: string;
-    datumOsnivanja: Date;
-    opis: string;
-    kontakt: string;
-    slika: string;
-    adresa: string;
-    rektorat: Rektorat;
+    name: string;
+    foundingDate: Date;
+    description: string;
+    contact: string;
+    image: string;
+    address: string;
+    rectorate: Rectorate;
 }

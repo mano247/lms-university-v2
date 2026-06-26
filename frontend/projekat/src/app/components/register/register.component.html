@@ -1,0 +1,133 @@
+<main class="reg-page">
+  <div class="reg-wrapper">
+
+    <!-- Side rail (academic branding) -->
+    <div class="reg-rail" aria-hidden="true">
+      <div class="rail-top">
+        <mat-icon class="rail-icon">account_balance</mat-icon>
+        <div class="rail-divider"></div>
+      </div>
+      <span class="rail-label">Est. 1892</span>
+    </div>
+
+    <!-- Form content -->
+    <div class="reg-content">
+
+      <header class="reg-header">
+        <h1 class="reg-title">Create Account</h1>
+        <p class="reg-subtitle">
+          After registration, a Student Affairs Office will complete your enrollment.
+        </p>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="register()" class="reg-form" novalidate>
+
+        <!-- Name row -->
+        <div class="field-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" placeholder="Jane" autocomplete="given-name"/>
+            <mat-error *ngIf="firstNameCtrl.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="firstNameCtrl.hasError('minlength')">Min 2 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" placeholder="Doe" autocomplete="family-name"/>
+            <mat-error *ngIf="lastNameCtrl.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="lastNameCtrl.hasError('minlength')">Min 2 characters</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Username -->
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="username" placeholder="jdoe_ashford" autocomplete="username"/>
+          <mat-error *ngIf="usernameCtrl.hasError('required')">Required</mat-error>
+          <mat-error *ngIf="usernameCtrl.hasError('minlength')">Min 4 characters</mat-error>
+          <mat-error *ngIf="usernameCtrl.hasError('pattern')">No spaces allowed</mat-error>
+        </mat-form-field>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline">
+          <mat-label>Email Address</mat-label>
+          <mat-icon matPrefix>mail</mat-icon>
+          <input matInput type="email" formControlName="email" placeholder="jane.doe@ashford.edu" autocomplete="email"/>
+          <mat-error *ngIf="emailCtrl.hasError('required')">Required</mat-error>
+          <mat-error *ngIf="emailCtrl.hasError('email')">Invalid email address</mat-error>
+        </mat-form-field>
+
+        <!-- Password row -->
+        <div class="field-row">
+
+          <div class="password-field-wrap">
+            <mat-form-field appearance="outline">
+              <mat-label>Password</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
+              <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" autocomplete="new-password"/>
+              <button mat-icon-button matSuffix type="button" (click)="togglePassword()">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="passwordCtrl.hasError('required')">Required</mat-error>
+              <mat-error *ngIf="passwordCtrl.hasError('minlength')">Min 8 characters</mat-error>
+            </mat-form-field>
+            <!-- Strength indicator -->
+            <div class="strength-bar-wrap" *ngIf="passwordCtrl.value">
+              <div class="strength-bar">
+                <div
+                  class="strength-fill"
+                  [class]="'strength-fill--' + passwordStrength"
+                  [style.width]="passwordStrengthWidth"
+                ></div>
+              </div>
+              <span class="strength-label" [class]="'strength-label--' + passwordStrength">
+                {{ passwordStrength | titlecase }}
+              </span>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Confirm Password</mat-label>
+            <mat-icon matPrefix>lock_reset</mat-icon>
+            <input matInput [type]="showConfirm ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" autocomplete="new-password"/>
+            <button mat-icon-button matSuffix type="button" (click)="toggleConfirm()">
+              <mat-icon>{{ showConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="confirmCtrl.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="form.hasError('passwordMismatch') && confirmCtrl.touched">
+              Passwords do not match
+            </mat-error>
+          </mat-form-field>
+
+        </div>
+
+        <!-- API error -->
+        <div class="reg-error" *ngIf="errorMessage">
+          <mat-icon>error_outline</mat-icon>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Submit -->
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="reg-submit"
+          [disabled]="isLoading"
+        >
+          <mat-spinner *ngIf="isLoading" diameter="20" color="accent"></mat-spinner>
+          <span *ngIf="!isLoading">Create Account</span>
+          <mat-icon *ngIf="!isLoading">arrow_forward</mat-icon>
+          <span *ngIf="isLoading">Processing…</span>
+        </button>
+
+        <!-- Login link -->
+        <div class="reg-footer">
+          <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>

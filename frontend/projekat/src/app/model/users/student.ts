@@ -1,11 +1,11 @@
-import { Predmet } from "../academic/predmet";
-import { GodinaStudija } from "../godinaStudija";
-import { Polaganje } from "../polaganje";
-import { RegistrovaniKorisnik } from "./registrovaniKorisnik";
+import { Course } from '../academic/predmet';
+import { StudyYear } from '../godinaStudija';
+import { ExamAttempt } from '../polaganje';
+import { RegisteredUser } from './registrovaniKorisnik';
 
-export interface Student extends RegistrovaniKorisnik{
-    brojIndeksa: string;
-    godinaStudija: GodinaStudija[]; 
-    polaganja: Polaganje[]; 
-    predmet: Predmet[]; // ispraviti sa predmet na predmeti
+export interface Student extends RegisteredUser {
+    indexNumber: string;
+    studyYears: StudyYear[];
+    examAttempts: ExamAttempt[];
+    courses: Course[];
 }

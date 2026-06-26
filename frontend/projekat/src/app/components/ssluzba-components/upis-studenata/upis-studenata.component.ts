@@ -4,23 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TableModule } from 'primeng/table';
-import { StudentskaSluzbaService } from '../../../services/studentska-sluzba.service';
-import { StudentiService } from '../../../services/studenti.service';
+import { StudentOfficeService } from '../../../services/studentska-sluzba.service';
+import { StudentService } from '../../../services/studenti.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { RegistrovaniKorisnik } from '../../../model/users/registrovaniKorisnik';
+import { RegisteredUser } from '../../../model/users/registrovaniKorisnik';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { DialogModule } from 'primeng/dialog';
-import { Fakultet } from '../../../model/academic/fakultet';
-import { FakultetService } from '../../../services/fakultet.service';
+import { Faculty } from '../../../model/academic/fakultet';
+import { FacultyService } from '../../../services/fakultet.service';
 import { DropdownModule } from 'primeng/dropdown';
-import { RegistrovaniKorisnikService } from '../../../services/registrovani-korisnik.service';
+import { RegisteredUserService } from '../../../services/registrovani-korisnik.service';
 import { Student } from '../../../model/users/student';
-import { PredmetComponent } from '../../predmet/predmet.component';
-import { PredmetService } from '../../../services/predmet.service';
-import { Predmet } from '../../../model/academic/predmet';
-import { StudijskiProgramService } from '../../../services/studijski-program.service';
-import { StudijskiProgram } from '../../../model/academic/studijskiProgram';
+import { CourseService } from '../../../services/predmet.service';
+import { Course } from '../../../model/academic/predmet';
+import { StudyProgramService } from '../../../services/studijski-program.service';
+import { StudyProgram } from '../../../model/academic/studijskiProgram';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -31,204 +30,168 @@ import { StudijskiProgram } from '../../../model/academic/studijskiProgram';
   styleUrl: './upis-studenata.component.css',
   providers: [MessageService]
 })
-export class UpisStudenataComponent implements OnInit{
+export class UpisStudenataComponent implements OnInit {
   visible: boolean = false;
-  upisVisible: boolean = false;
+  enrollDialog: boolean = false;
 
-  studenti: Student[] = [];
-  filtriraniStudenti: Student[] = [];
+  students: Student[] = [];
+  filteredStudents: Student[] = [];
 
-  predmeti: Predmet[] = [];
-  smerovi: StudijskiProgram[] = [];
+  courses: Course[] = [];
+  studyPrograms: StudyProgram[] = [];
 
-  upisNaGodinuVisible: boolean = false;
-  studentZaGodinu:any = {};
-  studentZaUpisNaGodinu:any = {};
+  yearEnrollmentDialog: boolean = false;
+  studentForYear: any = {};
+  yearEnrollmentData: any = {};
 
-  fakulteti: Fakultet[] = [];
+  faculties: Faculty[] = [];
+  selectedStudent: any = {};
+  users: any[] = [];
+  userForEnrollment: any = {};
+  enrollments: any = {};
 
-  izabraniStudent:any = {};
+  newStudent: any = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    password: '',
+    faculty: undefined
+  };
 
-  korisnici: any[] = [];
+  programForEnrollment: any = {};
+  firstYear: any = { id: 1, year: 1 };
 
-  postojeciZaUpis: any = {};
+  userSearch: any = {
+    username: '',
+    email: ''
+  };
 
-  upisi:any = {};
+  studentSearch: any = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    indexNumber: ''
+  };
 
-  noviStudent: any = {
-    ime: "",
-    prezime: "",
-    email: "",
-    korisnicko_ime: "",
-    lozinka: "",
-    fakultet: undefined
-  }
+  studyYears: any = [
+    { label: 'first', id: 1, year: 1 },
+    { label: 'second', id: 2, year: 2 },
+    { label: 'third', id: 3, year: 3 },
+    { label: 'fourth', id: 4, year: 4 }
+  ];
 
-  smerZaUpis: any = {};
-  prvaGodina: any = {
-    id: 1,
-    godina: 1
-  }
+  filteredUsers: any[] = [];
 
-  pretraga: any = {
-    korisnicko_ime: "",
-    email: ""
-  }
-  pretragaStudenta: any = {
-    ime: "",
-    prezime: "",
-    email: "",
-    brojIndeksa: ""
-  }
-  godinaStudija:any = [
-    {
-      naziv: "prva",
-      id: 1,
-      godina: 1
-    },
-    {
-      naziv: "druga",
-      id: 2,
-      godina: 2
-    },
-    {
-      naziv: "treca",
-      id: 3,
-      godina: 3
-    },
-    {
-      naziv: "cetvrta",
-      id: 4,
-      godina: 4
-    },
-
-  ]
-
-  filtriraniKorisnici: any[] = []; 
-
-  constructor(private ssluzbaService: StudentskaSluzbaService, private studentService: StudentiService, private messageService: MessageService,
-    private fakultetService: FakultetService, private rkService: RegistrovaniKorisnikService, 
-    private predmetService: PredmetService, private smerService: StudijskiProgramService){}
+  constructor(
+    private studentOfficeService: StudentOfficeService,
+    private studentService: StudentService,
+    private messageService: MessageService,
+    private facultyService: FacultyService,
+    private registeredUserService: RegisteredUserService,
+    private courseService: CourseService,
+    private studyProgramService: StudyProgramService
+  ) {}
 
   ngOnInit(): void {
-    this.getKorisnici();
-    this.getFakulteti();
-    this.getStudenti();
-    this.getPredmeti();
-    this.getSmerovi();
+    this.getUsers();
+    this.getFaculties();
+    this.getStudents();
+    this.getCourses();
+    this.getStudyPrograms();
   }
 
-  getSmerovi(){
-    this.smerService.getAll().subscribe(x=>{
-      this.smerovi = x;
-    })
+  getStudyPrograms() {
+    this.studyProgramService.getAll().subscribe(x => {
+      this.studyPrograms = x;
+    });
   }
 
-  getKorisnici(){
-    this.ssluzbaService.getKorisnici().subscribe(x=>{
-      this.korisnici = x.filter(korisnik => korisnik.tipZaIzmenu === 'RegistrovaniKorisnik');
-      this.filtriraniKorisnici = this.korisnici;
-    })
+  getUsers() {
+    this.studentOfficeService.getUsers().subscribe(x => {
+      this.users = x.filter((user: any) => user.tipZaIzmenu === 'RegistrovaniKorisnik');
+      this.filteredUsers = this.users;
+    });
   }
 
-  getFakulteti(){
-    this.fakultetService.getAll().subscribe(x=>{
-      this.fakulteti = x;
-    })
+  getFaculties() {
+    this.facultyService.getAll().subscribe(x => {
+      this.faculties = x;
+    });
   }
 
-  getStudenti(){
-    this.studentService.getAll().subscribe(x=>{
-      this.studenti = x;
-      this.filtriraniStudenti = this.studenti;
-
-    })
+  getStudents() {
+    this.studentService.getAll().subscribe(x => {
+      this.students = x;
+      this.filteredStudents = this.students;
+    });
   }
 
-  getPredmeti(){
-    this.predmetService.getAll().subscribe(x=>{
-      this.predmeti = x;
-    })
+  getCourses() {
+    this.courseService.getAll().subscribe(x => {
+      this.courses = x;
+    });
   }
 
-  upisiPostojecegStudenta(korisnik: RegistrovaniKorisnik){
-    this.postojeciZaUpis = korisnik;
-    this.postojeciZaUpis = {...this.postojeciZaUpis}  
-    this.upisVisible = true;
+  openEnrollExistingUser(user: RegisteredUser) {
+    this.userForEnrollment = user;
+    this.userForEnrollment = { ...this.userForEnrollment };
+    this.enrollDialog = true;
   }
 
-  upisiPostojeceg(){
-      this.rkService.dodeliStudenta(this.postojeciZaUpis.id, this.postojeciZaUpis).subscribe({
-        next: (response) => {
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Upis uspešan', 
-            detail: 'Postojeći student je uspešno upisan.' 
-          });
-          this.smerZaUpis = {};
-          this.getKorisnici();
-          this.hideDialogPostojeci();
-          this.getStudenti();
-          this.postojeciZaUpis = {};
-        },
-        error: (err) => {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Greška', 
-            detail: 'Došlo je do greške pri upisu postojećeg studenta.' 
-          });
-          console.error('Došlo je do greške:', err);
-        }
-      })
+  enrollExistingUser() {
+    this.registeredUserService.assignStudent(this.userForEnrollment.id, this.userForEnrollment).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Enrolled', detail: 'Student enrolled successfully.' });
+        this.programForEnrollment = {};
+        this.getUsers();
+        this.closeEnrollDialog();
+        this.getStudents();
+        this.userForEnrollment = {};
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while enrolling student.' });
+      }
+    });
   }
 
-  hideDialogPostojeci(){
-    this.upisVisible = false;
+  closeEnrollDialog() {
+    this.enrollDialog = false;
   }
 
-  ponistiFormu(){
-    this.noviStudent = {
-      ime: "",
-      prezime: "",
-      email: "",
-      korisnicko_ime: "",
-      lozinka: "",
-      fakultet: undefined
-    }
+  resetForm() {
+    this.newStudent = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      username: '',
+      password: '',
+      faculty: undefined
+    };
   }
 
-  pretraziKorisnike(){
-    this.filtriraniKorisnici = this.korisnici.filter(k =>
-      (this.pretraga.korisnicko_ime ? k.korisnickoIme.toLowerCase().includes(this.pretraga.korisnicko_ime.toLowerCase()) : true) &&
-      (this.pretraga.email ? k.email.toLowerCase().includes(this.pretraga.email.toLowerCase()) : true)
+  searchUsers() {
+    this.filteredUsers = this.users.filter((u: any) =>
+      (this.userSearch.username ? u.username.toLowerCase().includes(this.userSearch.username.toLowerCase()) : true) &&
+      (this.userSearch.email ? u.email.toLowerCase().includes(this.userSearch.email.toLowerCase()) : true)
     );
   }
 
-  ponistiPretragu(){
-    this.filtriraniKorisnici = this.korisnici;
-    this.pretraga = {
-      korisnicko_ime: "",
-      email: ""
-    }
-
-    this.filtriraniStudenti = this.studenti;
-    this.pretragaStudenta = {
-      ime: "",
-      prezime: "",
-      email: "",
-      brojIndeksa: ""
-    }
+  clearSearch() {
+    this.filteredUsers = this.users;
+    this.userSearch = { username: '', email: '' };
+    this.filteredStudents = this.students;
+    this.studentSearch = { firstName: '', lastName: '', email: '', indexNumber: '' };
   }
 
-
-  pretraziStudente(){
-    this.filtriraniStudenti = this.studenti.filter(s => {
-      if (s && s.ime && s.prezime && s.brojIndeksa && s.email) {
+  searchStudents() {
+    this.filteredStudents = this.students.filter(s => {
+      if (s && s.firstName && s.lastName && s.indexNumber && s.email) {
         return (
-          (this.pretragaStudenta.ime ? s.ime.toLowerCase().includes(this.pretragaStudenta.ime.toLowerCase()) : true) &&
-          (this.pretragaStudenta.prezime ? s.prezime.toLowerCase().includes(this.pretragaStudenta.prezime.toLowerCase()) : true) &&
-          (this.pretragaStudenta.email ? s.email.toLowerCase().includes(this.pretragaStudenta.email.toLowerCase()) : true) &&
-          (this.pretragaStudenta.brojIndeksa ? s.brojIndeksa.toLowerCase().includes(this.pretragaStudenta.brojIndeksa.toLowerCase()) : true)
+          (this.studentSearch.firstName ? s.firstName.toLowerCase().includes(this.studentSearch.firstName.toLowerCase()) : true) &&
+          (this.studentSearch.lastName ? s.lastName.toLowerCase().includes(this.studentSearch.lastName.toLowerCase()) : true) &&
+          (this.studentSearch.email ? s.email.toLowerCase().includes(this.studentSearch.email.toLowerCase()) : true) &&
+          (this.studentSearch.indexNumber ? s.indexNumber.toLowerCase().includes(this.studentSearch.indexNumber.toLowerCase()) : true)
         );
       } else {
         return false;
@@ -236,35 +199,37 @@ export class UpisStudenataComponent implements OnInit{
     });
   }
 
-  upisNaGodinu(student: Student){
-    this.upisNaGodinuVisible = true;
-    this.studentZaGodinu = student;
-    if(student.id){
-      this.studentService.getUpisi(student.id).subscribe(x=>{
-        this.upisi = x;
-        console.log(this.upisi);
-      })
-
+  openYearEnrollmentDialog(student: Student) {
+    this.yearEnrollmentDialog = true;
+    this.studentForYear = student;
+    if (student.id) {
+      this.studentService.getEnrollments(student.id).subscribe(x => {
+        this.enrollments = x;
+      });
     }
   }
 
-  upisiNaGodinu(){
-    const zaGodinu = {datumUpisa: new Date(), godinaStudija: this.studentZaUpisNaGodinu.godinaStudija, student: this.studentZaGodinu,
-       studijskiProgram: {id:this.studentZaUpisNaGodinu.studijskiProgram.id} }
-    const student = {id:this.studentZaGodinu.id}
-    this.studentService.upisiNaGodinu(zaGodinu).subscribe(x=>{
-      this.studentService.dodajStudentaNaPredmet(this.studentZaUpisNaGodinu.studijskiProgram.id, student).subscribe(x=>{});
-      this.messageService.add({severity: 'success', summary: 'Uspešno', detail: 'Student upisan na godinu.'});
-      this.hideDialogUpisNaGodinu();
-      this.studentZaGodinu = {};
-      this.studentZaUpisNaGodinu = {};
-    }, error => {
-      this.messageService.add({severity: 'error', summary: 'Greška', detail: 'Došlo je do greške prilikom upisa na godinu.'});
-    })
+  enrollInYear() {
+    const enrollmentData = {
+      enrollmentDate: new Date(),
+      studyYear: this.yearEnrollmentData.studyYear,
+      student: this.studentForYear,
+      studyProgram: { id: this.yearEnrollmentData.studyProgram.id }
+    };
+    const studentRef = { id: this.studentForYear.id };
+    this.studentService.enrollInYear(enrollmentData).subscribe(x => {
+      this.studentService.addStudentToCourse(this.yearEnrollmentData.studyProgram.id, studentRef).subscribe(() => {});
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Student enrolled in year successfully.' });
+      this.closeYearEnrollmentDialog();
+      this.studentForYear = {};
+      this.yearEnrollmentData = {};
+    }, () => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while enrolling student in year.' });
+    });
   }
 
-  hideDialogUpisNaGodinu(){
-    this.upisNaGodinuVisible = false;
-    this.studentZaGodinu = {};
+  closeYearEnrollmentDialog() {
+    this.yearEnrollmentDialog = false;
+    this.studentForYear = {};
   }
 }
