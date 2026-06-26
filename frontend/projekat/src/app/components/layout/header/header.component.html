@@ -2,7 +2,7 @@
     <div class="header-left">
         <img src="assets/images/logo.png" alt="logo" class="logo">  
         <a routerLink="/">
-            <h1>{{univerzitet.naziv}}</h1>
+            <h1>{{university.name}}</h1>
         </a>
     </div>
     <div class="avatar" *ngIf="isLoggedIn()">
@@ -15,6 +15,6 @@
         <p-tieredMenu #menu [model]="items" [popup]="true" />
     </div>
     <div class="avatar" *ngIf="!isLoggedIn()">
-        <p-button (onClick)="prijavaLink()" label="Prijava" icon="pi pi-sign-in" severity="info" [raised]="true"/>
+        <p-button (onClick)="goToLogin()" label="Login" icon="pi pi-sign-in" severity="info" [raised]="true"/>
     </div>
 </header>

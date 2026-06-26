@@ -1,16 +1,16 @@
 <div class="content">
     <h2>Obavestenja</h2>
-    <p-button label="objavi obavestenje" (click)="showDialog()" />
+    <p-button label="objavi obavestenje" (click)="openDialog()" />
 
     <p-divider />
-    <p-dataView  #dv [value]="obavestenja">
+    <p-dataView  #dv [value]="announcements">
         <ng-template  pTemplate="list">
-            <div *ngFor="let o of obavestenja">
+            <div *ngFor="let o of announcements">
                 <div class="gObavestenje">
-                    <h4>{{o.naslov}}</h4>
-                    <p><span>od: </span> <br> {{prilagodiDatum(o.vremePocetka)}}</p>
-                    <p><span>do: </span> <br> {{prilagodiDatum(o.vremeKraja)}}</p>
-                    <p>{{o.sadrzaj}}</p>
+                    <h4>{{o.title}}</h4>
+                    <p><span>od: </span> <br> {{formatDate(o.startDate)}}</p>
+                    <p><span>do: </span> <br> {{formatDate(o.endDate)}}</p>
+                    <p>{{o.content}}</p>
                 </div>
                 <p-divider />
             </div>
@@ -20,25 +20,25 @@
     <p-dialog header="Dodaj Novo Obaveštenje" [(visible)]="displayDialog" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="naslov">Naslov</label>
-                <input id="naslov" type="text" pInputText [(ngModel)]="novoObavestenje.naslov" />
+                <label for="title">Naslov</label>
+                <input id="title" type="text" pInputText [(ngModel)]="newAnnouncement.title" />
             </div>
             <div class="p-field">
-                <label for="sadrzaj">Sadržaj</label>
-                <textarea id="sadrzaj" rows="4" pInputTextarea [(ngModel)]="novoObavestenje.sadrzaj"></textarea>
+                <label for="content">Sadržaj</label>
+                <textarea id="content" rows="4" pInputTextarea [(ngModel)]="newAnnouncement.content"></textarea>
             </div>
             <div class="p-field">
-                <label for="vremePocetka">Vreme Početka</label>
-                <p-calendar id="vremePocetka" [(ngModel)]="novoObavestenje.vremePocetka" [showTime]="true" ></p-calendar>
+                <label for="startDate">Vreme Početka</label>
+                <p-calendar id="startDate" [(ngModel)]="newAnnouncement.startDate" [showTime]="true" ></p-calendar>
             </div>
             <div class="p-field">
-                <label for="vremeKraja">Vreme Kraja</label>
-                <p-calendar id="vremeKraja" [(ngModel)]="novoObavestenje.vremeKraja" [showTime]="true" ></p-calendar>
+                <label for="endDate">Vreme Kraja</label>
+                <p-calendar id="endDate" [(ngModel)]="newAnnouncement.endDate" [showTime]="true" ></p-calendar>
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="dodajObavestenje()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialog()" class="p-button-secondary" />
+            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="addAnnouncement()" />
+            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
     <p-toast />

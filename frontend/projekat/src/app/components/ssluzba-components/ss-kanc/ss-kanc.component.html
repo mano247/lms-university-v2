@@ -1,34 +1,34 @@
 <div class="content">
     <h2>Kancelarijski inventar</h2>
-    <div class="dugme">  
-        <p-button label="novi inventar" (onClick)="invDialog()" />
+    <div class="dugme">
+        <p-button label="novi inventar" (onClick)="openAddDialog()" />
     </div>
     <div class="pretraga">
         <p-inputGroup>
-            <input type="text" [(ngModel)]="pretraga.naziv" pInputText placeholder="Naziv" />
+            <input type="text" [(ngModel)]="search.name" pInputText placeholder="Naziv" />
         </p-inputGroup>
-        <p-button icon="pi pi-search" (click)="pretraziInventar()" rounded="true" [raised]="true" />
-        <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger"  />
+        <p-button icon="pi pi-search" (click)="searchInventory()" rounded="true" [raised]="true" />
+        <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
     </div>
-    <p-table [value]="filtriraniInventar">
+    <p-table [value]="filteredInventory">
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="naziv">naziv <p-sortIcon field="naziv"></p-sortIcon></th>
-                <th pSortableColumn="kolicina">kolicina <p-sortIcon field="kolicina"></p-sortIcon></th>
+                <th pSortableColumn="name">naziv <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="quantity">kolicina <p-sortIcon field="quantity"></p-sortIcon></th>
                 <th>opcije</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-i let-rowIndex="rowIndex">
             <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
                 <td>{{ i.id }}</td>
-                <td>{{ i.naziv }}</td>
-                <td [ngClass]="{'low-quantity': i.kolicina < 10}">
-                    {{ i.kolicina }}
+                <td>{{ i.name }}</td>
+                <td [ngClass]="{'low-quantity': i.quantity < 10}">
+                    {{ i.quantity }}
                 </td>
                 <td>
-                    <p-button icon="pi pi-minus-circle" rounded="true" severity="danger" (onClick)="umanjiInv(i)" />
-                    <p-button label="trebuj" severity="info" (onClick)="trebujInventar(i)" />
+                    <p-button icon="pi pi-minus-circle" rounded="true" severity="danger" (onClick)="issueItem(i)" />
+                    <p-button label="trebuj" severity="info" (onClick)="requestItem(i)" />
                 </td>
             </tr>
         </ng-template>
@@ -36,28 +36,28 @@
     <p-dialog header="Dodaj Inventar" [(visible)]="visible" modal="modal" [closable]="true">
             <div class="p-field">
                 <label for="naziv">naziv</label>
-                <input id="naziv" type="text" pInputText [(ngModel)]="noviInv.naziv" />
+                <input id="naziv" type="text" pInputText [(ngModel)]="newItem.name" />
             </div>
             <div class="p-field">
                 <label for="kolicina">kolicina</label>
-                <input id="kolicina" type="number" step="1" [(ngModel)]="noviInv.kolicina"  >
+                <input id="kolicina" type="number" step="1" [(ngModel)]="newItem.quantity"  >
             </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="dodajInv()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialog()" class="p-button-secondary" />
+            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="addItem()" />
+            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
 
-    <p-dialog header="Trebuj inventar" [(visible)]="visibleTrebuj" modal="modal" [closable]="true">
+    <p-dialog header="Trebuj inventar" [(visible)]="requestVisible" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="kolicina">Kolicina</label>
-                <input id="kolicina" type="text" pInputText [(ngModel)]="novaKolicina" />
+                <label for="addQty">Kolicina</label>
+                <input id="addQty" type="text" pInputText [(ngModel)]="additionalQuantity" />
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="trebovanjeInventara()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialog()" class="p-button-secondary" />
+            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="processRequest()" />
+            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
 

@@ -8,19 +8,19 @@
     <div class="postojeci" *ngIf="!visible">
         <div class="pretraga">
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretraga.korisnicko_ime" pInputText placeholder="korisnicko ime" />
+                <input type="text" [(ngModel)]="userSearch.username" pInputText placeholder="korisnicko ime" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretraga.email" pInputText placeholder="email" />
+                <input type="text" [(ngModel)]="userSearch.email" pInputText placeholder="email" />
             </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="pretraziKorisnike()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger"  />
+            <p-button icon="pi pi-search" (click)="searchUsers()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
         </div>
-        <p-table [value]="filtriraniKorisnici">
+        <p-table [value]="filteredUsers">
             <ng-template pTemplate="header">
                 <tr>
                     <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="korisnicko_ime">korisnicko ime <p-sortIcon field="korisnicko_ime"></p-sortIcon></th>
+                    <th pSortableColumn="username">korisnicko ime <p-sortIcon field="username"></p-sortIcon></th>
                     <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
                     <th>opcije</th>
                 </tr>
@@ -28,10 +28,10 @@
             <ng-template pTemplate="body" let-k let-rowIndex="rowIndex">
                 <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
                     <td>{{ k.id }}</td>
-                    <td>{{ k.korisnickoIme }}</td>
+                    <td>{{ k.username }}</td>
                     <td>{{ k.email }}</td>
                     <td>
-                        <p-button (onClick)="upisiPostojecegStudenta(k)" label="upisi" rounded="true" />
+                        <p-button (onClick)="openEnrollExistingUser(k)" label="upisi" rounded="true" />
                     </td>
                 </tr>
             </ng-template>
@@ -40,27 +40,27 @@
     <div class="novi" *ngIf="visible">
         <div class="pretraga">
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaStudenta.ime" pInputText placeholder=" ime" />
+                <input type="text" [(ngModel)]="studentSearch.firstName" pInputText placeholder=" ime" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaStudenta.prezime" pInputText placeholder="prezime" />
+                <input type="text" [(ngModel)]="studentSearch.lastName" pInputText placeholder="prezime" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaStudenta.brojIndeksa" pInputText placeholder="broj indeksa" />
+                <input type="text" [(ngModel)]="studentSearch.indexNumber" pInputText placeholder="broj indeksa" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaStudenta.email" pInputText placeholder="email" />
+                <input type="text" [(ngModel)]="studentSearch.email" pInputText placeholder="email" />
             </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="pretraziStudente()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger"  />
+            <p-button icon="pi pi-search" (click)="searchStudents()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
         </div>
-        <p-table [value]="filtriraniStudenti">
+        <p-table [value]="filteredStudents">
             <ng-template pTemplate="header">
                 <tr>
                     <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="ime">ime <p-sortIcon field="ime"></p-sortIcon></th>
-                    <th pSortableColumn="prezime">prezime <p-sortIcon field="prezime"></p-sortIcon></th>
-                    <th pSortableColumn="brojIndeksa">brojIndeksa <p-sortIcon field="brojIndeksa"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">ime <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">prezime <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="indexNumber">brojIndeksa <p-sortIcon field="indexNumber"></p-sortIcon></th>
                     <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
                     <th>opcije</th>
                 </tr>
@@ -68,74 +68,74 @@
             <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
                 <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
                     <td>{{ s.id }}</td>
-                    <td>{{ s.ime }}</td>
-                    <td>{{ s.ime }}</td>
-                    <td>{{ s.brojIndeksa }}</td>
+                    <td>{{ s.firstName }}</td>
+                    <td>{{ s.lastName }}</td>
+                    <td>{{ s.indexNumber }}</td>
                     <td>{{ s.email }}</td>
                     <td>
-                        <p-button (onClick)="upisNaGodinu(s)" label="upis na godinu" rounded="true" />
+                        <p-button (onClick)="openYearEnrollmentDialog(s)" label="upis na godinu" rounded="true" />
                     </td>
                 </tr>
             </ng-template>
         </p-table>
     </div>
-    <p-dialog header="Upisi studenta" [(visible)]="upisVisible" modal="modal" [closable]="true">
+    <p-dialog header="Upisi studenta" [(visible)]="enrollDialog" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
                 <label for="fakultet">Fakultet</label>
-                <p-dropdown [options]="fakulteti" [(ngModel)]="postojeciZaUpis.fakultet" optionLabel="naziv" placeholder="Izaberite fakultet">
+                <p-dropdown [options]="faculties" [(ngModel)]="userForEnrollment.faculty" optionLabel="name" placeholder="Izaberite fakultet">
                 </p-dropdown>
             </div>
             <div class="p-field">
-                <label for="korisnicko_ime">korisnicko ime</label>
-                <input id="korisnicko_ime" type="text" pInputText [(ngModel)]="postojeciZaUpis.korisnickoIme" />
+                <label for="username">korisnicko ime</label>
+                <input id="username" type="text" pInputText [(ngModel)]="userForEnrollment.username" />
             </div>
             <div class="p-field">
-                <label for="ime">ime</label>
-                <input id="ime" type="text" pInputText [(ngModel)]="postojeciZaUpis.ime" />
+                <label for="firstName">ime</label>
+                <input id="firstName" type="text" pInputText [(ngModel)]="userForEnrollment.firstName" />
             </div>
             <div class="p-field">
-                <label for="prezime">prezime</label>
-                <input id="prezime" type="text" pInputText [(ngModel)]="postojeciZaUpis.prezime" />
+                <label for="lastName">prezime</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="userForEnrollment.lastName" />
             </div>
             <div class="p-field">
                 <label for="email">email</label>
-                <input id="email" type="text" pInputText [(ngModel)]="postojeciZaUpis.email" />
+                <input id="email" type="text" pInputText [(ngModel)]="userForEnrollment.email" />
             </div>
             <div class="p-field">
-                <label for="broj_indeksa">broj indeksa</label>
-                <input id="broj_indeksa" type="text" pInputText [(ngModel)]="postojeciZaUpis.broj_indeksa" />
+                <label for="indexNumber">broj indeksa</label>
+                <input id="indexNumber" type="text" pInputText [(ngModel)]="userForEnrollment.indexNumber" />
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="upisiPostojeceg()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialogPostojeci()" class="p-button-secondary" />
-        </p-footer> 
+            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="enrollExistingUser()" />
+            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="closeEnrollDialog()" class="p-button-secondary" />
+        </p-footer>
     </p-dialog>
 
-    <p-dialog header="Upisi na godinu" [(visible)]="upisNaGodinuVisible" modal="modal" [closable]="true">
+    <p-dialog header="Upisi na godinu" [(visible)]="yearEnrollmentDialog" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="studijskiProgram">Smer</label>
-                <p-dropdown [options]="smerovi" [(ngModel)]="studentZaUpisNaGodinu.studijskiProgram" optionLabel="naziv" placeholder="Izaberite smer">
+                <label for="studyProgram">Smer</label>
+                <p-dropdown [options]="studyPrograms" [(ngModel)]="yearEnrollmentData.studyProgram" optionLabel="name" placeholder="Izaberite smer">
                 </p-dropdown>
             </div>
             <div class="p-field">
-                <label for="godinaStudija">Godina</label>
-                <p-dropdown [options]="godinaStudija" [(ngModel)]="studentZaUpisNaGodinu.godinaStudija" optionLabel="naziv" placeholder="Izaberite godinu">
+                <label for="studyYear">Godina</label>
+                <p-dropdown [options]="studyYears" [(ngModel)]="yearEnrollmentData.studyYear" optionLabel="label" placeholder="Izaberite godinu">
                 </p-dropdown>
             </div>
             <div>
-                <p><strong>ime:</strong> {{studentZaGodinu.ime}}</p>
+                <p><strong>ime:</strong> {{studentForYear.firstName}}</p>
             </div>
             <div>
-                <p><strong>prezime:</strong> {{studentZaGodinu.prezime}}</p>
+                <p><strong>prezime:</strong> {{studentForYear.lastName}}</p>
             </div>
             <div>
                 <p><strong>smer:</strong></p>
-                <div *ngIf="upisi && upisi.length > 0;">
+                <div *ngIf="enrollments && enrollments.length > 0;">
                     <ul>
-                        <li *ngFor="let upis of upisi">
+                        <li *ngFor="let upis of enrollments">
                             {{ upis?.studijskiProgram?.naziv || 'Nema podataka' }}
                         </li>
                     </ul>
@@ -143,9 +143,9 @@
             </div>
             <div>
                 <p><strong>upisane godine:</strong></p>
-                <div *ngIf="upisi && upisi.length > 0;">
+                <div *ngIf="enrollments && enrollments.length > 0;">
                     <ul>
-                        <li *ngFor="let upis of upisi">
+                        <li *ngFor="let upis of enrollments">
                             <strong>Godina:</strong> {{ upis?.godinaStudija?.godina || 'Nema podataka' }},
                             <strong>Datum upisa:</strong> {{ upis?.datumUpisa || 'Nema datuma' }}
                         </li>
@@ -154,9 +154,9 @@
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="upisiNaGodinu()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialogUpisNaGodinu()" class="p-button-secondary" />
-        </p-footer> 
+            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="enrollInYear()" />
+            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="closeYearEnrollmentDialog()" class="p-button-secondary" />
+        </p-footer>
     </p-dialog>
 
     <p-toast />

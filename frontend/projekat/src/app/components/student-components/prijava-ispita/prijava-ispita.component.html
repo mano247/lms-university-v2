@@ -1,40 +1,40 @@
 <div class="content">
     <h2>Prijava ispita</h2>
-    <p-table [value]="mojiPredmeti" styleClass="p-datatable-striped">
+    <p-table [value]="availableCourses" styleClass="p-datatable-striped">
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="nazivPredmeta">Predmet <p-sortIcon field="nazivPredmeta"></p-sortIcon></th>
-                <th pSortableColumn="profesor">Profesor <p-sortIcon field="profesor"></p-sortIcon></th>
-                <th pSortableColumn="espb">ESPB <p-sortIcon field="espb"></p-sortIcon></th>
+                <th pSortableColumn="name">Predmet <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="teacher">Profesor <p-sortIcon field="teacher"></p-sortIcon></th>
+                <th pSortableColumn="ects">ESPB <p-sortIcon field="ects"></p-sortIcon></th>
                 <th>opcije</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body"  let-p>
             <tr>
-                <td>{{p.naziv}}</td>
-                <td>{{p.nastavnik.ime}} {{p.nastavnik.prezime}}</td>
-                <td>{{p.espb}}</td>
+                <td>{{p.name}}</td>
+                <td>{{p.teacher?.firstName}} {{p.teacher?.lastName}}</td>
+                <td>{{p.ects}}</td>
                 <td>
-                    <p-button *ngIf="!jePredmetPrijavljen(p)" label="prijavi" (onClick)="prijavaIspita($event, p)" />
+                    <p-button *ngIf="!isExamRegistered(p)" label="prijavi" (onClick)="registerForExam($event, p)" />
                 </td>
             </tr>
         </ng-template>
     </p-table>
 
-    <h3>prijavljeni ispiti</h3>    
-    <p-table [value]="prijavljeniIspiti" styleClass="p-datatable-striped">
+    <h3>prijavljeni ispiti</h3>
+    <p-table [value]="registeredExams" styleClass="p-datatable-striped">
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="nazivPredmeta">Predmet <p-sortIcon field="nazivPredmeta"></p-sortIcon></th>
-                <th pSortableColumn="profesor">Profesor <p-sortIcon field="profesor"></p-sortIcon></th>
-                <th pSortableColumn="espb">ESPB <p-sortIcon field="espb"></p-sortIcon></th>
+                <th pSortableColumn="course.name">Predmet <p-sortIcon field="course.name"></p-sortIcon></th>
+                <th pSortableColumn="course.teacher">Profesor <p-sortIcon field="course.teacher"></p-sortIcon></th>
+                <th pSortableColumn="course.ects">ESPB <p-sortIcon field="course.ects"></p-sortIcon></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body"  let-p>
             <tr>
-                <td>{{p.predmet.naziv}}</td>
-                <td>{{p.predmet.nastavnik.ime}} {{p.predmet.nastavnik.prezime}}</td>
-                <td>{{p.predmet.espb}}</td>
+                <td>{{p.course?.name}}</td>
+                <td>{{p.course?.teacher?.firstName}} {{p.course?.teacher?.lastName}}</td>
+                <td>{{p.course?.ects}}</td>
             </tr>
         </ng-template>
     </p-table>
@@ -43,4 +43,3 @@
     <p-toast />
     <p-confirmDialog />
 </div>
-

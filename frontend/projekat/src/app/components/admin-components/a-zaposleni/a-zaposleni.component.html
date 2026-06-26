@@ -1,201 +1,198 @@
 <div class="content">
-    <h2>Zaposleni</h2>
-    <p-dropdown 
-        [options]="zaposleniSelect" 
-        [(ngModel)]="selected" 
+    <h2>Employees</h2>
+    <p-dropdown
+        [options]="employeeTypes"
+        [(ngModel)]="selectedCategory"
         optionLabel="label"
         optionValue="value"
-        placeholder="odaberi zaposlene za" />
-    <div *ngIf="selected === 'profesori'">
+        placeholder="Select category" />
+    <div *ngIf="selectedCategory === 'teachers'">
         <div class="pretraga">
             <p-inputGroup class="prvi_input">
-                <input type="text" [(ngModel)]="pretragaProfesora.ime" pInputText placeholder="ime" />
+                <input type="text" [(ngModel)]="teacherSearch.firstName" pInputText placeholder="first name" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaProfesora.prezime" pInputText placeholder="prezime" />
+                <input type="text" [(ngModel)]="teacherSearch.lastName" pInputText placeholder="last name" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaProfesora.email" pInputText placeholder="email" />
+                <input type="text" [(ngModel)]="teacherSearch.email" pInputText placeholder="email" />
             </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="pretraziProfesore()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger" />
+            <p-button icon="pi pi-search" (click)="searchTeachers()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
         </div>
-        <p-table [value]="filtriraniProfesori">
+        <p-table [value]="filteredTeachers">
             <ng-template pTemplate="header">
                 <tr>
                     <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="ime">ime <p-sortIcon field="ime"></p-sortIcon></th>
-                    <th pSortableColumn="prezime">prezime <p-sortIcon field="prezime"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">first name <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">last name <p-sortIcon field="lastName"></p-sortIcon></th>
                     <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>opcije</th>
+                    <th>options</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-n let-rowIndex="rowIndex">
                 <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
                     <td>{{ n.id }}</td>
-                    <td>{{ n.ime }}</td>
-                    <td>{{ n.prezime }}</td>
+                    <td>{{ n.firstName }}</td>
+                    <td>{{ n.lastName }}</td>
                     <td>{{ n.email }}</td>
                     <td>
-                        <p-button label="izmeni" (onClick)="izmeniProfesora(n)" />
-                        <p-button label="ukloni" (onClick)="ukloniProfesora(n.id, $event)" severity="danger"/>
+                        <p-button label="Edit" (onClick)="openEditTeacherDialog(n)" />
+                        <p-button label="Remove" (onClick)="removeTeacher(n.id, $event)" severity="danger"/>
                     </td>
                 </tr>
             </ng-template>
         </p-table>
     </div>
-    <div *ngIf="selected === 'ssluzba'">
+    <div *ngIf="selectedCategory === 'officeStaff'">
         <div class="pretraga">
             <p-inputGroup class="prvi_input">
-                <input type="text" [(ngModel)]="pretragaSluzbe.ime" pInputText placeholder="ime" />
+                <input type="text" [(ngModel)]="officeSearch.firstName" pInputText placeholder="first name" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaSluzbe.prezime" pInputText placeholder="prezime" />
+                <input type="text" [(ngModel)]="officeSearch.lastName" pInputText placeholder="last name" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaSluzbe.email" pInputText placeholder="email" />
+                <input type="text" [(ngModel)]="officeSearch.email" pInputText placeholder="email" />
             </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="pretraziSluzbe()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger" />
+            <p-button icon="pi pi-search" (click)="searchOfficeStaff()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
         </div>
-        <p-table [value]="filtriranaSluzba">
+        <p-table [value]="filteredOfficeStaff">
             <ng-template pTemplate="header">
                 <tr>
                     <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="ime">ime <p-sortIcon field="ime"></p-sortIcon></th>
-                    <th pSortableColumn="prezime">prezime <p-sortIcon field="prezime"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">first name <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">last name <p-sortIcon field="lastName"></p-sortIcon></th>
                     <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>opcije</th>
+                    <th>options</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
                 <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
                     <td>{{ s.id }}</td>
-                    <td>{{ s.ime }}</td>
-                    <td>{{ s.prezime }}</td>
+                    <td>{{ s.firstName }}</td>
+                    <td>{{ s.lastName }}</td>
                     <td>{{ s.email }}</td>
                     <td>
-                        <p-button label="izmeni" (onClick)="izmeniSluzbu(s)" />
-                        <p-button label="ukloni" (onClick)="ukloniSluzbu(s.id, $event)" severity="danger" />
+                        <p-button label="Edit" (onClick)="openEditOfficeDialog(s)" />
+                        <p-button label="Remove" (onClick)="removeOfficeStaff(s.id, $event)" severity="danger" />
                     </td>
                 </tr>
             </ng-template>
         </p-table>
     </div>
-    <div *ngIf="selected === 'administratori'">
+    <div *ngIf="selectedCategory === 'administrators'">
         <div class="pretraga">
             <p-inputGroup class="prvi_input">
-                <input type="text" [(ngModel)]="pretragaAdmina.korisnickoIme" pInputText placeholder="ime" />
+                <input type="text" [(ngModel)]="adminSearch.firstName" pInputText placeholder="first name" />
             </p-inputGroup>
             <p-inputGroup>
-                <input type="text" [(ngModel)]="pretragaAdmina.email" pInputText placeholder="prezime" />
+                <input type="text" [(ngModel)]="adminSearch.lastName" pInputText placeholder="last name" />
             </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="pretraziAdmina()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger" />
+            <p-button icon="pi pi-search" (click)="searchAdministrators()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
         </div>
-        <p-table [value]="filtriraniAdministratori">
+        <p-table [value]="filteredAdministrators">
             <ng-template pTemplate="header">
                 <tr>
                     <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="ime">ime <p-sortIcon field="ime"></p-sortIcon></th>
-                    <th pSortableColumn="prezime">prezime <p-sortIcon field="prezime"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">first name <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">last name <p-sortIcon field="lastName"></p-sortIcon></th>
                     <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>opcije</th>
+                    <th>options</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-a let-rowIndex="rowIndex">
                 <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
                     <td>{{ a.id }}</td>
-                    <td>{{ a.ime }}</td>
-                    <td>{{ a.prezime }}</td>
+                    <td>{{ a.firstName }}</td>
+                    <td>{{ a.lastName }}</td>
                     <td>{{ a.email }}</td>
                     <td>
-                        <p-button label="izmeni" (onClick)="izmeniAdmina(a)" />
-                        <p-button label="ukloni" (onClick)="ukloniAdmina(a.id, $event)" severity="danger" />
+                        <p-button label="Edit" (onClick)="openEditAdminDialog(a)" />
+                        <p-button label="Remove" (onClick)="removeAdmin(a.id, $event)" severity="danger" />
                     </td>
                 </tr>
             </ng-template>
         </p-table>
     </div>
 
-    <p-dialog header="Izmeni Profesora" [(visible)]="izmeniProfesoraVisible" modal="modal" [closable]="true">
+    <p-dialog header="Edit Teacher" [(visible)]="editTeacherVisible" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="ime">ime</label>
-                <input id="ime" type="text" pInputText [(ngModel)]="noviProfesor.ime" />
+                <label for="tFirstName">First name</label>
+                <input id="tFirstName" type="text" pInputText [(ngModel)]="selectedTeacher.firstName" />
             </div>
             <div class="p-field">
-                <label for="prezime">prezime</label>
-                <input id="prezime" type="text" pInputText [(ngModel)]="noviProfesor.prezime" />
+                <label for="tLastName">Last name</label>
+                <input id="tLastName" type="text" pInputText [(ngModel)]="selectedTeacher.lastName" />
             </div>
             <div class="p-field">
-                <label for="korisnickoIme">korisnicko ime</label>
-                <input id="korisnickoIme" type="text" pInputText [(ngModel)]="noviProfesor.korisnickoIme" />
+                <label for="tUsername">Username</label>
+                <input id="tUsername" type="text" pInputText [(ngModel)]="selectedTeacher.username" />
             </div>
             <div class="p-field">
-                <label for="email">email</label>
-                <input id="email" type="email" pInputText [(ngModel)]="noviProfesor.email" />
+                <label for="tEmail">Email</label>
+                <input id="tEmail" type="email" pInputText [(ngModel)]="selectedTeacher.email" />
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="izmenaProfesora()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialogProfesor()" class="p-button-secondary" />
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateTeacher()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeTeacherDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
 
-    <p-dialog header="Izmeni sluzbu" [(visible)]="izmeniSSluzbuVisible" modal="modal" [closable]="true">
+    <p-dialog header="Edit Office Staff" [(visible)]="editOfficeVisible" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="ime">ime</label>
-                <input id="ime" type="text" pInputText [(ngModel)]="novaSluzba.ime" />
+                <label for="oFirstName">First name</label>
+                <input id="oFirstName" type="text" pInputText [(ngModel)]="selectedOffice.firstName" />
             </div>
             <div class="p-field">
-                <label for="prezime">prezime</label>
-                <input id="prezime" type="text" pInputText [(ngModel)]="novaSluzba.prezime" />
+                <label for="oLastName">Last name</label>
+                <input id="oLastName" type="text" pInputText [(ngModel)]="selectedOffice.lastName" />
             </div>
             <div class="p-field">
-                <label for="korisnickoIme">korisnicko ime</label>
-                <input id="korisnickoIme" type="text" pInputText [(ngModel)]="novaSluzba.korisnickoIme" />
+                <label for="oUsername">Username</label>
+                <input id="oUsername" type="text" pInputText [(ngModel)]="selectedOffice.username" />
             </div>
             <div class="p-field">
-                <label for="email">email</label>
-                <input id="email" type="email" pInputText [(ngModel)]="novaSluzba.email" />
+                <label for="oEmail">Email</label>
+                <input id="oEmail" type="email" pInputText [(ngModel)]="selectedOffice.email" />
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="izmenaSluzbe()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialogSluzba()" class="p-button-secondary" />
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateOfficeStaff()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeOfficeDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
 
-
-    <p-dialog header="Izmeni Admina" [(visible)]="izmeniAdminaVisible" modal="modal" [closable]="true">
+    <p-dialog header="Edit Administrator" [(visible)]="editAdminVisible" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="ime">ime</label>
-                <input id="ime" type="text" pInputText [(ngModel)]="noviAdmin.ime" />
+                <label for="aFirstName">First name</label>
+                <input id="aFirstName" type="text" pInputText [(ngModel)]="selectedAdmin.firstName" />
             </div>
             <div class="p-field">
-                <label for="prezime">prezime</label>
-                <input id="prezime" type="text" pInputText [(ngModel)]="noviAdmin.prezime" />
+                <label for="aLastName">Last name</label>
+                <input id="aLastName" type="text" pInputText [(ngModel)]="selectedAdmin.lastName" />
             </div>
             <div class="p-field">
-                <label for="korisnickoIme">korisnicko ime</label>
-                <input id="korisnickoIme" type="text" pInputText [(ngModel)]="noviAdmin.korisnickoIme" />
+                <label for="aUsername">Username</label>
+                <input id="aUsername" type="text" pInputText [(ngModel)]="selectedAdmin.username" />
             </div>
             <div class="p-field">
-                <label for="email">email</label>
-                <input id="email" type="email" pInputText [(ngModel)]="noviAdmin.email" />
+                <label for="aEmail">Email</label>
+                <input id="aEmail" type="email" pInputText [(ngModel)]="selectedAdmin.email" />
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="izmenaAdmina()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialogAdmin()" class="p-button-secondary" />
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateAdmin()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAdminDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
-    
 
     <p-toast />
     <p-confirmPopup />
 </div>
-

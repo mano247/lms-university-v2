@@ -1,28 +1,28 @@
 <div class="content">
-    <a [routerLink]="['/fakultet', fakultetSifra]"><h2>{{fakultetNaziv}}</h2></a>
-    <a [routerLink]="['/fakultet', fakultetSifra, 'studijski-program', sifraSP]"><h3>{{programNaziv}}</h3></a>
-    <a [routerLink]="['/fakultet', fakultetSifra, 'studijski-program', sifraSP, 'predmet', sifraPredmeta]"><h4>{{predmet.naziv}}</h4></a>
+    <a [routerLink]="['/fakultet', facultyCode]"><h2>{{facultyName}}</h2></a>
+    <a [routerLink]="['/fakultet', facultyCode, 'studijski-program', studyProgramCode]"><h3>{{programName}}</h3></a>
+    <a [routerLink]="['/fakultet', facultyCode, 'studijski-program', studyProgramCode, 'predmet', courseCode]"><h4>{{course.name}}</h4></a>
     <p-divider />
-    <h3>{{materijalNaziv}}</h3>
+    <h3>{{materialTitle}}</h3>
 
-    <p>{{materijal?.opis}}</p>
-    <p>{{materijal?.url}}</p>
+    <p>{{material?.description}}</p>
+    <p>{{material?.url}}</p>
     <p-divider />
 
     <h5>Autor</h5>
-    <p>{{materijal?.autori}}</p>
+    <p>{{material?.authors}}</p>
     <p-divider />
 
     <h5>Izdavac</h5>
-    <p>{{materijal?.izdavac}}</p>
+    <p>{{material?.publisher}}</p>
     <p-divider />
 
     <h5>Godina izdavanja</h5>
-    <p>{{materijal?.godinaIzdavanja}}</p>
+    <p>{{material?.publicationYear}}</p>
     <p-divider />
 
     <h5>Broj strana</h5>
-    <p>{{materijal?.brojStrana}}</p>
+    <p>{{material?.pageCount}}</p>
 
 
 </div>

@@ -1,24 +1,24 @@
 <div class="content">
     <h2>Moji predmeti</h2>
-    <p-dataView  #dv [value]="predmeti">
+    <p-dataView  #dv [value]="courses">
         <ng-template  pTemplate="list">
-            <div *ngFor="let p of predmeti">
+            <div *ngFor="let p of courses">
                 <div class="predmet">
-                    <h4>{{p.naziv}}</h4>
-                    <p><span>sifra:</span> <br> {{p.sifraPredmeta}}</p>
-                    <p><span>smer:</span> <br> {{p.smer}}</p>
-                    <p><span>espb:</span> <br> {{p.espb}}</p>
-                    <p><span>opis:</span> <br> {{p.opis}}</p>
-                    <div class="udzbenici"><span>udzbenici:</span> <br> 
+                    <h4>{{p.name}}</h4>
+                    <p><span>sifra:</span> <br> {{p.courseCode}}</p>
+                    <p><span>smer:</span> <br> {{p.studyProgram?.name}}</p>
+                    <p><span>espb:</span> <br> {{p.ects}}</p>
+                    <p><span>opis:</span> <br> {{p.description}}</p>
+                    <div class="udzbenici"><span>udzbenici:</span> <br>
                         <ul>
-                          <li *ngFor="let materijal of p.nastavniMaterijal">
-                            <strong>{{materijal.naslov}}</strong> - Autor: {{materijal.autori}} 
+                          <li *ngFor="let materijal of p.teachingMaterials">
+                            <strong>{{materijal.title}}</strong> - Autor: {{materijal.authors}}
                           </li>
                         </ul>
                     </div>
-                    <p><span>silabus:</span> <br> {{p.silabus}}</p>
+                    <p><span>silabus:</span> <br> {{p.syllabus}}</p>
                     <p>
-                        <p-button label="Uredi silabus" (onClick)="silabusDialog(p)" [raised]="true" (onHide)="ponistiDialog()"  severity="primary"/>
+                        <p-button label="Uredi silabus" (onClick)="openSyllabusDialog(p)" [raised]="true" severity="primary"/>
                     </p>
                 </div>
                 <p-divider />
@@ -27,18 +27,18 @@
     </p-dataView>
     <p-dialog header="Uredi silabus" [modal]="true" [(visible)]="visible" >
         <div class="uredjivanje">
-            <textarea 
+            <textarea
                 rows="5"
-                cols="30" 
-                pInputTextarea 
+                cols="30"
+                pInputTextarea
                 [style.width]="'500px'"
                 [style.height]="'300px'"
-                [(ngModel)]="predmetSilabus">
+                [(ngModel)]="syllabus">
             </textarea>
         </div>
         <div class="uredjivanje">
-            <p-button label="Sacuvaj izmene" severity="success"  rounded="true" (onClick)="urediSilabus()" />
-            <p-button label="Ponisti" severity="danger" (onClick)="ponistiDialog()"  rounded="true" (onClick)="visible = false" />
+            <p-button label="Sacuvaj izmene" severity="success"  rounded="true" (onClick)="updateSyllabus()" />
+            <p-button label="Ponisti" severity="danger" rounded="true" (onClick)="cancelDialog()" />
         </div>
     </p-dialog>
     <p-toast />

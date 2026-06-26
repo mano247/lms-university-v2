@@ -1,94 +1,92 @@
 <div class="content">
-    <h2>Registrovani korisnici</h2>
+    <h2>Registered Users</h2>
     <div class="dugme">
-        <p-button label="dodaj" severity="success" (onClick)="korisnikDialog()" />
+        <p-button label="Add" severity="success" (onClick)="openAddUserDialog()" />
     </div>
     <div class="pretraga">
         <p-inputGroup>
-            <input type="text" [(ngModel)]="pretraga.korisnickoIme" pInputText placeholder="korisnicko ime" />
+            <input type="text" [(ngModel)]="search.username" pInputText placeholder="username" />
         </p-inputGroup>
         <p-inputGroup>
-            <input type="text" [(ngModel)]="pretraga.email" pInputText placeholder="email" />
+            <input type="text" [(ngModel)]="search.email" pInputText placeholder="email" />
         </p-inputGroup>
-        <p-button icon="pi pi-search" (click)="pretragaKorisnika()" rounded="true" [raised]="true" />
-        <p-button icon="pi pi-times" (click)="ponistiPretragu()" rounded="true" [raised]="true" severity="danger" />
+        <p-button icon="pi pi-search" (click)="searchUsers()" rounded="true" [raised]="true" />
+        <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
     </div>
-    <p-table [value]="filtriraniKorisnici" styleClass="p-datatable-striped">
+    <p-table [value]="filteredUsers" styleClass="p-datatable-striped">
         <ng-template pTemplate="header" let-columns>
             <tr>
                 <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="korisnickoIme">korisnicko ime <p-sortIcon field="korisnickoIme"></p-sortIcon></th>
+                <th pSortableColumn="username">username <p-sortIcon field="username"></p-sortIcon></th>
                 <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                <th>opcije</th>
+                <th>options</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-k>
             <tr>
                 <td>{{k.id}}</td>
-                <td>{{k.korisnickoIme}}</td>
+                <td>{{k.username}}</td>
                 <td>{{k.email}}</td>
                 <td>
-                    <p-button (onClick)="izmeniTip(k)" severity="contrast" label="izmeni tip" />
-                    <p-button (onClick)="ukloni(k.id, $event)" label="ukloni" severity="danger"/>
-                </td>   
+                    <p-button (onClick)="openTypeDialog(k)" severity="contrast" label="Change type" />
+                    <p-button (onClick)="removeUser(k.id, $event)" label="Remove" severity="danger"/>
+                </td>
             </tr>
         </ng-template>
     </p-table>
 
-    <p-dialog header="Dodaj Korisnika" [(visible)]="dodajKorisnikaDialog" modal="modal" [closable]="true">
+    <p-dialog header="Add User" [(visible)]="addUserDialog" modal="modal" [closable]="true">
         <div class="p-fluid">
             <div class="p-field">
-                <label for="ime">ime</label>
-                <input id="ime" type="text" pInputText [(ngModel)]="noviKorisnik.ime" />
+                <label for="firstName">First name</label>
+                <input id="firstName" type="text" pInputText [(ngModel)]="newUser.firstName" />
             </div>
             <div class="p-field">
-                <label for="prezime">prezime</label>
-                <input id="prezime" type="text" pInputText [(ngModel)]="noviKorisnik.prezime" />
+                <label for="lastName">Last name</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="newUser.lastName" />
             </div>
             <div class="p-field">
-                <label for="korisnickoIme">korisnicko ime</label>
-                <input id="korisnickoIme" type="text" pInputText [(ngModel)]="noviKorisnik.korisnickoIme" />
+                <label for="username">Username</label>
+                <input id="username" type="text" pInputText [(ngModel)]="newUser.username" />
             </div>
             <div class="p-field">
-                <label for="email">email</label>
-                <input id="email" type="email" pInputText [(ngModel)]="noviKorisnik.email" />
+                <label for="email">Email</label>
+                <input id="email" type="email" pInputText [(ngModel)]="newUser.email" />
             </div>
             <div class="p-field">
-                <label for="lozinka">lozinka</label>
-                <input id="lozinka" type="password" pInputText [(ngModel)]="noviKorisnik.lozinka" />
+                <label for="password">Password</label>
+                <input id="password" type="password" pInputText [(ngModel)]="newUser.password" />
             </div>
         </div>
         <p-footer>
-            <p-button label="Sačuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="dodajKorisnika()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialogKorisnik()" class="p-button-secondary" />
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addUser()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAddUserDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
 
-    <p-dialog  header="Izmeni tip korisnika" [(visible)]="tipDialog" modal="modal" [closable]="true">
-        <div class="p-fluid" >
+    <p-dialog header="Change user type" [(visible)]="typeDialog" modal="modal" [closable]="true">
+        <div class="p-fluid">
             <div>
-                <p-dropdown [options]="tipovi" [(ngModel)]="tip" optionLabel="naziv" placeholder="Izaberite tip"></p-dropdown>
+                <p-dropdown [options]="types" [(ngModel)]="selectedType" optionLabel="label" placeholder="Select type"></p-dropdown>
             </div>
             <div>
-                <p><strong>ime: </strong> {{korisnikZaIzmenuTipa.ime}}</p>
+                <p><strong>First name: </strong> {{userForTypeChange.firstName}}</p>
             </div>
             <div>
-                <p><strong>prezime: </strong> {{korisnikZaIzmenuTipa.prezime}}</p>
+                <p><strong>Last name: </strong> {{userForTypeChange.lastName}}</p>
             </div>
             <div>
-                <p><strong>email: </strong> {{korisnikZaIzmenuTipa.email}}</p> 
+                <p><strong>Email: </strong> {{userForTypeChange.email}}</p>
             </div>
             <div>
-                <p><strong>trenutni permission: </strong> {{korisnikZaIzmenuTipa.tipZaIzmenu}}</p>
+                <p><strong>Current permission: </strong> {{userForTypeChange.tipZaIzmenu}}</p>
             </div>
         </div>
         <p-footer>
-            <p-button label="Izmeni" rounded="true" severity="success" icon="pi pi-check" (click)="izmenaTipa()" />
-            <p-button label="Otkaži" rounded="true" severity="danger" icon="pi pi-times" (click)="ponistiTipDialog()" class="p-button-secondary" />
+            <p-button label="Change" rounded="true" severity="success" icon="pi pi-check" (click)="changeType()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="cancelTypeDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
-
-    
 
     <p-toast />
     <p-confirmPopup />
