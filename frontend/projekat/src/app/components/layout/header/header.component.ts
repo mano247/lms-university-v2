@@ -1,63 +1,59 @@
-import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
-import { University } from '../../../model/academic/university';
-import { Router, RouterModule } from '@angular/router';
-import { AvatarModule } from 'primeng/avatar';
-import { TieredMenuModule } from 'primeng/tieredmenu';
-import { MenuItem } from 'primeng/api';
-import { LoginService } from '../../../services/auth/login.service';
+import { Component, HostListener } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { NgIf } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, AvatarModule, TieredMenuModule, NgIf, ButtonModule],
+  imports: [RouterModule, NgIf, MatMenuModule, MatDividerModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  @Input() univerzitet: University = {
-    name: '',
-    foundingDate: new Date(),
-    contact: '',
-    description: '',
-    image: '',
-    address: ''
-  };
+  mobileMenuOpen = false;
+  scrolled = false;
 
-  items: MenuItem[];
+  constructor(public authService: AuthService, private router: Router) {}
 
-  constructor(private router: Router, private loginService: LoginService) {
-    this.items = [
-      {
-        label: 'My Menu',
-        icon: 'pi pi-bars',
-        command: () => this.router.navigate(['menu'])
-      },
-      {
-        label: 'My Profile',
-        icon: 'pi pi-user',
-        command: () => this.router.navigate(['my-profile'])
-      },
-      {
-        label: 'Announcements',
-        icon: 'pi pi-bell',
-        command: () => this.router.navigate(['all-announcements'])
-      },
-      {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
-        command: () => this.loginService.logout()
-      }
-    ];
+  @HostListener('window:scroll')
+  onScroll() {
+    this.scrolled = window.scrollY > 30;
   }
 
-  isLoggedIn(): boolean {
-    return this.loginService.loggedIn();
+  get userInitial(): string {
+    const user = this.authService.getCurrentUser();
+    return (user?.username ?? user?.email ?? 'U')[0].toUpperCase();
   }
 
-  navigateToLogin() {
-    this.router.navigate(['/login']);
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
+  }
+
+  goToMenu() {
+    this.router.navigate(['/menu']);
+    this.closeMobileMenu();
+  }
+
+  goToProfile() {
+    this.router.navigate(['/my-profile']);
+    this.closeMobileMenu();
+  }
+
+  goToAnnouncements() {
+    this.router.navigate(['/announcements']);
+    this.closeMobileMenu();
+  }
+
+  logout() {
+    this.authService.logout();
+    this.closeMobileMenu();
   }
 }

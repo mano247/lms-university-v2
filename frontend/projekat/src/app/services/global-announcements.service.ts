@@ -1,32 +1,31 @@
-﻿import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GlobalNotification } from '../model/global-notification';
+import { GlobalNotification } from '../model/global-announcement';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GlobalAnnouncementsService {
-
+export class GlobalNotificationsService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<GlobalNotification[]>(`${environment.apiUrl}/api/obavestenja`);
+  getAll() {
+    return this.http.get<GlobalNotification[]>('http://localhost:8080/api/announcements');
   }
 
-  getById(id: number){
-    return this.http.get<GlobalNotification>(`http://localhost:8080/api/obavestenja/${id}`);
+  getById(id: number) {
+    return this.http.get<GlobalNotification>(`http://localhost:8080/api/announcements/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<GlobalNotification>(`http://localhost:8080/api/obavestenja/${id}`);
+  delete(id: number) {
+    return this.http.delete<GlobalNotification>(`http://localhost:8080/api/announcements/${id}`);
   }
 
-  update(id: number, Notification: GlobalNotification){
-    return this.http.put<GlobalNotification>(`http://localhost:8080/api/obavestenja/${id}`, Notification);
+  update(id: number, notification: GlobalNotification) {
+    return this.http.put<GlobalNotification>(`http://localhost:8080/api/announcements/${id}`, notification);
   }
 
-  create(Notification: GlobalNotification){
-    return this.http.post<GlobalNotification>(`${environment.apiUrl}/api/obavestenja`, Notification);
+  create(notification: GlobalNotification) {
+    return this.http.post<GlobalNotification>('http://localhost:8080/api/announcements', notification);
   }
 }

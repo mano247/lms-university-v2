@@ -1,33 +1,173 @@
-<div class="content">
-    <h2>{{faculty?.name}}</h2>
-    <p>{{faculty?.description}}</p>
+@if (isLoading) {
+  <div class="loading-container">
+    <div class="skeleton-header"></div>
+    <div class="skeleton-body"></div>
+  </div>
+} @else if (!faculty) {
+  <div class="error-state">
+    <span class="material-symbols-outlined">error_outline</span>
+    <p>Faculty not found.</p>
+    <a routerLink="/faculties" class="btn-back">Back to Faculties</a>
+  </div>
+} @else {
+  <div class="page-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/" class="bc-link">Home</a>
+      <span class="material-symbols-outlined bc-sep">chevron_right</span>
+      <a routerLink="/faculties" class="bc-link">Faculties</a>
+      <span class="material-symbols-outlined bc-sep">chevron_right</span>
+      <span class="bc-current">{{ faculty.name }}</span>
+    </nav>
 
-    <p-divider />
+    <div class="page-grid">
+      <!-- Main content -->
+      <div class="main-col">
 
-    <h3>Study Programs</h3>
-    <ul>
-        <li *ngFor="let sp of studyPrograms">
-            <a *ngIf="faculty" [routerLink]="['/faculty', faculty.facultyCode, 'study-program', sp.programCode]">{{sp.name}}</a>
-        </li>
-    </ul>
+        <!-- Faculty header -->
+        <section class="faculty-header">
+          <div class="faculty-header-top">
+            <div>
+              <span class="faculty-code">Faculty Code: {{ faculty.facultyCode }}</span>
+              <h1 class="faculty-name">{{ faculty.name }}</h1>
+            </div>
+            <div class="dean-block">
+              <span class="dean-label">Dean of Faculty</span>
+              <span class="dean-name">{{ getDeanName() }}</span>
+            </div>
+          </div>
 
-    <p-divider />
+          <div class="faculty-meta">
+            <div class="meta-item">
+              <span class="material-symbols-outlined meta-icon">location_on</span>
+              <div>
+                <span class="meta-label">Campus Address</span>
+                <p class="meta-value">{{ faculty.address || 'Address not available' }}</p>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="material-symbols-outlined meta-icon">contact_page</span>
+              <div>
+                <span class="meta-label">General Contact</span>
+                <p class="meta-value">{{ faculty.contact || 'Contact not available' }}</p>
+              </div>
+            </div>
+          </div>
 
-    <h3>Dean</h3>
-    <p>{{faculty?.dean?.firstName}} {{faculty?.dean?.lastName}}</p>
+          @if (faculty.description) {
+            <p class="faculty-desc">{{ faculty.description }}</p>
+          }
+        </section>
 
-    <p-divider />
+        <!-- Study Programs -->
+        <section class="programs-section">
+          <h2 class="programs-title">Study Programs</h2>
 
-    <h3>Address</h3>
-    <p>{{faculty?.address}}</p>
-    <div class="map-container">
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs"
-        ></iframe>
+          @if (studyPrograms.length === 0) {
+            <p class="no-programs">No study programs listed for this faculty.</p>
+          } @else {
+            <div class="programs-list">
+              @for (program of studyPrograms; track program.programCode) {
+                <div class="program-item">
+                  <div class="program-left">
+                    <div class="program-badges">
+                      <span class="badge" [class]="getProgramBadge(program).cls">
+                        {{ getProgramBadge(program).label }}
+                      </span>
+                      <span class="program-code">Code: {{ program.programCode }}</span>
+                    </div>
+                    <h3 class="program-name">{{ program.name }}</h3>
+                    @if (program.programDirector) {
+                      <p class="program-director">
+                        Program Director:
+                        {{ program.programDirector?.firstName ?? '' }} {{ program.programDirector?.lastName ?? program.programDirector }}
+                      </p>
+                    }
+                  </div>
+                  <a
+                    [routerLink]="['/faculty', faculty.facultyCode, 'study-program', program.programCode]"
+                    class="btn-view-program">
+                    View Program
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                  </a>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Secretariat card -->
+        <div class="sidebar-card">
+          <h4 class="sidebar-title">Faculty Secretariat</h4>
+          <div class="sidebar-contacts">
+            <div class="contact-row">
+              <span class="contact-icon-wrap">
+                <span class="material-symbols-outlined">mail</span>
+              </span>
+              <div>
+                <span class="contact-label">Email</span>
+                <a href="mailto:{{ faculty.contact }}" class="contact-value contact-link">
+                  {{ faculty.contact || 'N/A' }}
+                </a>
+              </div>
+            </div>
+            <div class="contact-row">
+              <span class="contact-icon-wrap">
+                <span class="material-symbols-outlined">schedule</span>
+              </span>
+              <div>
+                <span class="contact-label">Working Hours</span>
+                <span class="contact-value">Mon – Fri: 09:00 – 17:00</span>
+              </div>
+            </div>
+            <div class="contact-row">
+              <span class="contact-icon-wrap">
+                <span class="material-symbols-outlined">location_on</span>
+              </span>
+              <div>
+                <span class="contact-label">Office Location</span>
+                <span class="contact-value">{{ faculty.address || 'See campus map' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Events card -->
+        <div class="events-card">
+          <h4 class="events-title">Upcoming Events</h4>
+          <div class="events-list">
+            <div class="event-item">
+              <div class="event-dot gold"></div>
+              <div>
+                <span class="event-date">Coming Soon</span>
+                <span class="event-name">Faculty Symposium</span>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-dot blue"></div>
+              <div>
+                <span class="event-date">Upcoming</span>
+                <span class="event-name">Open Day for Prospective Students</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faculty image / placeholder -->
+        <div class="faculty-image-wrap">
+          @if (faculty.image) {
+            <img [src]="faculty.image" [alt]="faculty.name" class="faculty-img">
+          } @else {
+            <div class="faculty-img-placeholder">
+              <span class="material-symbols-outlined placeholder-icon">account_balance</span>
+              <span class="placeholder-label">{{ faculty.name }}</span>
+            </div>
+          }
+        </div>
+      </aside>
     </div>
-
-    <p-divider />
-
-    <h3>Contact</h3>
-    <p>{{faculty?.contact}}</p>
-</div>
+  </div>
+}

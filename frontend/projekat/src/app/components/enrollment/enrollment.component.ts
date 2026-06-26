@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './enrollment.component.html',
   styleUrl: './enrollment.component.css'
 })
-export class EnrollmentComponent implements OnInit{
+export class EnrollmentComponent implements OnInit {
   private universityId = 1;
   universityContact: string | undefined;
   universityName: string | undefined;
@@ -20,7 +20,7 @@ export class EnrollmentComponent implements OnInit{
   constructor(private universityService: UniversityService) {}
 
   ngOnInit(): void {
-    this.universityService.getById(this.universityId).subscribe(x=>{
+    this.universityService.getById(this.universityId).subscribe(x => {
       this.universityContact = x.contact;
       this.universityName = x.name;
       this.universityAddress = x.address;

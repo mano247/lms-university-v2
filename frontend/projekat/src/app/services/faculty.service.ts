@@ -9,27 +9,27 @@ import { Faculty } from '../model/academic/faculty';
 export class FacultyService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Faculty[]>(`${environment.apiUrl}/api/faculties`);
+  getAll() {
+    return this.http.get<Faculty[]>('http://localhost:8080/api/faculties');
   }
 
-  getById(id: number){
-    return this.http.get<Faculty>(`${environment.apiUrl}/api/faculties/${id}`);
+  getById(id: number) {
+    return this.http.get<Faculty>(`http://localhost:8080/api/faculties/${id}`);
   }
 
-  getBySifra(sifra: string){
-    return this.http.get<Faculty>(`${environment.apiUrl}/api/faculties/s/${sifra}`);
+  getByCode(code: string) {
+    return this.http.get<Faculty>(`http://localhost:8080/api/faculties/code/${code}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Faculty>(`${environment.apiUrl}/api/faculties/${id}`);
+  delete(id: number) {
+    return this.http.delete<Faculty>(`http://localhost:8080/api/faculties/${id}`);
   }
 
-  update(id: number, faculty: Faculty){
-    return this.http.put<Faculty>(`${environment.apiUrl}/api/faculties/${id}`, faculty);
+  update(id: number, faculty: Faculty) {
+    return this.http.put<Faculty>(`http://localhost:8080/api/faculties/${id}`, faculty);
   }
 
-  create(faculty: Faculty){
-    return this.http.post<Faculty>(`${environment.apiUrl}/api/faculties`, faculty);
+  create(faculty: Faculty) {
+    return this.http.post<Faculty>('http://localhost:8080/api/faculties', faculty);
   }
 }

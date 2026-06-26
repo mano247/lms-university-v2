@@ -1,9 +1,9 @@
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { GlobalNotification } from '../../model/global-announcement';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
-import { GlobalAnnouncementsService } from '../../services/global-announcements.service';
-import { GlobalNotification } from '../../model/global-notification';
+import { GlobalNotificationsService } from '../../services/global-announcements.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
@@ -20,11 +20,12 @@ import { MessageService } from 'primeng/api';
   styleUrl: './announcements.component.css',
   providers: [MessageService]
 })
-export class AnnouncementsComponent implements OnInit{
+export class AnnouncementsComponent implements OnInit {
   announcements: GlobalNotification[] = [];
   displayDialog: boolean = false;
 
   newAnnouncement: GlobalNotification = {
+    date: new Date(),
     content: '',
     title: '',
     image: '',
@@ -32,20 +33,24 @@ export class AnnouncementsComponent implements OnInit{
     endDate: new Date()
   };
 
-  constructor(private globalAnnouncementService: GlobalAnnouncementsService, private messageService: MessageService){}
+  constructor(
+    private globalNotificationsService: GlobalNotificationsService,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
-    this.loadAnnouncements();
+    this.getAnnouncements();
   }
 
-  loadAnnouncements(){
-    this.globalAnnouncementService.getAll().subscribe(x=>{
+  getAnnouncements() {
+    this.globalNotificationsService.getAll().subscribe(x => {
       this.announcements = x;
     });
   }
 
   formatDate(date: any): string {
     let d: Date;
+
     if (typeof date === 'string') {
       d = new Date(date);
     } else if (date instanceof Date) {
@@ -53,38 +58,58 @@ export class AnnouncementsComponent implements OnInit{
     } else {
       return '';
     }
-    if (isNaN(d.getTime())) return '';
+
+    if (isNaN(d.getTime())) {
+      return '';
+    }
+
     const hours = d.getUTCHours().toString().padStart(2, '0');
     const minutes = d.getUTCMinutes().toString().padStart(2, '0');
     const day = d.getUTCDate().toString().padStart(2, '0');
     const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
     const year = d.getUTCFullYear();
+
     return `${hours}:${minutes}, ${day}-${month}-${year}`;
   }
 
-  showDialog(){
+  openDialog() {
     this.displayDialog = true;
   }
 
   addAnnouncement() {
-    this.globalAnnouncementService.create(this.newAnnouncement).subscribe({
+    this.globalNotificationsService.create(this.newAnnouncement).subscribe({
       next: () => {
-        this.loadAnnouncements();
+        this.getAnnouncements();
         this.resetForm();
-        this.hideDialog();
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Announcement added successfully.' });
+        this.closeDialog();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Announcement added successfully.'
+        });
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding the announcement.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'An error occurred while adding the announcement.'
+        });
       }
     });
   }
 
-  hideDialog(){
+  closeDialog() {
     this.displayDialog = false;
   }
 
-  resetForm(){
-    this.newAnnouncement = { content: '', title: '', image: '', startDate: new Date(), endDate: new Date() };
+  resetForm() {
+    this.newAnnouncement = {
+      date: new Date(),
+      content: '',
+      title: '',
+      image: '',
+      startDate: new Date(),
+      endDate: new Date()
+    };
   }
 }

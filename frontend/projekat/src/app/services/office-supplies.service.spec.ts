@@ -1,13 +1,13 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { OfficeSuppliesService } from './office-supplies.service';
+import { KancelarijskiMaterijalService } from './office-supplies.service';
 
-describe('OfficeSuppliesService', () => {
-  let service: OfficeSuppliesService;
+describe('KancelarijskiMaterijalService', () => {
+  let service: KancelarijskiMaterijalService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(OfficeSuppliesService);
+    service = TestBed.inject(KancelarijskiMaterijalService);
   });
 
   it('should be created', () => {

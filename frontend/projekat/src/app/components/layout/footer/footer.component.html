@@ -1,5 +1,46 @@
-<footer>
-    <p>{{univerzitet.name}}, {{currentYear}}.</p>
-    <p>{{univerzitet.address}}</p>
-    <p>{{univerzitet.description}}</p>
+<footer class="site-footer">
+  <div class="footer-main">
+    <div class="footer-brand">
+      <span class="footer-logo">University of Ashford</span>
+      <p class="footer-tagline">
+        Dedicated to the pursuit of knowledge and the development of leaders for over 130 years.
+      </p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <span class="col-label">Resources</span>
+        <a href="#" class="footer-link">Library</a>
+        <a href="#" class="footer-link">IT Support</a>
+        <a href="#" class="footer-link">Research Hub</a>
+      </div>
+      <div class="footer-col">
+        <span class="col-label">Quick Links</span>
+        <a routerLink="/enrollment" class="footer-link">Enrollment</a>
+        <a routerLink="/all-announcements" class="footer-link">Announcements</a>
+        <a routerLink="/contact" class="footer-link">Contact Us</a>
+      </div>
+      <div class="footer-col">
+        <span class="col-label">Contact</span>
+        <p class="footer-address">
+          Ashford Campus, Main Road 101<br>
+          <a href="mailto:info@ashford.edu" class="footer-link">info&#64;ashford.edu</a><br>
+          +1 (555) 123-4567
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="copyright">&copy; {{ currentYear }} University of Ashford. All rights reserved.</p>
+    <div class="footer-social">
+      <a href="#" aria-label="Website" class="social-link">
+        <span class="material-symbols-outlined">public</span>
+      </a>
+      <a href="#" aria-label="Social" class="social-link">
+        <span class="material-symbols-outlined">share</span>
+      </a>
+      <a href="mailto:info@ashford.edu" aria-label="Email" class="social-link">
+        <span class="material-symbols-outlined">mail</span>
+      </a>
+    </div>
+  </div>
 </footer>

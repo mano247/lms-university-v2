@@ -13,23 +13,24 @@ import { Rectorate } from '../../model/rectorate';
 })
 export class RectorateComponent implements OnInit {
   private rectorateId = 1;
+
   rectorate: Rectorate = {
     name: '',
     contact: '',
     image: '',
     address: '',
-    rectorName: '',
-    universities: []
+    universities: [],
+    rectorName: ''
   };
 
   constructor(private rectorateService: RectorateService) {}
 
   ngOnInit(): void {
-    this.loadRectorate();
+    this.getRectorate();
   }
 
-  loadRectorate() {
-    this.rectorateService.getById(this.rectorateId).subscribe(x => {
+  getRectorate() {
+    return this.rectorateService.getById(this.rectorateId).subscribe(x => {
       this.rectorate = x;
     });
   }

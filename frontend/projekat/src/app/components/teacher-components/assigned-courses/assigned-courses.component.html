@@ -1,31 +1,31 @@
 <div class="content">
     <h2>My Courses</h2>
-    <p-dataView #dv [value]="courses">
-        <ng-template pTemplate="list">
-            <div *ngFor="let c of courses">
+    <p-dataView  #dv [value]="courses">
+        <ng-template  pTemplate="list">
+            <div *ngFor="let p of courses">
                 <div class="predmet">
-                    <h4>{{c.name}}</h4>
-                    <p><span>Code:</span> <br> {{c.courseCode}}</p>
-                    <p><span>Study program:</span> <br> {{c.studyProgram?.name}}</p>
-                    <p><span>ECTS:</span> <br> {{c.ects}}</p>
-                    <p><span>Description:</span> <br> {{c.description}}</p>
-                    <div class="udzbenici"><span>Teaching materials:</span> <br>
+                    <h4>{{p.name}}</h4>
+                    <p><span>code:</span> <br> {{p.courseCode}}</p>
+                    <p><span>program:</span> <br> {{p.studyProgram?.name}}</p>
+                    <p><span>ects:</span> <br> {{p.ects}}</p>
+                    <p><span>description:</span> <br> {{p.description}}</p>
+                    <div class="udzbenici"><span>textbooks:</span> <br>
                         <ul>
-                          <li *ngFor="let m of c.teachingMaterials">
-                            <strong>{{m.title}}</strong> - Author: {{m.authors}}
+                          <li *ngFor="let materijal of p.teachingMaterials">
+                            <strong>{{materijal.title}}</strong> - Author: {{materijal.authors}}
                           </li>
                         </ul>
                     </div>
-                    <p><span>Syllabus:</span> <br> {{c.syllabus}}</p>
+                    <p><span>syllabus:</span> <br> {{p.syllabus}}</p>
                     <p>
-                        <p-button label="Edit Syllabus" (onClick)="openSyllabusDialog(c)" [raised]="true" severity="primary"/>
+                        <p-button label="Edit Syllabus" (onClick)="openSyllabusDialog(p)" [raised]="true" severity="primary"/>
                     </p>
                 </div>
                 <p-divider />
             </div>
         </ng-template>
     </p-dataView>
-    <p-dialog header="Edit Syllabus" [modal]="true" [(visible)]="visible">
+    <p-dialog header="Edit Syllabus" [modal]="true" [(visible)]="visible" >
         <div class="uredjivanje">
             <textarea
                 rows="5"
@@ -33,12 +33,12 @@
                 pInputTextarea
                 [style.width]="'500px'"
                 [style.height]="'300px'"
-                [(ngModel)]="courseSyllabus">
+                [(ngModel)]="syllabus">
             </textarea>
         </div>
         <div class="uredjivanje">
-            <p-button label="Save changes" severity="success" rounded="true" (onClick)="updateSyllabus()" />
-            <p-button label="Cancel" severity="danger" (onClick)="closeDialog()" rounded="true" />
+            <p-button label="Save Changes" severity="success"  rounded="true" (onClick)="updateSyllabus()" />
+            <p-button label="Cancel" severity="danger" rounded="true" (onClick)="cancelDialog()" />
         </div>
     </p-dialog>
     <p-toast />

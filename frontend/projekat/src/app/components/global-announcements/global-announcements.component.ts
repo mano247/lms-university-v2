@@ -2,9 +2,9 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { NgFor } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
-import { GlobalNotification } from '../../model/global-notification';
+import { GlobalNotification } from '../../model/global-announcement';
 import { DatePipe } from '@angular/common';
-import { GlobalAnnouncementsService } from '../../services/global-announcements.service';
+import { GlobalNotificationsService } from '../../services/global-announcements.service';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -15,22 +15,26 @@ import { GlobalAnnouncementsService } from '../../services/global-announcements.
   styleUrl: './global-announcements.component.css',
   providers: [DatePipe]
 })
-export class GlobalAnnouncementsComponent implements OnInit{
+export class GlobalAnnouncementsComponent implements OnInit {
   announcements: GlobalNotification[] = [];
 
-  constructor(private announcementService: GlobalAnnouncementsService, private datePipe: DatePipe){}
+  constructor(
+    private globalNotificationsService: GlobalNotificationsService,
+    private datePipe: DatePipe
+  ) {}
 
   ngOnInit(): void {
-    this.loadAnnouncements();
+    this.getAnnouncements();
   }
 
-  loadAnnouncements(){
-    this.announcementService.getAll().subscribe(x=>{
+  getAnnouncements() {
+    this.globalNotificationsService.getAll().subscribe(x => {
       this.announcements = x;
     });
   }
 
-  formatDate(date: Date | undefined): string {
-    return this.datePipe.transform(date ?? null, 'HH:mm, d. MMM yyyy.') ?? '';
+  formatDate(date: Date): string {
+    const formatted = this.datePipe.transform(date, 'HH:mm, d. MMM yyyy.');
+    return formatted ?? '';
   }
 }

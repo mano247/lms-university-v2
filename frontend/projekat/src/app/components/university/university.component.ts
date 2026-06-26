@@ -1,62 +1,74 @@
-import { Component, Input, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { University } from '../../model/academic/university';
-import { UniversityService } from '../../services/university.service';
-import { FacultyService } from '../../services/faculty.service';
-import { Faculty } from '../../model/academic/faculty';
-import { NgFor } from '@angular/common';
-import { DividerModule } from 'primeng/divider';
+import { Component, OnInit } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
+import { FacultyService } from '../../services/faculty.service';
+import { StudyProgramService } from '../../services/study-program.service';
+import { Faculty } from '../../model/academic/faculty';
+
+interface CardColor { bg: string; text: string; icon: string; }
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-university',
   standalone: true,
-  imports: [NgFor, DividerModule, RouterModule],
+  imports: [NgFor, NgIf, RouterModule],
   templateUrl: './university.component.html',
   styleUrl: './university.component.css'
 })
 export class UniversityComponent implements OnInit {
-  private universityId: number = 1;
-
-  university: University = {
-    name: '',
-    foundingDate: new Date(),
-    contact: '',
-    description: '',
-    image: '',
-    address: ''
-  };
-
-  @Input()
   faculties: Faculty[] = [];
+  studyProgramCount = 0;
+  isLoading = true;
+
+  private readonly CARD_COLORS: CardColor[] = [
+    { bg: '#dbeafe', text: '#1e3a8a', icon: 'school' },
+    { bg: '#fef3c7', text: '#78350f', icon: 'gavel' },
+    { bg: '#d1fae5', text: '#064e3b', icon: 'biotech' },
+    { bg: '#ede9fe', text: '#4c1d95', icon: 'engineering' },
+    { bg: '#fce7f3', text: '#831843', icon: 'palette' },
+    { bg: '#e0f2fe', text: '#0c4a6e', icon: 'monitoring' },
+    { bg: '#fef9c3', text: '#713f12', icon: 'history_edu' },
+    { bg: '#f0fdf4', text: '#14532d', icon: 'eco' },
+    { bg: '#fff1f2', text: '#881337', icon: 'medical_services' },
+    { bg: '#f0f9ff', text: '#0369a1', icon: 'computer' },
+  ];
 
   constructor(
-    private universityService: UniversityService,
-    private facultyService: FacultyService
+    private facultyService: FacultyService,
+    private studyProgramService: StudyProgramService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadUniversity();
-    this.loadFaculties();
-  }
+    this.facultyService.getAll().subscribe({
+      next: f => {
+        this.faculties = f;
+        this.isLoading = false;
+      },
+      error: () => { this.isLoading = false; }
+    });
 
-  loadUniversity() {
-    this.universityService.getById(this.universityId).subscribe(x => {
-      this.university = x;
+    this.studyProgramService.getAll().subscribe({
+      next: sp => { this.studyProgramCount = sp.length; },
+      error: () => {}
     });
   }
 
-  loadFaculties() {
-    this.facultyService.getAll().subscribe(x => {
-      this.faculties = x;
-    });
+  getCardColor(index: number): CardColor {
+    return this.CARD_COLORS[index % this.CARD_COLORS.length];
   }
 
-  getDatum(): string {
-    const d = new Date(this.university.foundingDate);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}. ${month}. ${year}`;
+  getFacultyInitials(name: string): string {
+    return name.split(' ')
+      .filter(w => w.length > 2)
+      .slice(0, 2)
+      .map(w => w[0])
+      .join('')
+      .toUpperCase() || name.substring(0, 2).toUpperCase();
+  }
+
+  navigateToFaculty(code: string, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/faculty', code]);
   }
 }

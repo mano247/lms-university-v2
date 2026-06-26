@@ -1,91 +1,107 @@
 <div class="content" *ngIf="roles.includes('STUDENT_PERMISSION')">
-    <h2>My Portal</h2>
+    <h2>My Menu</h2>
     <div class="kartice">
-        <p-card header="University" [style]="{ height: '400px' }">
+        <p-card header="University" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
-                <img alt="LMS banner" src="assets/images/lms_banner.png" />
+                <img alt="University banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>LMS University homepage</p>
+            <p>
+                University of Ashford home page
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="Student Portal" [style]="{ height: '400px' }">
+        <p-card header="Student Portal" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
                 <img alt="Student portal" src="assets/images/estudent.png" />
             </ng-template>
-            <p>Exam registration, study history...</p>
+            <p>
+                Exam registration, study history...
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="Student Portal" (onClick)="navigateToStudent()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Student Portal" (onClick)="goToStudentPortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
 </div>
-<div class="content" *ngIf="roles.includes('NASTAVNIK_PERMISSION')">
-    <h2>My Portal</h2>
+<div class="content" *ngIf="roles.includes('TEACHER_PERMISSION')">
+    <h2>My Menu</h2>
     <div class="kartice">
-        <p-card header="University" [style]="{ height: '400px' }">
+        <p-card header="University" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
-                <img alt="LMS banner" src="assets/images/lms_banner.png" />
+                <img alt="University banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>LMS University homepage</p>
+            <p>
+                University of Ashford home page
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="Teacher Portal" [style]="{ height: '400px' }">
+        <p-card header="Teacher Portal" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
                 <img alt="Teacher portal" src="assets/images/eprofesor.png" />
             </ng-template>
-            <p>Courses, students, grades...</p>
+            <p>
+                Courses, students, grades...
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="Teacher Portal" (onClick)="navigateToTeacher()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Teacher Portal" (onClick)="goToTeacherPortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
 </div>
-<div class="content" *ngIf="roles.includes('STUDENTSKASLUZBA_PERMISSION')">
-    <h2>My Portal</h2>
+<div class="content" *ngIf="roles.includes('STUDENT_AFFAIRS_PERMISSION')">
+    <h2>My Menu</h2>
     <div class="kartice">
-        <p-card header="University" [style]="{ height: '400px' }">
+        <p-card header="University" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
-                <img alt="LMS banner" src="assets/images/lms_banner.png" />
+                <img alt="University banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>LMS University homepage</p>
+            <p>
+                University of Ashford home page
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="Student Office Portal" [style]="{ height: '400px' }">
+        <p-card header="Student Affairs" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
-                <img alt="Office portal" src="assets/images/essluzba.png" />
+                <img alt="Student Affairs portal" src="assets/images/essluzba.png" />
             </ng-template>
-            <p>Enrollment, announcements, library...</p>
+            <p>
+                Enrollment, announcements, library...
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="Student Office Portal" (onClick)="navigateToOffice()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Student Affairs" (onClick)="goToOfficePortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
 </div>
 <div class="content" *ngIf="roles.includes('ADMINISTRATOR_PERMISSION')">
-    <h2>My Portal</h2>
+    <h2>My Menu</h2>
     <div class="kartice">
-        <p-card header="University" [style]="{ height: '400px' }">
+        <p-card header="University" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
-                <img alt="LMS banner" src="assets/images/lms_banner.png" />
+                <img alt="University banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>LMS University homepage</p>
+            <p>
+                University of Ashford home page
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="goToUniversity()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="Admin Portal" [style]="{ height: '400px' }">
+        <p-card header="Administration" [style]="{ height: '400px' }" >
             <ng-template pTemplate="header">
                 <img alt="Admin portal" src="assets/images/eadmin.png" />
             </ng-template>
-            <p>Administration, employees, registry...</p>
+            <p>
+                Administration, employees, registry...
+            </p>
             <ng-template pTemplate="footer">
-                <p-button label="Admin Portal" (onClick)="navigateToAdmin()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Administration" (onClick)="goToAdminPortal()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>

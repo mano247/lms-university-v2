@@ -7,34 +7,33 @@ import { ExamAttempt } from '../model/exam-attempt';
   providedIn: 'root'
 })
 export class ExamAttemptService {
-
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<ExamAttempt[]>(`${environment.apiUrl}/api/polaganja`);
+  getAll() {
+    return this.http.get<ExamAttempt[]>('http://localhost:8080/api/examAttempts');
   }
 
-  getById(id: number){
-    return this.http.get<ExamAttempt>(`${environment.apiUrl}/api/polaganja/${id}`);
+  getById(id: number) {
+    return this.http.get<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<ExamAttempt>(`${environment.apiUrl}/api/polaganja/${id}`);
+  delete(id: number) {
+    return this.http.delete<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`);
   }
 
-  update(id: number, examAttempt: ExamAttempt){
-    return this.http.put<ExamAttempt>(`${environment.apiUrl}/api/polaganja/${id}`, examAttempt);
+  update(id: number, examAttempt: ExamAttempt) {
+    return this.http.put<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`, examAttempt);
   }
 
-  create(examAttempt: ExamAttempt){
-    return this.http.post<ExamAttempt>(`${environment.apiUrl}/api/polaganja/c`, examAttempt);
+  create(examAttempt: ExamAttempt) {
+    return this.http.post<ExamAttempt>('http://localhost:8080/api/examAttempts/register', examAttempt);
   }
 
-  getPrijavljeni(id: number){
-    return this.http.get<any[]>(`${environment.apiUrl}/api/polaganja/prijavljeni/${id}`);
+  getRegisteredByStudent(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/examAttempts/registered/${id}`);
   }
 
-  getPrijavljeniPocourseu(id: number){
-    return this.http.get<any[]>(`${environment.apiUrl}/api/polaganja/prijavljeniPocourseu/${id}`);
+  getRegisteredByCourse(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/examAttempts/registered-by-course/${id}`);
   }
 }

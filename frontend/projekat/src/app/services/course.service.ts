@@ -7,30 +7,29 @@ import { Course } from '../model/academic/course';
   providedIn: 'root'
 })
 export class CourseService {
-
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Course[]>(`${environment.apiUrl}/api/predmeti`);
+  getAll() {
+    return this.http.get<Course[]>('http://localhost:8080/api/courses');
   }
 
-  getById(id: number){
-    return this.http.get<Course>(`${environment.apiUrl}/api/predmeti/${id}`);
+  getById(id: number) {
+    return this.http.get<Course>(`http://localhost:8080/api/courses/${id}`);
   }
 
-  getBySifra(sifra: string){
-    return this.http.get<Course>(`${environment.apiUrl}/api/predmeti/s/${sifra}`);
+  getByCode(code: string) {
+    return this.http.get<Course>(`http://localhost:8080/api/courses/code/${code}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Course>(`${environment.apiUrl}/api/predmeti/${id}`);
+  delete(id: number) {
+    return this.http.delete<Course>(`http://localhost:8080/api/courses/${id}`);
   }
 
-  update(id: number, course: Course){
-    return this.http.put<Course>(`${environment.apiUrl}/api/predmeti/${id}`, course);
+  update(id: number, course: Course) {
+    return this.http.put<Course>(`http://localhost:8080/api/courses/${id}`, course);
   }
 
-  create(course: Course){
-    return this.http.post<Course>(`${environment.apiUrl}/api/predmeti`, course);
+  create(course: Course) {
+    return this.http.post<Course>('http://localhost:8080/api/courses', course);
   }
 }

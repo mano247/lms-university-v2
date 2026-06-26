@@ -7,26 +7,25 @@ import { University } from '../model/academic/university';
   providedIn: 'root'
 })
 export class UniversityService {
-
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<University[]>(`${environment.apiUrl}/api/univerziteti`);
+  getAll() {
+    return this.http.get<University[]>('http://localhost:8080/api/universities');
   }
 
-  getById(id: number){
-    return this.http.get<University>(`${environment.apiUrl}/api/univerziteti/${id}`);
+  getById(id: number) {
+    return this.http.get<University>(`http://localhost:8080/api/universities/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<University>(`${environment.apiUrl}/api/univerziteti/${id}`);
+  delete(id: number) {
+    return this.http.delete<University>(`http://localhost:8080/api/universities/${id}`);
   }
 
-  update(id: number, university: University){
-    return this.http.put<University>(`${environment.apiUrl}/api/univerziteti/${id}`, university);
+  update(id: number, university: University) {
+    return this.http.put<University>(`http://localhost:8080/api/universities/${id}`, university);
   }
 
-  create(university: University){
-    return this.http.post<University>(`${environment.apiUrl}/api/univerziteti`, university);
+  create(university: University) {
+    return this.http.post<University>('http://localhost:8080/api/universities', university);
   }
 }

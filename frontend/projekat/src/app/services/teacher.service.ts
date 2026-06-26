@@ -3,48 +3,47 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Teacher } from '../model/users/teacher';
 import { Course } from '../model/academic/course';
-import { Notification } from '../model/notification';
+import { Notification } from '../model/announcement';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TeacherService {
-
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Teacher[]>(`${environment.apiUrl}/api/nastavnici`);
+  getAll() {
+    return this.http.get<Teacher[]>('http://localhost:8080/api/teachers');
   }
 
-  getById(id: number){
-    return this.http.get<Teacher>(`${environment.apiUrl}/api/nastavnici/${id}`);
+  getById(id: number) {
+    return this.http.get<Teacher>(`http://localhost:8080/api/teachers/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Teacher>(`${environment.apiUrl}/api/nastavnici/${id}`);
+  delete(id: number) {
+    return this.http.delete<Teacher>(`http://localhost:8080/api/teachers/${id}`);
   }
 
-  update(id: number, teacher: Teacher){
-    return this.http.put<Teacher>(`${environment.apiUrl}/api/nastavnici/${id}`, teacher);
+  update(id: number, teacher: Teacher) {
+    return this.http.put<Teacher>(`http://localhost:8080/api/teachers/${id}`, teacher);
   }
 
-  create(teacher: Teacher){
-    return this.http.post<Teacher>(`${environment.apiUrl}/api/nastavnici`, teacher);
+  create(teacher: Teacher) {
+    return this.http.post<Teacher>('http://localhost:8080/api/teachers', teacher);
   }
 
-  mojicoursei(id: number){
-    return this.http.get<any>(`${environment.apiUrl}/api/nastavnici/${id}/mojicoursei`);
+  getMyCourses(id: number) {
+    return this.http.get<any>(`http://localhost:8080/api/teachers/${id}/my-courses`);
   }
 
-  izmenaSilabusa(id: number, course: Course){
-    return this.http.put<any>(`${environment.apiUrl}/api/predmeti/${id}/izmeniSilabus`, course);
+  updateSyllabus(id: number, course: Course) {
+    return this.http.put<any>(`http://localhost:8080/api/courses/${id}/syllabus`, course);
   }
 
-  getPO(id: number){
-    return this.http.get<Notification[]>(`${environment.apiUrl}/api/predmetnaObavestenja/${id}`);
+  getCourseNotifications(id: number) {
+    return this.http.get<Notification[]>(`http://localhost:8080/api/course-announcements/${id}`);
   }
 
-  getStudentInfo(id: number){
-    return this.http.get<any>(`${environment.apiUrl}/api/studenti/${id}/podaci`);
+  getStudentInfo(id: number) {
+    return this.http.get<any>(`http://localhost:8080/api/students/${id}`);
   }
 }

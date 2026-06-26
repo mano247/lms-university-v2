@@ -1,16 +1,16 @@
 <div class="content">
     <h2>Announcements</h2>
-    <p-button label="Post Announcement" (click)="showDialog()" />
+    <p-button label="Post Announcement" (click)="openDialog()" />
 
     <p-divider />
-    <p-dataView #dv [value]="announcements">
-        <ng-template pTemplate="list">
-            <div *ngFor="let a of announcements">
+    <p-dataView  #dv [value]="announcements">
+        <ng-template  pTemplate="list">
+            <div *ngFor="let o of announcements">
                 <div class="gObavestenje">
-                    <h4>{{a.title}}</h4>
-                    <p><span>From: </span> <br> {{formatDate(a.startDate)}}</p>
-                    <p><span>Until: </span> <br> {{formatDate(a.endDate)}}</p>
-                    <p>{{a.content}}</p>
+                    <h4>{{o.title}}</h4>
+                    <p><span>from: </span> <br> {{formatDate(o.startDate)}}</p>
+                    <p><span>to: </span> <br> {{formatDate(o.endDate)}}</p>
+                    <p>{{o.content}}</p>
                 </div>
                 <p-divider />
             </div>
@@ -29,16 +29,16 @@
             </div>
             <div class="p-field">
                 <label for="startDate">Start Date</label>
-                <p-calendar id="startDate" [(ngModel)]="newAnnouncement.startDate" [showTime]="true"></p-calendar>
+                <p-calendar id="startDate" [(ngModel)]="newAnnouncement.startDate" [showTime]="true" ></p-calendar>
             </div>
             <div class="p-field">
                 <label for="endDate">End Date</label>
-                <p-calendar id="endDate" [(ngModel)]="newAnnouncement.endDate" [showTime]="true"></p-calendar>
+                <p-calendar id="endDate" [(ngModel)]="newAnnouncement.endDate" [showTime]="true" ></p-calendar>
             </div>
         </div>
         <p-footer>
             <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addAnnouncement()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="hideDialog()" class="p-button-secondary" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
         </p-footer>
     </p-dialog>
     <p-toast />

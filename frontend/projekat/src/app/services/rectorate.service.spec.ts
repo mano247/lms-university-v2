@@ -1,17 +1,16 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { RectorateService } from './rectorate.service';
+import { RektoratService } from './rectorate.service';
 
-describe('RectorateService', () => {
-  let service: RectorateService;
+describe('RektoratService', () => {
+  let service: RektoratService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(RectorateService);
+    service = TestBed.inject(RektoratService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 });
-

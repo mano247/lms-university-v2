@@ -1,13 +1,13 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { GlobalAnnouncementsService } from './global-announcements.service';
+import { GlobalnaObavestenjaService } from './global-announcements.service';
 
-describe('GlobalAnnouncementsService', () => {
-  let service: GlobalAnnouncementsService;
+describe('GlobalnaObavestenjaService', () => {
+  let service: GlobalnaObavestenjaService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(GlobalAnnouncementsService);
+    service = TestBed.inject(GlobalnaObavestenjaService);
   });
 
   it('should be created', () => {

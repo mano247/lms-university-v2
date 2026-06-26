@@ -6,16 +6,16 @@
                 <th pSortableColumn="name">Course <p-sortIcon field="name"></p-sortIcon></th>
                 <th pSortableColumn="teacher">Teacher <p-sortIcon field="teacher"></p-sortIcon></th>
                 <th pSortableColumn="ects">ECTS <p-sortIcon field="ects"></p-sortIcon></th>
-                <th>Options</th>
+                <th>Actions</th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-c>
+        <ng-template pTemplate="body"  let-p>
             <tr>
-                <td>{{c.name}}</td>
-                <td>{{c.teacher?.firstName}} {{c.teacher?.lastName}}</td>
-                <td>{{c.ects}}</td>
+                <td>{{p.name}}</td>
+                <td>{{p.teacher?.firstName}} {{p.teacher?.lastName}}</td>
+                <td>{{p.ects}}</td>
                 <td>
-                    <p-button *ngIf="!isCourseRegistered(c)" label="Register" (onClick)="registerForExam($event, c)" />
+                    <p-button *ngIf="!isExamRegistered(p)" label="Register" (onClick)="registerForExam($event, p)" />
                 </td>
             </tr>
         </ng-template>
@@ -25,16 +25,16 @@
     <p-table [value]="registeredExams" styleClass="p-datatable-striped">
         <ng-template pTemplate="header">
             <tr>
-                <th>Course</th>
-                <th>Teacher</th>
-                <th>ECTS</th>
+                <th pSortableColumn="course.name">Course <p-sortIcon field="course.name"></p-sortIcon></th>
+                <th pSortableColumn="course.teacher">Teacher <p-sortIcon field="course.teacher"></p-sortIcon></th>
+                <th pSortableColumn="course.ects">ECTS <p-sortIcon field="course.ects"></p-sortIcon></th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-e>
+        <ng-template pTemplate="body"  let-p>
             <tr>
-                <td>{{e.course?.name}}</td>
-                <td>{{e.course?.teacher?.firstName}} {{e.course?.teacher?.lastName}}</td>
-                <td>{{e.course?.ects}}</td>
+                <td>{{p.course?.name}}</td>
+                <td>{{p.course?.teacher?.firstName}} {{p.course?.teacher?.lastName}}</td>
+                <td>{{p.course?.ects}}</td>
             </tr>
         </ng-template>
     </p-table>

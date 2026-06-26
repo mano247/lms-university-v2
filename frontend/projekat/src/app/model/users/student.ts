@@ -1,8 +1,11 @@
+import { Course } from '../academic/course';
+import { StudyYear } from '../study-year';
+import { ExamAttempt } from '../exam-attempt';
 import { RegisteredUser } from './registered-user';
-import { Faculty } from '../academic/faculty';
 
 export interface Student extends RegisteredUser {
-    userType?: string;
-    indexNumber?: string;
-    faculty?: Faculty;
+    indexNumber: string;
+    studyYears: StudyYear[];
+    examAttempts: ExamAttempt[];
+    courses: Course[];
 }

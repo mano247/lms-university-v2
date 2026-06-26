@@ -21,51 +21,87 @@ export class MenuBarComponent implements OnChanges {
 
   items: MenuItem[] | undefined;
 
-  constructor(private router: Router, private facultyService: FacultyService, private loginService: LoginService) {}
+  constructor(
+    private router: Router,
+    private facultyService: FacultyService,
+    private loginService: LoginService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['faculties'] || changes['studyPrograms']) {
-      this.buildMenu();
+      this.buildMenuItems();
     }
   }
 
-  buildMenu() {
+  buildMenuItems() {
     this.items = [
       {
         label: 'University',
         icon: 'pi pi-graduation-cap',
-        command: () => this.router.navigate([''])
+        command: () => this.goToUniversity()
       },
       {
         label: 'Faculties',
         icon: 'pi pi-building-columns',
-        command: () => this.router.navigate(['faculties']),
-        items: this.faculties.map(f => ({
-          label: f.name,
+        command: () => this.goToFaculties(),
+        items: this.faculties.map(faculty => ({
+          label: faculty.name,
           icon: 'pi pi-building',
-          command: () => this.router.navigate([`faculty/${f.facultyCode}`])
+          command: () => this.goToFaculty(faculty.facultyCode)
         }))
       },
       {
         label: 'Enrollment',
         icon: 'pi pi-pen-to-square',
-        command: () => this.router.navigate(['enrollment'])
+        command: () => this.goToEnrollment()
       },
       {
         label: 'Announcements',
         icon: 'pi pi-bell',
-        command: () => this.router.navigate(['all-announcements'])
+        command: () => this.goToAnnouncements()
       },
       {
         label: 'Rectorate',
         icon: 'pi pi-users',
-        command: () => this.router.navigate(['rectorate'])
+        command: () => this.goToRectorate()
       },
       {
         label: 'Contact',
         icon: 'pi pi-envelope',
-        command: () => this.router.navigate(['contact'])
+        command: () => this.goToContact()
       }
     ];
+  }
+
+  goToUniversity() {
+    this.router.navigate(['']);
+  }
+
+  goToFaculty(facultyCode: string) {
+    this.router.navigate([`faculty/${facultyCode}`]);
+  }
+
+  goToEnrollment() {
+    this.router.navigate(['enrollment']);
+  }
+
+  goToAnnouncements() {
+    this.router.navigate(['all-announcements']);
+  }
+
+  goToRectorate() {
+    this.router.navigate(['rectorate']);
+  }
+
+  goToContact() {
+    this.router.navigate(['contact']);
+  }
+
+  goToLogin() {
+    this.router.navigate(['login']);
+  }
+
+  goToFaculties() {
+    this.router.navigate(['faculties']);
   }
 }

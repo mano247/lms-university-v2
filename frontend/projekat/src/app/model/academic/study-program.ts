@@ -1,12 +1,11 @@
 import { Faculty } from './faculty';
-import { Teacher } from '../users/teacher';
 
 export interface StudyProgram {
     id?: number;
     programCode: string;
-    name: string;
     description: string;
-    programDirector?: Teacher;
+    name: string;
+    programDirector: any;
     faculty: Faculty;
-    courses?: string[];
+    courses: any[];
 }

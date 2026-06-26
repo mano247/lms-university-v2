@@ -1,0 +1,14 @@
+<p-tabView [activeIndex]="selectedTabIndex" (onChange)="onTabChange($event)">
+    <p-tabPanel header="My Courses">
+        <app-assigned-courses></app-assigned-courses>
+    </p-tabPanel>
+    <p-tabPanel header="Announcements">
+        <app-teacher-announcements></app-teacher-announcements>
+    </p-tabPanel>
+    <p-tabPanel header="Student List">
+        <app-student-list></app-student-list>
+    </p-tabPanel>
+    <p-tabPanel header="Grade Entry">
+        <app-grade-entry></app-grade-entry>
+    </p-tabPanel>
+</p-tabView>

@@ -1,16 +1,13 @@
-﻿import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Student } from '../model/users/student';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { Course } from '../model/academic/course';
-import { Notification } from '../model/notification';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StudentService {
-
   constructor(private http: HttpClient) { }
 
   getAll() {
@@ -33,43 +30,35 @@ export class StudentService {
     return this.http.post<Student>('http://localhost:8080/api/students', student);
   }
 
-
-  sviIspiti(id: number){
-    return this.http.get<Course[]>(`http://localhost:8080/api/studenti/${id}/sviIspiti`);
+  getAllCourses(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/all-courses`);
   }
 
   getPassedExams(id: number) {
     return this.http.get<any[]>(`http://localhost:8080/api/students/${id}/passed-exams`);
   }
 
-  polozeniIspiti(id: number) {
-    return this.http.get<any[]>(`${environment.apiUrl}/api/studenti/${id}/polozeniIspiti`);
+  getFailedExams(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/failed-exams`);
   }
 
-  nepolozeniIspiti(id: number){
-    return this.http.get<Course[]>(`http://localhost:8080/api/studenti/${id}/nepolozeniIspiti`);
+  getActiveCourses(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/active-courses`);
   }
 
-  getAktivnicoursei(id: number){
-    return this.http.get<Course[]>(`http://localhost:8080/api/studenti/${id}/sviAcoursei`)
+  getAvailableExams(id: number) {
+    return this.http.get<Course[]>(`http://localhost:8080/api/students/${id}/available-exams`);
   }
 
-  getIspitiZaPrijavu(id: number){
-    return this.http.get<Course[]>(`http://localhost:8080/api/studenti/${id}/ispitiZaPrijavu`);
+  getEnrollments(id: number) {
+    return this.http.get<any[]>(`http://localhost:8080/api/enrollments/by-student/${id}`);
   }
 
-  getenrollments(id: number){
-    return this.http.get<any[]>(`http://localhost:8080/api/sng/fbs/${id}`);
+  enrollInYear(enrollment: any) {
+    return this.http.post<any>('http://localhost:8080/api/enrollments', enrollment);
   }
 
-  saveYearEnrollment(sng: any){
-    return this.http.post<any>(`${environment.apiUrl}/api/sng`, sng);
+  addStudentToCourse(programId: number, student: any) {
+    return this.http.put<any>(`http://localhost:8080/api/students/assign-courses/${programId}`, student);
   }
-
-  dodajStudentaNacourse(idSmer: number, student: any){
-    return this.http.put<any>(`http://localhost:8080/api/studenti/dsp/${idSmer}`, student);
-  } 
-
 }
-
-

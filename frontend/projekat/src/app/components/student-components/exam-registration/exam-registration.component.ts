@@ -40,23 +40,24 @@ export class ExamRegistrationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       this.studentId = parsedUser.id;
       if (this.studentId) {
-        this.loadAvailableCourses(this.studentId);
-        this.loadStudent(this.studentId);
-        this.loadRegisteredExams(this.studentId);
+        this.getAvailableExams(this.studentId);
+        this.getStudent(this.studentId);
+        this.getRegisteredExams(this.studentId);
       }
     }
   }
 
   registerForExam(event: Event, course: Course) {
     this.selectedCourse = course;
+
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Exam registration costs 1000 dinars. Do you want to continue?',
+      message: 'Exam registration costs 1000 RSD. Do you want to continue?',
       header: 'Exam Registration',
       icon: 'pi pi-question-circle',
       acceptIcon: 'none',
@@ -66,20 +67,22 @@ export class ExamRegistrationComponent implements OnInit {
         if (this.balance >= 1000) {
           this.balance -= 1000;
           this.messageService.add({ severity: 'info', summary: 'Registration successful', detail: 'You have successfully registered for the exam.' });
-          const attempt: ExamAttempt = {
+
+          const examAttempt: ExamAttempt = {
             course: this.selectedCourse,
             student: this.student,
-            teacher: this.selectedCourse?.teacher
+            teacher: this.selectedCourse.teacher
           };
-          this.examAttemptService.create(attempt).subscribe(
+
+          this.examAttemptService.create(examAttempt).subscribe(
             () => {
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Exam registered.' });
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Exam registered successfully.' });
               if (this.studentId) {
-                this.loadRegisteredExams(this.studentId);
+                this.getRegisteredExams(this.studentId);
               }
             },
             () => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Exam registration failed.' });
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to register for exam.' });
             }
           );
         } else {
@@ -92,20 +95,20 @@ export class ExamRegistrationComponent implements OnInit {
     });
   }
 
-  loadAvailableCourses(id: number) {
-    this.studentService.getIspitiZaPrijavu(id).subscribe(x => {
+  getAvailableExams(id: number) {
+    this.studentService.getAvailableExams(id).subscribe(x => {
       this.availableCourses = x;
     });
   }
 
-  loadStudent(id: number) {
+  getStudent(id: number) {
     this.studentService.getById(id).subscribe(x => {
       this.student = x;
     });
   }
 
-  loadRegisteredExams(id: number) {
-    this.examAttemptService.getPrijavljeni(id).subscribe(x => {
+  getRegisteredExams(id: number) {
+    this.examAttemptService.getRegisteredByStudent(id).subscribe(x => {
       this.registeredExams = x;
     });
   }
@@ -117,8 +120,8 @@ export class ExamRegistrationComponent implements OnInit {
   confirmPayment(event: Event, amount: number) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Do you want to complete the payment?',
-      header: 'Confirmation',
+      message: 'Do you want to make this payment?',
+      header: 'Confirm payment',
       icon: 'pi pi-question-circle',
       acceptIcon: 'none',
       rejectIcon: 'none',
@@ -126,7 +129,7 @@ export class ExamRegistrationComponent implements OnInit {
       accept: () => {
         this.balance += amount;
         this.visible = false;
-        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Payment completed.' });
+        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Payment successful.' });
       },
       reject: () => {
         this.messageService.add({ severity: 'error', summary: 'Cancelled!', detail: 'Payment cancelled.', life: 3000 });
@@ -138,7 +141,7 @@ export class ExamRegistrationComponent implements OnInit {
     this.visible = false;
   }
 
-  isCourseRegistered(course: Course): boolean {
-    return this.registeredExams.some(exam => exam.course?.id === course.id);
+  isExamRegistered(course: Course): boolean {
+    return this.registeredExams.some(exam => exam.course.id === course.id);
   }
 }

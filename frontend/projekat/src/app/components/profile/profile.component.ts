@@ -10,7 +10,7 @@ import { RegisteredUserService } from '../../services/registered-user.service';
 import { RegisteredUser } from '../../model/users/registered-user';
 import { StudentService } from '../../services/student.service';
 import { TeacherService } from '../../services/teacher.service';
-import { StudentOfficeService } from '../../services/student-office.service';
+import { StudentOfficeService } from '../../services/student-affairs.service';
 import { AdministratorService } from '../../services/administrator.service';
 import { LoginService } from '../../services/auth/login.service';
 
@@ -27,7 +27,7 @@ export class ProfileComponent implements OnInit {
   visible: boolean = false;
   profileForm: FormGroup = this.fb.group({});
   currentUser: RegisteredUser | undefined;
-  korisnikId: number | undefined;
+  userId: number | undefined;
   roles: string[] = [];
 
   constructor(
@@ -36,28 +36,40 @@ export class ProfileComponent implements OnInit {
     private registeredUserService: RegisteredUserService,
     private studentService: StudentService,
     private teacherService: TeacherService,
-    private officeStaffService: StudentOfficeService,
+    private studentOfficeService: StudentOfficeService,
     private adminService: AdministratorService,
     private loginService: LoginService
   ) {}
 
   ngOnInit(): void {
     this.createForm();
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
-      this.korisnikId = parsedUser.id;
-      if (this.korisnikId !== undefined) {
-        this.loadAllData(this.korisnikId);
+
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      this.userId = parsedUser.id;
+      if (this.userId !== undefined) {
+        this.getUserData(this.userId);
         this.roles = this.loginService.getUserRole();
       }
     }
   }
 
-  loadAllData(id: number) {
+  getUserData(id: number) {
     this.registeredUserService.getById(id).subscribe(x => {
       this.currentUser = x;
     });
+  }
+
+  prepareForEdit() {
+    if (this.currentUser) {
+      this.profileForm.patchValue(this.currentUser);
+    }
+  }
+
+  openEditDialog() {
+    this.visible = true;
+    this.prepareForEdit();
   }
 
   createForm() {
@@ -70,15 +82,8 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  editDialog() {
-    this.visible = true;
-    if (this.currentUser) {
-      this.profileForm.patchValue(this.currentUser);
-    }
-  }
-
   saveChanges() {
-    if (this.profileForm.valid && this.korisnikId) {
+    if (this.profileForm.valid && this.userId) {
       const updatedUser: any = {
         ...this.currentUser,
         ...this.profileForm.value
@@ -87,34 +92,34 @@ export class ProfileComponent implements OnInit {
       let updateObservable;
 
       if (this.roles.includes('ADMINISTRATOR_PERMISSION')) {
-        updateObservable = this.adminService.update(this.korisnikId, updatedUser);
-      } else if (this.roles.includes('student-office_PERMISSION')) {
-        updateObservable = this.officeStaffService.update(this.korisnikId, updatedUser);
-      } else if (this.roles.includes('teacher_PERMISSION')) {
-        updateObservable = this.teacherService.update(this.korisnikId, updatedUser);
+        updateObservable = this.adminService.update(this.userId, updatedUser);
+      } else if (this.roles.includes('STUDENTSKASLUZBA_PERMISSION')) {
+        updateObservable = this.studentOfficeService.update(this.userId, updatedUser);
+      } else if (this.roles.includes('NASTAVNIK_PERMISSION')) {
+        updateObservable = this.teacherService.update(this.userId, updatedUser);
       } else if (this.roles.includes('STUDENT_PERMISSION')) {
-        updateObservable = this.studentService.update(this.korisnikId, updatedUser);
+        updateObservable = this.studentService.update(this.userId, updatedUser);
       } else if (this.roles.includes('KORISNIK_PERMISSION')) {
-        updateObservable = this.registeredUserService.update(this.korisnikId, updatedUser);
+        updateObservable = this.registeredUserService.update(this.userId, updatedUser);
       } else {
-        this.messageService.add({ severity: 'error', summary: 'Error!', detail: 'Unknown user role.' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Unknown user role.' });
         return;
       }
 
       updateObservable.subscribe(
         () => {
           this.visible = false;
-          this.messageService.add({ severity: 'success', summary: 'Profile updated!', detail: 'Your information has been saved.' });
-          if (this.korisnikId !== undefined) {
-            this.loadAllData(this.korisnikId);
+          this.messageService.add({ severity: 'success', summary: 'Profile updated!', detail: 'Your data has been saved successfully.' });
+          if (this.userId !== undefined) {
+            this.getUserData(this.userId);
           }
         },
         () => {
-          this.messageService.add({ severity: 'error', summary: 'Error!', detail: 'An error occurred while updating your profile.' });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating your profile.' });
         }
       );
     } else {
-      this.messageService.add({ severity: 'warning', summary: 'Invalid data!', detail: 'Please check the entered information.' });
+      this.messageService.add({ severity: 'warning', summary: 'Invalid data', detail: 'Please check the entered data.' });
     }
   }
 }

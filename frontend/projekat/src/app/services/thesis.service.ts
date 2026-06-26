@@ -1,4 +1,4 @@
-﻿import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
@@ -6,7 +6,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class ThesisService {
-
   constructor(private http: HttpClient) { }
 
   findByStudent(id: number) {

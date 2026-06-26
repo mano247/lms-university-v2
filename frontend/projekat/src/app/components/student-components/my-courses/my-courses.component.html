@@ -1,20 +1,20 @@
 <div class="content">
     <h2>My Courses</h2>
-    <p-dataView #dv [value]="myCourses">
-        <ng-template pTemplate="list">
-            <div *ngFor="let c of myCourses">
+    <p-dataView  #dv [value]="myCourses">
+        <ng-template  pTemplate="list">
+            <div *ngFor="let p of myCourses">
                 <div class="predmet">
-                    <h4>{{c.name}}</h4>
-                    <p><span>Course code: </span> <br> {{c.courseCode}}</p>
-                    <p><span>Study program: </span> <br> {{c.studyProgram?.name}}</p>
-                    <p><span>Duration:</span> <br> {{formatDate(c.startDate)}}, until: {{formatDate(c.endDate)}}</p>
-                    <p><span>ECTS:</span> <br> {{c.ects}}</p>
-                    <p><span>Teacher: </span> <br> {{c.teacher?.firstName}} {{c.teacher?.lastName}}</p>
-                    <p><span>Description: </span> <br> {{c.description}}</p>
-                    <div class="udzbenici"><span>Teaching materials:</span> <br>
+                    <h4>{{p.name}}</h4>
+                    <p><span>course code: </span> <br> {{p.courseCode}}</p>
+                    <p><span>program: </span> <br> {{p.studyProgram?.name}}</p>
+                    <p><span>duration:</span> <br> {{formatDate(p.startDate)}}, to: {{formatDate(p.endDate)}}</p>
+                    <p><span>ects:</span> <br> {{p.ects}}</p>
+                    <p><span>teacher: </span> <br> {{p.teacher?.firstName}} {{p.teacher?.lastName}}</p>
+                    <p><span>description: </span> <br>  {{p.description}}</p>
+                    <div class="udzbenici"><span>textbooks:</span> <br>
                         <ul>
-                          <li *ngFor="let m of c.teachingMaterials">
-                            <strong>{{m.title}}</strong> - Author: {{m.authors}}
+                          <li *ngFor="let materijal of p.teachingMaterials">
+                            <strong>{{materijal.title}}</strong> - Author: {{materijal.authors}}
                           </li>
                         </ul>
                     </div>

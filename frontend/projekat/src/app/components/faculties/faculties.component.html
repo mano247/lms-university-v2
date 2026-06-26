@@ -1,14 +1,82 @@
-<div class="content" >
-    <h2>Faculties</h2>
-    <div class="kartice">
-        <p-card header="{{f.name}}" [style]="{ height: '400px' }"  *ngFor="let f of faculties">
-            <ng-template pTemplate="header">
-                <img alt="Faculty image" src="{{f.image}}" />
-            </ng-template>
-            <p>
-                {{truncateDescription(f.description)}}
-            </p>
-            <p-button label="Learn More" (onClick)="viewDetails(f)" [rounded]="true" severity="info" [raised]="true" class="button"/>
-        </p-card>
+<!-- Page Hero -->
+<section class="page-hero">
+  <div class="hero-inner">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/" class="bc-link">Home</a>
+      <span class="material-symbols-outlined bc-sep">chevron_right</span>
+      <span class="bc-current">Faculties</span>
+    </nav>
+    <h1 class="page-title">Our Faculties</h1>
+    <p class="page-subtitle">
+      Discover our ten world-class faculties, each driven by a commitment to
+      academic excellence and innovative research.
+    </p>
+    <div class="search-wrap">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search faculties by name or code..."
+        [value]="searchQuery"
+        (input)="searchQuery = $any($event.target).value"
+        aria-label="Search faculties"
+      />
     </div>
-</div>
+  </div>
+</section>
+
+<!-- Faculties Grid -->
+<section class="faculties-section">
+  <div class="section-inner">
+    @if (isLoading) {
+      <div class="faculties-grid">
+        @for (item of [1,2,3,4,5,6,7,8,9,10]; track item) {
+          <div class="skeleton-card"></div>
+        }
+      </div>
+    } @else if (filteredFaculties.length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined">school</span>
+        <p>{{ searchQuery ? 'No faculties match your search.' : 'No faculties found. Check the backend connection.' }}</p>
+        @if (searchQuery) {
+          <button class="btn-clear" (click)="searchQuery = ''">Clear search</button>
+        }
+      </div>
+    } @else {
+      <p class="results-label">
+        {{ filteredFaculties.length }} {{ filteredFaculties.length === 1 ? 'faculty' : 'faculties' }} found
+      </p>
+      <div class="faculties-grid">
+        @for (faculty of filteredFaculties; track faculty.facultyCode; let i = $index) {
+          <article
+            class="faculty-card"
+            (click)="navigateToFaculty(faculty.facultyCode, $event)"
+            (keydown.enter)="navigateToFaculty(faculty.facultyCode)"
+            tabindex="0"
+            [attr.aria-label]="faculty.name"
+          >
+            <div class="card-img" [style.background-color]="getCardColor(i).bg">
+              <span class="card-initials" [style.color]="getCardColor(i).text">
+                {{ getFacultyInitials(faculty.name) }}
+              </span>
+              <span class="material-symbols-outlined card-bg-icon" [style.color]="getCardColor(i).text">
+                {{ getCardColor(i).icon }}
+              </span>
+            </div>
+            <div class="card-body">
+              <span class="card-code">{{ faculty.facultyCode }}</span>
+              <h3 class="card-title">{{ faculty.name }}</h3>
+              <p class="card-desc">{{ faculty.description }}</p>
+              <div class="card-footer">
+                <button class="learn-btn" (click)="navigateToFaculty(faculty.facultyCode, $event)">
+                  View Faculty
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

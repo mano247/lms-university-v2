@@ -1,37 +1,35 @@
-﻿import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GlobalNotification } from '../model/global-notification';
-import { Notification } from '../model/notification';
+import { Notification } from '../model/announcement';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AnnouncementService {
-
+export class NotificationService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<Notification[]>(`${environment.apiUrl}/api/predmetnaObavestenja`);
+  getAll() {
+    return this.http.get<Notification[]>('http://localhost:8080/api/course-announcements');
   }
 
-  getById(id: number){
-    return this.http.get<Notification>(`http://localhost:8080/api/predmetnaObavestenja/${id}`);
+  getById(id: number) {
+    return this.http.get<Notification>(`http://localhost:8080/api/course-announcements/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<Notification>(`http://localhost:8080/api/predmetnaObavestenja/${id}`);
+  delete(id: number) {
+    return this.http.delete<Notification>(`http://localhost:8080/api/course-announcements/${id}`);
   }
 
-  update(id: number, Notification: Notification){
-    return this.http.put<Notification>(`http://localhost:8080/api/predmetnaObavestenja/${id}`, Notification);
+  update(id: number, notification: Notification) {
+    return this.http.put<Notification>(`http://localhost:8080/api/course-announcements/${id}`, notification);
   }
 
-  create(obavestenje: Notification){
-    return this.http.post<Notification>(`${environment.apiUrl}/api/predmetnaObavestenja`, Notification);
+  create(notification: Notification) {
+    return this.http.post<Notification>('http://localhost:8080/api/course-announcements', notification);
   }
 
-  getBycourse(id: number){
-    return this.http.get<Notification[]>(`http://localhost:8080/api/predmetnaObavestenja/gbp/${id}`)
+  getByCourse(id: number) {
+    return this.http.get<Notification[]>(`http://localhost:8080/api/course-announcements/by-course/${id}`);
   }
 }

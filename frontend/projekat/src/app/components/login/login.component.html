@@ -1,24 +1,86 @@
-<div class="content">
-    <h2>Login</h2>
-    <div class="form form-group">
-        <input type="email" placeholder="Email" [formControl]="emailFormControl">
-        <div class="error-message" *ngIf="emailFormControl.touched && emailFormControl.invalid">
-            <div *ngIf="emailFormControl.hasError('required')">Email is required!</div>
-            <div *ngIf="emailFormControl.hasError('email')">Email address is not valid!</div>
-        </div>
+<main class="login-page">
+  <div class="login-card">
+
+    <!-- Branding -->
+    <div class="login-brand">
+      <div class="login-logo">
+        <mat-icon>school</mat-icon>
+      </div>
+      <h1 class="login-title">Welcome Back</h1>
+      <p class="login-subtitle">University of Ashford Student Portal</p>
     </div>
-    <div class="form form-group">
-        <input type="password" placeholder="Password" [formControl]="passwordFormControl">
-        <div class="error-message" *ngIf="passwordFormControl.touched && passwordFormControl.invalid">
-            <div *ngIf="passwordFormControl.hasError('required')">Password is required!</div>
-            <div *ngIf="passwordFormControl.hasError('minlength')">Password must be at least 4 characters!</div>
-        </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="signIn()" class="login-form" novalidate>
+
+      <!-- Email -->
+      <mat-form-field appearance="outline">
+        <mat-label>Email Address</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          placeholder="student@ashford.edu"
+          autocomplete="email"
+        />
+        <mat-error *ngIf="emailCtrl.hasError('required')">Email is required</mat-error>
+        <mat-error *ngIf="emailCtrl.hasError('email')">Enter a valid email address</mat-error>
+      </mat-form-field>
+
+      <!-- Password -->
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input
+          matInput
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="togglePassword()"
+          [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+        >
+          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="passwordCtrl.hasError('required')">Password is required</mat-error>
+        <mat-error *ngIf="passwordCtrl.hasError('minlength')">
+          Minimum {{ passwordCtrl.errors?.['minlength']?.requiredLength }} characters
+        </mat-error>
+      </mat-form-field>
+
+      <!-- API error -->
+      <div class="login-error" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit -->
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="login-submit"
+        [disabled]="isLoading"
+      >
+        <mat-spinner *ngIf="isLoading" diameter="20" color="accent"></mat-spinner>
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">Authenticating…</span>
+      </button>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p>Don't have an account? <a routerLink="/register">Register</a></p>
     </div>
-    <div class="button">
-        <p-button label="Login" severity="success" rounded="true" [raised]="true" (onClick)="prijaviSe()" />
-        <p-button label="Clear" severity="danger" rounded="true" [raised]="true" (onClick)="ponistiUnos()" />
-    </div>
-    <p>Not registered? <a routerLink="/registration">Register here.</a></p>
-    <p-toast />
-    <p-progressSpinner *ngIf="isLoading" ariaLabel="loading" />
-</div>
+
+  </div>
+
+  <p class="login-copyright">© 2024 University of Ashford. All rights reserved.</p>
+</main>

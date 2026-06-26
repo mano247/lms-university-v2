@@ -1,0 +1,17 @@
+<p-tabView [activeIndex]="selectedTabIndex" (onChange)="onTabChange($event)">
+    <p-tabPanel header="Registry">
+        <app-sifarnik></app-sifarnik>
+    </p-tabPanel>
+    <p-tabPanel header="Registered Users">
+        <app-a-reg-korisnici></app-a-reg-korisnici>
+    </p-tabPanel>
+    <p-tabPanel header="Study Programs">
+        <app-a-studijski-programi></app-a-studijski-programi>
+    </p-tabPanel>
+    <p-tabPanel header="Organization">
+        <app-a-organizacija></app-a-organizacija>
+    </p-tabPanel>
+    <p-tabPanel header="Employees">
+        <app-a-zaposleni></app-a-zaposleni>
+    </p-tabPanel>
+</p-tabView>

@@ -1,32 +1,31 @@
-﻿import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { OfficeSupply } from '../model/office-supply';
+import { OfficeMaterial } from '../model/office-material';
 
 @Injectable({
   providedIn: 'root'
 })
-export class OfficeSuppliesService {
-
+export class OfficeMaterialService {
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<OfficeSupply[]>(`${environment.apiUrl}/api/kancelariskiMaterial`);
+  getAll() {
+    return this.http.get<OfficeMaterial[]>('http://localhost:8080/api/office-supplies');
   }
 
-  getById(id: number){
-    return this.http.get<OfficeSupply>(`http://localhost:8080/api/kancelariskiMaterial/${id}`);
+  getById(id: number) {
+    return this.http.get<OfficeMaterial>(`http://localhost:8080/api/office-supplies/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<OfficeSupply>(`http://localhost:8080/api/kancelariskiMaterial/${id}`);
+  delete(id: number) {
+    return this.http.delete<OfficeMaterial>(`http://localhost:8080/api/office-supplies/${id}`);
   }
 
-  update(id: number, kMaterijal: OfficeSupply){
-    return this.http.put<OfficeSupply>(`http://localhost:8080/api/kancelariskiMaterial/${id}`, kMaterijal);
+  update(id: number, material: OfficeMaterial) {
+    return this.http.put<OfficeMaterial>(`http://localhost:8080/api/office-supplies/${id}`, material);
   }
 
-  create(kMaterijal: OfficeSupply){
-    return this.http.post<OfficeSupply>(`${environment.apiUrl}/api/kancelariskiMaterial`, kMaterijal);
+  create(material: OfficeMaterial) {
+    return this.http.post<OfficeMaterial>('http://localhost:8080/api/office-supplies', material);
   }
 }

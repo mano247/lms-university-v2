@@ -6,6 +6,6 @@ export interface Rectorate {
     contact: string;
     image: string;
     address: string;
+    universities: University[];
     rectorName: string;
-    universities?: University[];
 }

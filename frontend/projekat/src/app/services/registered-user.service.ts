@@ -7,30 +7,29 @@ import { RegisteredUser } from '../model/users/registered-user';
   providedIn: 'root'
 })
 export class RegisteredUserService {
-
   constructor(private http: HttpClient) { }
 
-  getAll(){
-    return this.http.get<RegisteredUser[]>(`${environment.apiUrl}/api/registrovaniusers`);
+  getAll() {
+    return this.http.get<RegisteredUser[]>('http://localhost:8080/api/registered-users');
   }
 
-  getById(id: number){
-    return this.http.get<RegisteredUser>(`${environment.apiUrl}/api/registrovaniusers/${id}`);
+  getById(id: number) {
+    return this.http.get<RegisteredUser>(`http://localhost:8080/api/registered-users/${id}`);
   }
 
-  delete(id: number){
-    return this.http.delete<RegisteredUser>(`${environment.apiUrl}/api/registrovaniusers/${id}`);
+  delete(id: number) {
+    return this.http.delete<RegisteredUser>(`http://localhost:8080/api/registered-users/${id}`);
   }
 
-  update(id: number, user: RegisteredUser){
-    return this.http.put<RegisteredUser>(`${environment.apiUrl}/api/registrovaniusers/${id}`, user);
+  update(id: number, user: RegisteredUser) {
+    return this.http.put<RegisteredUser>(`http://localhost:8080/api/registered-users/${id}`, user);
   }
 
-  create(user: RegisteredUser){
-    return this.http.post<RegisteredUser>(`${environment.apiUrl}/api/registrovaniusers`, user);
+  create(user: RegisteredUser) {
+    return this.http.post<RegisteredUser>('http://localhost:8080/api/registered-users', user);
   }
 
-  dodeliStudenta(id: number, student: any){
-    return this.http.put<any>(`${environment.apiUrl}/api/registrovaniusers/${id}/dodeliStudenta`, student);
+  assignStudent(id: number, student: any) {
+    return this.http.put<any>(`http://localhost:8080/api/registered-users/${id}/enroll-student`, student);
   }
 }

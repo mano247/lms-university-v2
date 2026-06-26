@@ -1,17 +1,16 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { CourseService } from './course.service';
+import { PredmetService } from './course.service';
 
-describe('CourseService', () => {
-  let service: CourseService;
+describe('PredmetService', () => {
+  let service: PredmetService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CourseService);
+    service = TestBed.inject(PredmetService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 });
-

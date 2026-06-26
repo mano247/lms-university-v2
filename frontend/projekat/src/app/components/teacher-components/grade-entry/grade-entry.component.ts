@@ -27,12 +27,10 @@ import { FormsModule } from '@angular/forms';
 export class GradeEntryComponent implements OnInit {
   courses: Course[] = [];
   students: Student[] = [];
-  grades: number[] = [6, 7, 8, 9, 10];
+  grades: number[] | undefined;
 
   teacherId: number = 0;
-
   selectedExamAttempt: any = {};
-
   result: any = {
     points: 0,
     grade: 0,
@@ -52,13 +50,15 @@ export class GradeEntryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    this.grades = [6, 7, 8, 9, 10];
+
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.teacherId = id;
-      this.loadCourses(id);
-      this.loadStudents();
+      this.teacherId = parsedUser.id;
+      this.getCourses(id);
+      this.getStudents();
     }
   }
 
@@ -66,16 +66,16 @@ export class GradeEntryComponent implements OnInit {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: 'Do you want to submit this grade?',
-      header: 'Grade Confirmation',
+      header: 'Confirm grade',
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'none',
       rejectIcon: 'none',
       rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Grade successfully submitted.' });
+        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Grade submitted successfully.' });
       },
       reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Confirmation rejected.', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Grade submission cancelled.', life: 3000 });
       }
     });
   }
@@ -83,62 +83,67 @@ export class GradeEntryComponent implements OnInit {
   onCourseChange(event: any) {
     const courseId = event.value;
     if (courseId) {
-      this.examAttemptService.getPrijavljeniPocourseu(courseId).subscribe(x => {
+      this.examAttemptService.getRegisteredByCourse(courseId).subscribe(x => {
         this.examAttempts = x;
       });
     }
   }
 
-  loadCourses(id: number) {
-    this.teacherService.mojicoursei(id).subscribe(x => {
+  getCourses(id: number) {
+    this.teacherService.getMyCourses(id).subscribe(x => {
       this.courses = x;
     });
   }
 
-  loadStudents() {
+  getStudents() {
     this.studentService.getAll().subscribe(x => {
       this.students = x;
     });
   }
 
-  openGradeDialog(attempt: any) {
+  enterGrade(examAttempt: any) {
     this.visible = true;
-    this.selectedExamAttempt = attempt;
+    this.selectedExamAttempt = examAttempt;
   }
 
   submitGrade() {
     if (this.selectedExamAttempt && this.selectedExamAttempt.id) {
-      const updated = {
+      const updatedAttempt = {
         ...this.selectedExamAttempt,
         finalGrade: this.result.grade,
         points: this.result.points,
         note: this.result.note
       };
-      this.examAttemptService.update(updated.id, updated).subscribe({
+
+      this.examAttemptService.update(updatedAttempt.id, updatedAttempt).subscribe({
         next: () => {
-          this.loadCourses(this.teacherId);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Grade successfully entered.' });
+          this.getCourses(this.teacherId);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Grade submitted successfully.' });
           if (this.selectedCourseId) {
-            this.examAttemptService.getPrijavljeniPocourseu(this.selectedCourseId).subscribe(x => {
+            this.examAttemptService.getRegisteredByCourse(this.selectedCourseId).subscribe(x => {
               this.examAttempts = x;
             });
           }
-          this.closeDialog();
+          this.cancelDialog();
         },
         error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error entering grade.' });
-          this.closeDialog();
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error submitting grade.' });
+          this.cancelDialog();
         }
       });
     } else {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Exam attempt has no defined ID.' });
-      this.closeDialog();
+      this.cancelDialog();
     }
   }
 
-  closeDialog() {
+  cancelDialog() {
     this.visible = false;
     this.selectedExamAttempt = {};
-    this.result = { points: 0, grade: 0, note: '' };
+    this.result = {
+      points: 0,
+      grade: 0,
+      note: ''
+    };
   }
 }

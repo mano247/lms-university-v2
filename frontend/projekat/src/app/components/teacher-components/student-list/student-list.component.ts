@@ -1,4 +1,4 @@
-﻿import { NgFor, NgIf, NgStyle } from '@angular/common';
+import { NgFor, NgIf, NgStyle } from '@angular/common';
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
@@ -19,69 +19,61 @@ import { Course } from '../../../model/academic/course';
   schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-student-list',
   standalone: true,
-  imports: [TableModule, NgFor, DropdownModule, InputGroupModule, FormsModule, InputGroupAddonModule, 
+  imports: [TableModule, NgFor, DropdownModule, InputGroupModule, FormsModule, InputGroupAddonModule,
     ButtonModule, DialogModule, DividerModule, NgStyle, NgIf],
   templateUrl: './student-list.component.html',
   styleUrl: './student-list.component.css'
 })
-export class StudentListComponent implements OnInit{
+export class StudentListComponent implements OnInit {
   visible: boolean = false;
 
   filteredStudents: Student[] = [];
-  studenti: Student[] = [];
+  students: Student[] = [];
 
-  coursei: Course[] = [];
-  izabranicourse: any;
+  courses: Course[] = [];
+  selectedCourse: any;
 
-  // godinaUpisa: any;
-  // smer: any;
   enrollments: any;
-  // polozeni: any;
-  // neuspesnaPolaganja: any;
-  prijavljeniIspiti: any;
+  registeredExams: any;
+  studentDetails: any = {};
+  thesis: any = {};
 
-  studentDetails: any = {}
-  studentInfo: any;
+  totalEcts: number = 0;
+  averageGrade: number = 0;
 
-  Thesis: any = {}
-
-  ETCS:number = 0;
-  avgOcena:number = 0;
-
-  pretraga = {
+  search = {
     firstName: '',
     lastName: '',
-    indexNumber: '',
-    // godinaUpisa: '',
-    // prosecnaOcena: ''
+    indexNumber: ''
   };
 
-  constructor(private StudentService: StudentService, private TeacherService: TeacherService, 
-    private ExamAttemptService: ExamAttemptService, private ThesisService: ThesisService){}
+  constructor(
+    private studentService: StudentService,
+    private teacherService: TeacherService,
+    private examAttemptService: ExamAttemptService,
+    private thesisService: ThesisService
+  ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.loadCourses(id);
+      this.getCourses(id);
     }
   }
 
-  loadCourses(id: number) {
-    this.TeacherService.mojicoursei(id).subscribe(coursei => {
-      this.coursei = coursei;
-      if (this.coursei.length > 0) {
-
-        this.izabranicourse = this.coursei[0];
-        this.filteredStudents = this.izabranicourse.students;
+  getCourses(id: number) {
+    this.teacherService.getMyCourses(id).subscribe(courses => {
+      this.courses = courses;
+      if (this.courses.length > 0) {
+        this.selectedCourse = this.courses[0];
+        this.filteredStudents = this.selectedCourse.students;
       }
     });
   }
 
-  oncourseChange(event: any) {
-    console.log("Izabrani Course:", event.value); 
-  
+  onCourseChange(event: any) {
     if (event.value && event.value.students) {
       this.filteredStudents = event.value.students;
     } else {
@@ -90,67 +82,58 @@ export class StudentListComponent implements OnInit{
   }
 
   getStudentInfo(id: number) {
-    this.StudentService.getenrollments(id).subscribe(x=>{
+    this.studentService.getEnrollments(id).subscribe(x => {
       this.studentDetails.enrollments = x;
-    })
-
-    this.ExamAttemptService.getPrijavljeni(id).subscribe(x=>{
-      this.studentDetails.prijavljeniIspiti = x;
     });
 
-    this.ThesisService.findByStudent(id).subscribe(x=>{
-      this.studentDetails.Thesis = x;
-    })
+    this.examAttemptService.getRegisteredByStudent(id).subscribe(x => {
+      this.studentDetails.registeredExams = x;
+    });
 
-    this.StudentService.polozeniIspiti(id).subscribe(x=>{
-      this.studentDetails.polozeniIspiti = x;
+    this.thesisService.findByStudent(id).subscribe(x => {
+      this.studentDetails.thesis = x;
+    });
 
-      if (this.studentDetails.polozeniIspiti.length > 0) {
-        const sumaOcena = this.studentDetails.polozeniIspiti.reduce((sum: number, ispit: any) => sum + ispit.ocena, 0);
-        this.studentDetails.avgOcena = sumaOcena / this.studentDetails.polozeniIspiti.length;
+    this.studentService.getPassedExams(id).subscribe(x => {
+      this.studentDetails.passedExams = x;
+
+      if (this.studentDetails.passedExams.length > 0) {
+        const gradeSum = this.studentDetails.passedExams.reduce((sum: number, exam: any) => sum + exam.finalGrade, 0);
+        this.studentDetails.averageGrade = gradeSum / this.studentDetails.passedExams.length;
       } else {
-        this.avgOcena = 0;  
+        this.averageGrade = 0;
       }
 
-      this.studentDetails.ETCS = this.studentDetails.polozeniIspiti.reduce((sum: number, ispit: any) => sum + ispit.ects, 0);
+      this.studentDetails.totalEcts = this.studentDetails.passedExams.reduce((sum: number, exam: any) => sum + exam.ects, 0);
+    });
 
-    })
-
-    this.StudentService.nepolozeniIspiti(id).subscribe(x=>{
-      this.studentDetails.nepolozeniIspiti = x;
-    })
-
-
+    this.studentService.getFailedExams(id).subscribe(x => {
+      this.studentDetails.failedExams = x;
+    });
   }
 
-
-  openStudentDetails(student: Student){
+  showStudentDetails(student: Student) {
     this.visible = true;
     this.studentDetails = student;
-    if(student.id){
+    if (student.id) {
       this.getStudentInfo(student.id);
     }
-    console.log(this.studentDetails);
   }
 
-  filterStudents(){
-    this.filteredStudents = this.studenti.filter(s =>
-      (this.pretraga.firstName ? (s.firstName || '').toLowerCase().includes(this.pretraga.firstName.toLowerCase()) : true) &&
-      (this.pretraga.lastName ? (s.lastName || '').toLowerCase().includes(this.pretraga.lastName.toLowerCase()) : true) &&
-      (this.pretraga.indexNumber ? (s.indexNumber || '').toLowerCase().includes(this.pretraga.indexNumber.toLowerCase()) : true)
+  searchStudents() {
+    this.filteredStudents = this.students.filter(s =>
+      (this.search.firstName ? (s.firstName || '').toLowerCase().includes(this.search.firstName.toLowerCase()) : true) &&
+      (this.search.lastName ? (s.lastName || '').toLowerCase().includes(this.search.lastName.toLowerCase()) : true) &&
+      (this.search.indexNumber ? (s.indexNumber || '').toLowerCase().includes(this.search.indexNumber.toLowerCase()) : true)
     );
   }
 
-  clearFilter(){
-    this.filteredStudents = this.studenti;
-    this.pretraga = {
+  clearSearch() {
+    this.filteredStudents = this.students;
+    this.search = {
       firstName: '',
       lastName: '',
-      indexNumber: '',
-    }
+      indexNumber: ''
+    };
   }
-
-
 }
-
-

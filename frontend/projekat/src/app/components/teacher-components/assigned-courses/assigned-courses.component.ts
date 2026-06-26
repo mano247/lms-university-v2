@@ -24,7 +24,7 @@ import { MessageService } from 'primeng/api';
 export class AssignedCoursesComponent implements OnInit {
   visible: boolean = false;
   courses: Course[] = [];
-  courseSyllabus: string | undefined;
+  syllabus: string | undefined;
   teacherId: any;
   selectedCourse: any = null;
 
@@ -35,52 +35,53 @@ export class AssignedCoursesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.teacherId = id;
-      this.loadCourses(id);
+      this.teacherId = parsedUser.id;
+      this.getCourses(id);
     }
   }
 
-  loadCourses(id: number) {
-    this.teacherService.mojicoursei(id).subscribe(x => {
+  getCourses(id: number) {
+    this.teacherService.getMyCourses(id).subscribe(x => {
       this.courses = x;
     });
   }
 
   openSyllabusDialog(course: Course) {
     this.selectedCourse = course;
-    this.courseSyllabus = course.syllabus;
+    this.syllabus = course.syllabus;
     this.visible = true;
   }
 
   updateSyllabus() {
     if (this.selectedCourse) {
-      const updated: Course = {
+      const updatedCourse: Course = {
         ...this.selectedCourse,
-        syllabus: this.courseSyllabus
+        syllabus: this.syllabus
       };
-      if (updated.id !== undefined) {
-        this.teacherService.izmenaSilabusa(updated.id, updated).subscribe({
+
+      if (updatedCourse.id !== undefined) {
+        this.teacherService.updateSyllabus(updatedCourse.id, updatedCourse).subscribe({
           next: () => {
             this.visible = false;
-            this.courseSyllabus = undefined;
-            this.loadCourses(this.teacherId);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Syllabus successfully updated.' });
+            this.syllabus = undefined;
+            this.getCourses(this.teacherId);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Syllabus updated successfully.' });
           },
           error: () => {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating syllabus.' });
-            this.courseSyllabus = undefined;
+            this.syllabus = undefined;
           }
         });
       }
     }
   }
 
-  closeDialog() {
+  cancelDialog() {
     this.visible = false;
-    this.courseSyllabus = undefined;
+    this.syllabus = undefined;
   }
 }

@@ -1,13 +1,13 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { RegisteredUserService } from './registered-user.service';
+import { RegistrovaniKorisnikService } from './registered-user.service';
 
-describe('RegisteredUserService', () => {
-  let service: RegisteredUserService;
+describe('RegistrovaniKorisnikService', () => {
+  let service: RegistrovaniKorisnikService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(RegisteredUserService);
+    service = TestBed.inject(RegistrovaniKorisnikService);
   });
 
   it('should be created', () => {

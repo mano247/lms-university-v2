@@ -1,0 +1,93 @@
+<div class="content">
+    <h2>Registered Users</h2>
+    <div class="dugme">
+        <p-button label="Add" severity="success" (onClick)="openAddUserDialog()" />
+    </div>
+    <div class="pretraga">
+        <p-inputGroup>
+            <input type="text" [(ngModel)]="search.username" pInputText placeholder="username" />
+        </p-inputGroup>
+        <p-inputGroup>
+            <input type="text" [(ngModel)]="search.email" pInputText placeholder="email" />
+        </p-inputGroup>
+        <p-button icon="pi pi-search" (click)="searchUsers()" rounded="true" [raised]="true" />
+        <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
+    </div>
+    <p-table [value]="filteredUsers" styleClass="p-datatable-striped">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="username">username <p-sortIcon field="username"></p-sortIcon></th>
+                <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
+                <th>options</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-k>
+            <tr>
+                <td>{{k.id}}</td>
+                <td>{{k.username}}</td>
+                <td>{{k.email}}</td>
+                <td>
+                    <p-button (onClick)="openTypeDialog(k)" severity="contrast" label="Change type" />
+                    <p-button (onClick)="removeUser(k.id, $event)" label="Remove" severity="danger"/>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog header="Add User" [(visible)]="addUserDialog" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="firstName">First name</label>
+                <input id="firstName" type="text" pInputText [(ngModel)]="newUser.firstName" />
+            </div>
+            <div class="p-field">
+                <label for="lastName">Last name</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="newUser.lastName" />
+            </div>
+            <div class="p-field">
+                <label for="username">Username</label>
+                <input id="username" type="text" pInputText [(ngModel)]="newUser.username" />
+            </div>
+            <div class="p-field">
+                <label for="email">Email</label>
+                <input id="email" type="email" pInputText [(ngModel)]="newUser.email" />
+            </div>
+            <div class="p-field">
+                <label for="password">Password</label>
+                <input id="password" type="password" pInputText [(ngModel)]="newUser.password" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addUser()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAddUserDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <p-dialog header="Change user type" [(visible)]="typeDialog" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div>
+                <p-dropdown [options]="types" [(ngModel)]="selectedType" optionLabel="label" placeholder="Select type"></p-dropdown>
+            </div>
+            <div>
+                <p><strong>First name: </strong> {{userForTypeChange.firstName}}</p>
+            </div>
+            <div>
+                <p><strong>Last name: </strong> {{userForTypeChange.lastName}}</p>
+            </div>
+            <div>
+                <p><strong>Email: </strong> {{userForTypeChange.email}}</p>
+            </div>
+            <div>
+                <p><strong>Current permission: </strong> {{userForTypeChange.tipZaIzmenu}}</p>
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Change" rounded="true" severity="success" icon="pi pi-check" (click)="changeType()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="cancelTypeDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <p-toast />
+    <p-confirmPopup />
+</div>

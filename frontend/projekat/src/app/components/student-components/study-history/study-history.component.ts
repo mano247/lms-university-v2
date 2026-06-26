@@ -2,6 +2,7 @@ import { NgFor } from '@angular/common';
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { StudentService } from '../../../services/student.service';
+import { Course } from '../../../model/academic/course';
 import { SortEvent } from 'primeng/api';
 
 @Component({
@@ -13,42 +14,42 @@ import { SortEvent } from 'primeng/api';
   styleUrl: './study-history.component.css'
 })
 export class StudyHistoryComponent implements OnInit {
-  passedCourses: any[] = [];
-  failedCourses: any[] = [];
+  passedExams: any[] = [];
+  failedCourses: Course[] = [];
   enrollments: any[] = [];
 
   constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.loadPassedCourses(id);
-      this.loadEnrollments(id);
+      this.getPassedExams(id);
+      this.getEnrollments(id);
     }
   }
 
-  loadPassedCourses(id: number) {
-    this.studentService.polozeniIspiti(id).subscribe(x => {
-      this.passedCourses = x;
+  getPassedExams(id: number) {
+    this.studentService.getPassedExams(id).subscribe(x => {
+      this.passedExams = x;
     });
   }
 
-  loadEnrollments(id: number) {
-    this.studentService.getenrollments(id).subscribe(x => {
+  getEnrollments(id: number) {
+    this.studentService.getEnrollments(id).subscribe(x => {
       this.enrollments = x;
     });
   }
 
   getAverageGrade(): number {
-    if (this.passedCourses.length === 0) return 0;
-    const total = this.passedCourses.reduce((sum, item) => sum + (item.ocena || 0), 0);
-    return parseFloat((total / this.passedCourses.length).toFixed(2));
+    if (this.passedExams.length === 0) return 0;
+    const total = this.passedExams.reduce((sum, exam) => sum + exam.finalGrade, 0);
+    return parseFloat((total / this.passedExams.length).toFixed(2));
   }
 
-  getTotalECTS(): number {
-    if (this.passedCourses.length === 0) return 0;
-    return this.passedCourses.reduce((sum, item) => sum + (item.espb || 0), 0);
+  getTotalEcts(): number {
+    if (this.passedExams.length === 0) return 0;
+    return this.passedExams.reduce((sum, exam) => sum + exam.ects, 0);
   }
 }

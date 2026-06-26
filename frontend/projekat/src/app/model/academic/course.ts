@@ -1,19 +1,28 @@
+import { Notification } from '../announcement';
 import { ExamAttempt } from '../exam-attempt';
 import { Teacher } from '../users/teacher';
-import { CourseMaterial } from './course-material';
-import { StudyProgram } from './study-program';
+import { Student } from '../users/student';
+import { CourseMaterial } from './teaching-material';
+
+export interface StudyYear {
+  id?: number;
+  yearNumber: number;
+}
 
 export interface Course {
     id?: number;
     courseCode: string;
-    syllabus?: string;
+    syllabus: string;
     name: string;
-    ects?: number;
+    ects: number;
+    startDate: Date;
+    endDate: Date;
+    description: string;
+    studyYear?: StudyYear;
+    teachingMaterials: CourseMaterial[];
+    examAttempts: ExamAttempt[];
     teacher?: Teacher;
-    startDate?: Date;
-    endDate?: Date;
-    description?: string;
-    studyProgram?: StudyProgram;
-    teachingMaterials?: CourseMaterial[];
-    examAttempts?: ExamAttempt[];
+    students: Student[];
+    announcements: Notification[];
+    studyProgram: any;
 }

@@ -15,30 +15,34 @@ import { StudentService } from '../../../services/student.service';
 })
 export class MyCoursesComponent implements OnInit {
   myCourses: Course[] = [];
+  passed: Course[] = [];
+  failed: Course[] = [];
 
   constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       const id = parsedUser.id;
-      this.loadMyCourses(id);
+      this.getMyCourses(id);
     }
   }
 
-  loadMyCourses(id: number) {
-    this.studentService.getAktivnicoursei(id).subscribe(x => {
+  getMyCourses(id: number) {
+    this.studentService.getActiveCourses(id).subscribe(x => {
       this.myCourses = x;
     });
   }
 
   formatDate(date: Date | undefined): string {
-    if (!date) return '';
-    const d = new Date(date);
-    const year = d.getUTCFullYear();
-    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
-    const day = d.getUTCDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    if (date) {
+      const d = new Date(date);
+      const year = d.getUTCFullYear();
+      const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+      const day = d.getUTCDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return '';
   }
 }
