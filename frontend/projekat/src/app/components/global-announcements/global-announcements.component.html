@@ -1,0 +1,16 @@
+<div class="content">
+    <h2>Announcements</h2>
+    <p-dataView #dv [value]="announcements">
+        <ng-template pTemplate="list">
+            <div *ngFor="let a of announcements">
+                <div class="gObavestenje">
+                    <h4>{{a.title}}</h4>
+                    <p><span>From: </span> <br> {{formatDate(a.startDate)}}</p>
+                    <p><span>Until: </span> <br> {{formatDate(a.endDate)}}</p>
+                    <p>{{a.content}}</p>
+                </div>
+                <p-divider class="custom-divider"/>
+            </div>
+        </ng-template>
+    </p-dataView>
+</div>

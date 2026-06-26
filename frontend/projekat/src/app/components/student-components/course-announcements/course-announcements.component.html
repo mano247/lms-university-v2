@@ -1,0 +1,36 @@
+<div class="content">
+    <h2>Course Announcements</h2>
+    <p-dropdown
+      [options]="activeCourses"
+      optionLabel="name"
+      optionValue="id"
+      [(ngModel)]="selectedCourseId"
+      placeholder="Select a course"
+      (onChange)="onCourseChange($event)">
+    </p-dropdown>
+
+    <div>
+      <p-dialog header="Add Announcement" [modal]="true" [(visible)]="visible">
+        <div>
+          <p-button label="Add" (onClick)="addAnnouncement()"/>
+          <p-button label="Cancel" severity="secondary" (onClick)="visible = false" />
+        </div>
+      </p-dialog>
+    </div>
+
+    <p-dataView #dv [value]="filteredAnnouncements">
+      <ng-template pTemplate="list">
+        <div *ngFor="let a of filteredAnnouncements">
+          <div class="gObavestenje">
+            <h4>{{a.title}}</h4>
+            <p><span>From: </span> <br> {{formatDate(a.startDate)}}, <br> <span>Until: </span> <br>{{formatDate(a.endDate)}}</p>
+            <p>{{a.content}}</p>
+          </div>
+          <p-divider />
+        </div>
+      </ng-template>
+    </p-dataView>
+
+    <p-toast></p-toast>
+    <p-confirmPopup></p-confirmPopup>
+</div>

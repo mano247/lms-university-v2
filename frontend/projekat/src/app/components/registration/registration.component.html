@@ -1,0 +1,31 @@
+<div class="content">
+    <h2>User Registration</h2>
+    <div class="form form-group">
+        <input type="text" placeholder="Email" [formControl]="emailFormControl"/>
+        <div class="error-message" *ngIf="emailFormControl.touched && emailFormControl.invalid">
+            <div *ngIf="emailFormControl.hasError('required')">Email is required!</div>
+            <div *ngIf="emailFormControl.hasError('email')">Email address is not valid!</div>
+        </div>
+    </div>
+    <div class="form form-group">
+        <input type="text" placeholder="Username" [formControl]="usernameFormControl"/>
+        <div class="error-message" *ngIf="usernameFormControl.touched && usernameFormControl.invalid">
+            <div *ngIf="usernameFormControl.hasError('required')">Username is required!</div>
+            <div *ngIf="usernameFormControl.hasError('minlength')">Username must be at least 4 characters!</div>
+        </div>
+    </div>
+    <div class="form form-group">
+        <input type="password" placeholder="Password" [formControl]="passwordFormControl"/>
+        <div class="error-message" *ngIf="passwordFormControl.touched && passwordFormControl.invalid">
+            <div *ngIf="passwordFormControl.hasError('required')">Password is required!</div>
+            <div *ngIf="passwordFormControl.hasError('minlength')">Password must be at least 4 characters!</div>
+        </div>
+    </div>
+    <div class="button">
+        <p-toast />
+        <p-button (onClick)="register()" label="Register" [rounded]="true" [raised]="true" severity="success"></p-button>
+        <p-button (onClick)="resetForm()" label="Clear" [rounded]="true" [raised]="true" severity="danger"></p-button>
+    </div>
+    <p>Already have an account? <a routerLink="/login">Sign in here.</a></p>
+    <p-progressSpinner *ngIf="isLoading" ariaLabel="loading" />
+</div>

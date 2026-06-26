@@ -1,0 +1,345 @@
+<div class="content">
+    <h2>Registry</h2>
+    <p-dropdown
+        [options]="registryOptions"
+        [(ngModel)]="selected"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select registry" />
+
+    <div *ngIf="selected === 'faculties'">
+        <div class="dugme">
+            <p-button label="Add Faculty" severity="success" (onClick)="openAddFacultyDialog()" />
+        </div>
+        <div class="pretraga">
+            <p-inputGroup class="prvi_input">
+                <input type="text" [(ngModel)]="filter.name" pInputText placeholder="Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filter.code" pInputText placeholder="Code" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterFaculties()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredFaculties">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                    <th pSortableColumn="facultyCode">Code <p-sortIcon field="facultyCode"></p-sortIcon></th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-f let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ f.id }}</td>
+                    <td>{{ f.name }}</td>
+                    <td>{{ f.facultyCode }}</td>
+                    <td>
+                        <p-button label="Code" (onClick)="editFacultyCode(f)"/>
+                        <p-button label="Faculty" (onClick)="openEditFaculty(f)" severity="info"/>
+                    </td>
+                    <td>
+                        <p-button label="Delete" (onClick)="deleteFaculty(f.id, $event)" severity="danger"/>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <div *ngIf="selected === 'study-programs'">
+        <div class="dugme">
+            <p-button label="Add Study Program" (onClick)="openAddStudyProgramDialog()" severity="success"/>
+        </div>
+        <div class="pretraga">
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filter.name" pInputText placeholder="Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filter.code" pInputText placeholder="Code" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterStudyPrograms()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredStudyPrograms">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                    <th pSortableColumn="programCode">Code <p-sortIcon field="programCode"></p-sortIcon></th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ s.id }}</td>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.programCode }}</td>
+                    <td>
+                        <p-button label="Code" (onClick)="editStudyProgramCode(s)"/>
+                        <p-button label="Edit" (onClick)="openEditStudyProgram(s)" severity="info"/>
+                    </td>
+                    <td>
+                        <p-button label="Delete" (onClick)="deleteStudyProgram(s.id, $event)" severity="danger"/>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <div *ngIf="selected === 'courses'">
+        <div class="dugme">
+            <p-button label="Add Course" (onClick)="openAddCourseDialog()" severity="success" />
+        </div>
+        <div class="pretraga">
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filter.name" pInputText placeholder="Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filter.code" pInputText placeholder="Code" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterCourses()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredCourses">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                    <th pSortableColumn="courseCode">Code <p-sortIcon field="courseCode"></p-sortIcon></th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-c let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ c.id }}</td>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.courseCode }}</td>
+                    <td>
+                        <p-button label="Code" (onClick)="editCourseCode(c)"/>
+                        <p-button label="Edit" (onClick)="openEditCourse(c)" severity="info"/>
+                    </td>
+                    <td>
+                        <p-button label="Delete" (onClick)="deleteCourse(c.id, $event)" severity="danger"/>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Edit Code Dialog -->
+    <p-dialog header="Edit Code" [(visible)]="visible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <p *ngIf="currentElement">{{currentElement.name}}</p>
+            <div class="p-field">
+                <label for="code">Code</label>
+                <input id="code" type="text" pInputText [(ngModel)]="newCode" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="saveCode()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <!-- Add Faculty Dialog -->
+    <p-dialog header="Add Faculty" [(visible)]="addFacultyVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="fName">Name</label>
+                <input id="fName" type="text" pInputText [(ngModel)]="newFaculty.name" />
+            </div>
+            <div class="p-field">
+                <label for="fDesc">Description</label>
+                <textarea id="fDesc" rows="4" pInputTextarea [(ngModel)]="newFaculty.description"></textarea>
+            </div>
+            <div class="p-field">
+                <label for="fCode">Code</label>
+                <input id="fCode" type="text" [(ngModel)]="newFaculty.facultyCode">
+            </div>
+            <div class="p-field">
+                <label for="fAddr">Address</label>
+                <input id="fAddr" type="text" pInputText [(ngModel)]="newFaculty.address" />
+            </div>
+            <div class="p-field">
+                <label for="fContact">Contact</label>
+                <input id="fContact" type="text" pInputText [(ngModel)]="newFaculty.contact" />
+            </div>
+            <div class="p-field">
+                <label for="fImage">Image</label>
+                <input id="fImage" type="text" pInputText [(ngModel)]="newFaculty.image" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="createFaculty()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialogFaculty()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <!-- Edit Faculty Dialog -->
+    <p-dialog header="Edit Faculty" [(visible)]="editFacultyVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="efName">Name</label>
+                <input id="efName" type="text" pInputText [(ngModel)]="newFaculty.name" />
+            </div>
+            <div class="p-field">
+                <label for="efDesc">Description</label>
+                <textarea id="efDesc" rows="4" pInputTextarea [(ngModel)]="newFaculty.description"></textarea>
+            </div>
+            <div class="p-field">
+                <label for="efCode">Code</label>
+                <input id="efCode" type="text" [(ngModel)]="newFaculty.facultyCode">
+            </div>
+            <div class="p-field">
+                <label for="efAddr">Address</label>
+                <input id="efAddr" type="text" pInputText [(ngModel)]="newFaculty.address" />
+            </div>
+            <div class="p-field">
+                <label for="efContact">Contact</label>
+                <input id="efContact" type="text" pInputText [(ngModel)]="newFaculty.contact" />
+            </div>
+            <div class="p-field">
+                <label for="efImage">Image</label>
+                <input id="efImage" type="text" pInputText [(ngModel)]="newFaculty.image" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateFaculty()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialogFaculty()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <!-- Add Study Program Dialog -->
+    <p-dialog header="Add Study Program" [(visible)]="addStudyProgramVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div>
+                <p-dropdown [options]="faculties" [(ngModel)]="newStudyProgram.faculty" optionLabel="name" placeholder="Select faculty"></p-dropdown>
+            </div>
+            <div class="p-field">
+                <label for="spName">Name</label>
+                <input id="spName" type="text" pInputText [(ngModel)]="newStudyProgram.name" />
+            </div>
+            <div class="p-field">
+                <label for="spCode">Code</label>
+                <input id="spCode" type="text" pInputText [(ngModel)]="newStudyProgram.programCode" />
+            </div>
+            <div class="p-field">
+                <label for="spDesc">Description</label>
+                <textarea id="spDesc" rows="4" pInputTextarea [(ngModel)]="newStudyProgram.description"></textarea>
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="createStudyProgram()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialogStudyProgram()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <!-- Edit Study Program Dialog -->
+    <p-dialog header="Edit Study Program" [(visible)]="editStudyProgramVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div>
+                <p-dropdown [options]="faculties" [(ngModel)]="newStudyProgram.faculty" optionLabel="name" placeholder="Select faculty"></p-dropdown>
+            </div>
+            <div class="p-field">
+                <label for="espName">Name</label>
+                <input id="espName" type="text" pInputText [(ngModel)]="newStudyProgram.name" />
+            </div>
+            <div class="p-field">
+                <label for="espCode">Code</label>
+                <input id="espCode" type="text" pInputText [(ngModel)]="newStudyProgram.programCode" />
+            </div>
+            <div class="p-field">
+                <label for="espDesc">Description</label>
+                <textarea id="espDesc" rows="4" pInputTextarea [(ngModel)]="newStudyProgram.description"></textarea>
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateStudyProgram()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialogStudyProgram()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <!-- Add Course Dialog -->
+    <p-dialog header="Add Course" [(visible)]="addCourseVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div>
+                <p-dropdown [options]="studyPrograms" [(ngModel)]="newCourse.studyProgram" optionLabel="name" placeholder="Select study program"></p-dropdown>
+            </div>
+            <div>
+                <p-dropdown [options]="teachers" [(ngModel)]="newCourse.teacher" optionLabel="firstName" placeholder="Select teacher"></p-dropdown>
+            </div>
+            <div class="p-field">
+                <label for="cName">Name</label>
+                <input id="cName" type="text" pInputText [(ngModel)]="newCourse.name" />
+            </div>
+            <div class="p-field">
+                <label for="cCode">Code</label>
+                <input id="cCode" type="text" pInputText [(ngModel)]="newCourse.courseCode" />
+            </div>
+            <div class="p-field">
+                <label for="cDesc">Description</label>
+                <textarea id="cDesc" rows="4" pInputTextarea [(ngModel)]="newCourse.description"></textarea>
+            </div>
+            <div class="p-field">
+                <label for="cSyllabus">Syllabus</label>
+                <textarea id="cSyllabus" rows="4" pInputTextarea [(ngModel)]="newCourse.syllabus"></textarea>
+            </div>
+            <div class="p-field">
+                <label for="cEcts">ECTS</label>
+                <input id="cEcts" type="number" step="1" [(ngModel)]="newCourse.ects">
+            </div>
+            <div class="p-field">
+                <label for="cStart">Start Date</label>
+                <p-calendar id="cStart" [(ngModel)]="newCourse.startDate" [showTime]="true"></p-calendar>
+            </div>
+            <div class="p-field">
+                <label for="cEnd">End Date</label>
+                <p-calendar id="cEnd" [(ngModel)]="newCourse.endDate" [showTime]="true"></p-calendar>
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="createCourse()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialogCourse()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <!-- Edit Course Dialog -->
+    <p-dialog header="Edit Course" [(visible)]="editCourseVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div>
+                <p-dropdown [options]="studyPrograms" [(ngModel)]="newCourse.studyProgram" optionLabel="name" placeholder="Select study program"></p-dropdown>
+            </div>
+            <div class="p-field">
+                <label for="ecName">Name</label>
+                <input id="ecName" type="text" pInputText [(ngModel)]="newCourse.name" />
+            </div>
+            <div class="p-field">
+                <label for="ecCode">Code</label>
+                <input id="ecCode" type="text" pInputText [(ngModel)]="newCourse.courseCode" />
+            </div>
+            <div class="p-field">
+                <label for="ecDesc">Description</label>
+                <textarea id="ecDesc" rows="4" pInputTextarea [(ngModel)]="newCourse.description"></textarea>
+            </div>
+            <div class="p-field">
+                <label for="ecSyllabus">Syllabus</label>
+                <textarea id="ecSyllabus" rows="4" pInputTextarea [(ngModel)]="newCourse.syllabus"></textarea>
+            </div>
+            <div class="p-field">
+                <label for="ecEcts">ECTS</label>
+                <input id="ecEcts" type="number" step="1" [(ngModel)]="newCourse.ects">
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateCourse()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialogCourse()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <p-toast />
+    <p-confirmPopup />
+</div>

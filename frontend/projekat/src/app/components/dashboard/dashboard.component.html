@@ -1,107 +1,91 @@
 <div class="content" *ngIf="roles.includes('STUDENT_PERMISSION')">
-    <h2>Moj meni</h2>
+    <h2>My Portal</h2>
     <div class="kartice">
-        <p-card header="Univerzitet" [style]="{ height: '400px' }" >
+        <p-card header="University" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika fakulteta" src="assets/images/lms_banner.png" />
+                <img alt="LMS banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>
-                Pocetna stranica LMS univerziteta
-            </p>
+            <p>LMS University homepage</p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="eStudent" [style]="{ height: '400px' }" >
+        <p-card header="Student Portal" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika eStudenta" src="assets/images/estudent.png" />
+                <img alt="Student portal" src="assets/images/estudent.png" />
             </ng-template>
-            <p>
-                Prijava ispita, istorija studiranja...
-            </p>
+            <p>Exam registration, study history...</p>
             <ng-template pTemplate="footer">
-                <p-button label="eStudent" (onClick)="eStudent()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Student Portal" (onClick)="navigateToStudent()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
 </div>
 <div class="content" *ngIf="roles.includes('NASTAVNIK_PERMISSION')">
-    <h2>Moj meni</h2>
+    <h2>My Portal</h2>
     <div class="kartice">
-        <p-card header="Univerzitet" [style]="{ height: '400px' }" >
+        <p-card header="University" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika fakulteta" src="assets/images/lms_banner.png" />
+                <img alt="LMS banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>
-                Pocetna stranica LMS univerziteta
-            </p>
+            <p>LMS University homepage</p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="eProfesor" [style]="{ height: '400px' }" >
+        <p-card header="Teacher Portal" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika eProfesora" src="assets/images/eprofesor.png" />
+                <img alt="Teacher portal" src="assets/images/eprofesor.png" />
             </ng-template>
-            <p>
-                Predmeti, studenti, ocene...
-            </p>
+            <p>Courses, students, grades...</p>
             <ng-template pTemplate="footer">
-                <p-button label="eProfesor" (onClick)="eProfesor()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Teacher Portal" (onClick)="navigateToTeacher()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
 </div>
 <div class="content" *ngIf="roles.includes('STUDENTSKASLUZBA_PERMISSION')">
-    <h2>Moj meni</h2>
+    <h2>My Portal</h2>
     <div class="kartice">
-        <p-card header="Univerzitet" [style]="{ height: '400px' }" >
+        <p-card header="University" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika fakulteta" src="assets/images/lms_banner.png" />
+                <img alt="LMS banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>
-                Pocetna stranica LMS univerziteta
-            </p>
+            <p>LMS University homepage</p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="eSSluzba" [style]="{ height: '400px' }" >
+        <p-card header="Student Office Portal" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika eSSluzbe" src="assets/images/essluzba.png" />
+                <img alt="Office portal" src="assets/images/essluzba.png" />
             </ng-template>
-            <p>
-                Upis, obavestenja, biblioteka...
-            </p>
+            <p>Enrollment, announcements, library...</p>
             <ng-template pTemplate="footer">
-                <p-button label="eSSluzba" (onClick)="eSSluzba()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Student Office Portal" (onClick)="navigateToOffice()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>
 </div>
 <div class="content" *ngIf="roles.includes('ADMINISTRATOR_PERMISSION')">
-    <h2>Moj meni</h2>
+    <h2>My Portal</h2>
     <div class="kartice">
-        <p-card header="Univerzitet" [style]="{ height: '400px' }" >
+        <p-card header="University" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika fakulteta" src="assets/images/lms_banner.png" />
+                <img alt="LMS banner" src="assets/images/lms_banner.png" />
             </ng-template>
-            <p>
-                Pocetna stranica LMS univerziteta
-            </p>
+            <p>LMS University homepage</p>
             <ng-template pTemplate="footer">
-                <p-button label="Univerzitet" (onClick)="univerzitet()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="University" (onClick)="navigateToHome()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
-        <p-card header="eAdmin" [style]="{ height: '400px' }" >
+        <p-card header="Admin Portal" [style]="{ height: '400px' }">
             <ng-template pTemplate="header">
-                <img alt="slika eAdmina" src="assets/images/eadmin.png" />
+                <img alt="Admin portal" src="assets/images/eadmin.png" />
             </ng-template>
-            <p>
-                Administracija, zaposleni, sifarnik...
-            </p>
+            <p>Administration, employees, registry...</p>
             <ng-template pTemplate="footer">
-                <p-button label="eAdmin" (onClick)="eAdmin()" [rounded]="true" severity="info" [raised]="true" class="button"/>
+                <p-button label="Admin Portal" (onClick)="navigateToAdmin()" [rounded]="true" severity="info" [raised]="true" class="button"/>
             </ng-template>
         </p-card>
     </div>

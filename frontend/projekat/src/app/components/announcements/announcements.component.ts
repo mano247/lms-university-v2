@@ -1,0 +1,90 @@
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { DataViewModule } from 'primeng/dataview';
+import { NgFor } from '@angular/common';
+import { DividerModule } from 'primeng/divider';
+import { GlobalAnnouncementsService } from '../../services/global-announcements.service';
+import { GlobalNotification } from '../../model/global-notification';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
+@Component({
+  schemas: [NO_ERRORS_SCHEMA],
+  selector: 'app-announcements',
+  standalone: true,
+  imports: [NgFor, DataViewModule, DividerModule, ButtonModule, DialogModule, FormsModule, CalendarModule, ToastModule],
+  templateUrl: './announcements.component.html',
+  styleUrl: './announcements.component.css',
+  providers: [MessageService]
+})
+export class AnnouncementsComponent implements OnInit{
+  announcements: GlobalNotification[] = [];
+  displayDialog: boolean = false;
+
+  newAnnouncement: GlobalNotification = {
+    content: '',
+    title: '',
+    image: '',
+    startDate: new Date(),
+    endDate: new Date()
+  };
+
+  constructor(private globalAnnouncementService: GlobalAnnouncementsService, private messageService: MessageService){}
+
+  ngOnInit(): void {
+    this.loadAnnouncements();
+  }
+
+  loadAnnouncements(){
+    this.globalAnnouncementService.getAll().subscribe(x=>{
+      this.announcements = x;
+    });
+  }
+
+  formatDate(date: any): string {
+    let d: Date;
+    if (typeof date === 'string') {
+      d = new Date(date);
+    } else if (date instanceof Date) {
+      d = date;
+    } else {
+      return '';
+    }
+    if (isNaN(d.getTime())) return '';
+    const hours = d.getUTCHours().toString().padStart(2, '0');
+    const minutes = d.getUTCMinutes().toString().padStart(2, '0');
+    const day = d.getUTCDate().toString().padStart(2, '0');
+    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = d.getUTCFullYear();
+    return `${hours}:${minutes}, ${day}-${month}-${year}`;
+  }
+
+  showDialog(){
+    this.displayDialog = true;
+  }
+
+  addAnnouncement() {
+    this.globalAnnouncementService.create(this.newAnnouncement).subscribe({
+      next: () => {
+        this.loadAnnouncements();
+        this.resetForm();
+        this.hideDialog();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Announcement added successfully.' });
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding the announcement.' });
+      }
+    });
+  }
+
+  hideDialog(){
+    this.displayDialog = false;
+  }
+
+  resetForm(){
+    this.newAnnouncement = { content: '', title: '', image: '', startDate: new Date(), endDate: new Date() };
+  }
+}

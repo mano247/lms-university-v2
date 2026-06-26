@@ -1,20 +1,20 @@
 <header>
     <div class="header-left">
-        <img src="assets/images/logo.png" alt="logo" class="logo">  
+        <img src="assets/images/logo.png" alt="logo" class="logo">
         <a routerLink="/">
-            <h1>{{univerzitet.naziv}}</h1>
+            <h1>{{univerzitet.name}}</h1>
         </a>
     </div>
     <div class="avatar" *ngIf="isLoggedIn()">
-        <p-avatar 
-            label="P" 
-            styleClass="mr-2" 
-            size="large" 
-            shape="circle" 
+        <p-avatar
+            label="P"
+            styleClass="mr-2"
+            size="large"
+            shape="circle"
             (click)="$any(menu).toggle($event)" />
         <p-tieredMenu #menu [model]="items" [popup]="true" />
     </div>
     <div class="avatar" *ngIf="!isLoggedIn()">
-        <p-button (onClick)="prijavaLink()" label="Prijava" icon="pi pi-sign-in" severity="info" [raised]="true"/>
+        <p-button (onClick)="navigateToLogin()" label="Login" icon="pi pi-sign-in" severity="info" [raised]="true"/>
     </div>
 </header>

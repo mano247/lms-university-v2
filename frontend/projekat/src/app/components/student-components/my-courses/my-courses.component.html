@@ -1,0 +1,26 @@
+<div class="content">
+    <h2>My Courses</h2>
+    <p-dataView #dv [value]="myCourses">
+        <ng-template pTemplate="list">
+            <div *ngFor="let c of myCourses">
+                <div class="predmet">
+                    <h4>{{c.name}}</h4>
+                    <p><span>Course code: </span> <br> {{c.courseCode}}</p>
+                    <p><span>Study program: </span> <br> {{c.studyProgram?.name}}</p>
+                    <p><span>Duration:</span> <br> {{formatDate(c.startDate)}}, until: {{formatDate(c.endDate)}}</p>
+                    <p><span>ECTS:</span> <br> {{c.ects}}</p>
+                    <p><span>Teacher: </span> <br> {{c.teacher?.firstName}} {{c.teacher?.lastName}}</p>
+                    <p><span>Description: </span> <br> {{c.description}}</p>
+                    <div class="udzbenici"><span>Teaching materials:</span> <br>
+                        <ul>
+                          <li *ngFor="let m of c.teachingMaterials">
+                            <strong>{{m.title}}</strong> - Author: {{m.authors}}
+                          </li>
+                        </ul>
+                    </div>
+                </div>
+                <p-divider />
+            </div>
+        </ng-template>
+    </p-dataView>
+</div>

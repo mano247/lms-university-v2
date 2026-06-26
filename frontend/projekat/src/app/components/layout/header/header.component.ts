@@ -1,5 +1,5 @@
 import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
-import { Univerzitet } from '../../../model/academic/univerzitet';
+import { University } from '../../../model/academic/university';
 import { Router, RouterModule } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { TieredMenuModule } from 'primeng/tieredmenu';
@@ -17,73 +17,47 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  @Input()
-  univerzitet: Univerzitet = {
-    naziv: '',
-    datumOsnivanja: new Date,
-    kontakt: '',
-    opis: '',
-    slika: '',
-    adresa: '',
-    rektorat: {
-      naziv: '',
-      kontakt: '',
-      slika: '',
-      adresa: '',
-      univerziteti: [],
-      ime_rektora: ''
-    }
+  @Input() univerzitet: University = {
+    name: '',
+    foundingDate: new Date(),
+    contact: '',
+    description: '',
+    image: '',
+    address: ''
   };
 
   items: MenuItem[];
 
-  constructor(private router: Router, private loginService: LoginService){
+  constructor(private router: Router, private loginService: LoginService) {
     this.items = [
       {
-        label: 'Moj meni',
+        label: 'My Menu',
         icon: 'pi pi-bars',
-        command: () => this.meni()
+        command: () => this.router.navigate(['menu'])
       },
       {
-        label: 'Moj profil',
+        label: 'My Profile',
         icon: 'pi pi-user',
-        command: () => this.mojProfil()
+        command: () => this.router.navigate(['my-profile'])
       },
       {
-        label: 'Obavestenja',
+        label: 'Announcements',
         icon: 'pi pi-bell',
-        command: () => this.obavestenja()
+        command: () => this.router.navigate(['all-announcements'])
       },
       {
-        label: 'Odjava',
+        label: 'Logout',
         icon: 'pi pi-sign-out',
-        command: () => this.logout()
+        command: () => this.loginService.logout()
       }
     ];
-  }
-  
-  meni(){
-    this.router.navigate(['menu'])
-  }
-
-  mojProfil(){
-    this.router.navigate(['moj-profil'])
-  }
-
-  obavestenja(){
-    this.router.navigate(['sva_obavestenja'])
-  }
-
-  logout(){
-    this.loginService.logout();
   }
 
   isLoggedIn(): boolean {
     return this.loginService.loggedIn();
   }
 
-  prijavaLink(){
+  navigateToLogin() {
     this.router.navigate(['/login']);
   }
-  
 }

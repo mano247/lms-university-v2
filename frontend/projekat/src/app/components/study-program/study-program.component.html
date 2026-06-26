@@ -1,0 +1,20 @@
+<div class="content">
+    <a [routerLink]="['/faculty', facultyCode]"><h2>{{faculty.name}}</h2></a>
+    <h3>{{studyProgram?.name}}</h3>
+
+    <p>{{studyProgram?.description}}</p>
+
+    <p-divider />
+
+    <h4>Courses</h4>
+    <ul>
+        <li *ngFor="let c of courses">
+            <a [routerLink]="['/faculty', facultyCode, 'study-program', programCode, 'course', c.courseCode]">{{c.name}}</a>
+        </li>
+    </ul>
+
+    <p-divider />
+
+    <h4>Program Director</h4>
+    <p>{{studyProgram?.programDirector?.firstName}} {{studyProgram?.programDirector?.lastName}}</p>
+</div>

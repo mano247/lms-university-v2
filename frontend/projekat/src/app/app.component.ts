@@ -1,17 +1,17 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+﻿import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { HeaderComponent } from "./components/layout/header/header.component";
 import { FooterComponent } from "./components/layout/footer/footer.component";
-import { Univerzitet } from './model/academic/univerzitet';
-import { UniverzitetService } from './services/univerzitet.service';
+import { University } from './model/academic/university';
+import { UniversityService } from './services/university.service';
 import { MenubarModule } from 'primeng/menubar';
-import { FakultetService } from './services/fakultet.service';
-import { Fakultet } from './model/academic/fakultet';
+import { FacultyService } from './services/faculty.service';
+import { Faculty } from './model/academic/faculty';
 import { MenuBarComponent } from "./components/layout/menu-bar/menu-bar.component";
 import { Title } from '@angular/platform-browser';
-import { StudijskiProgramService } from './services/studijski-program.service';
-import { StudijskiProgram } from './model/academic/studijskiProgram';
+import { StudyProgramService } from './services/study-program.service';
+import { StudyProgram } from './model/academic/study-program';
 import { TabViewModule } from 'primeng/tabview';
 
 
@@ -27,50 +27,49 @@ import { TabViewModule } from 'primeng/tabview';
 export class AppComponent implements OnInit{
   title = "LMS";
 
-  univerzitet: Univerzitet = {
-    naziv: '',
-    datumOsnivanja: new Date,
-    kontakt: '',
-    opis: '',
-    slika: '',
-    adresa: '',
-    rektorat: {
-      naziv: '',
-      kontakt: '',
-      slika: '',
-      adresa: '',
-      univerziteti: [],
-      ime_rektora: ''
+  univerzitet: University = {
+    name: '',
+    foundingDate: new Date(),
+    contact: '',
+    description: '',
+    image: '',
+    address: '',
+    rectorate: {
+      name: '',
+      contact: '',
+      image: '',
+      address: '',
+      rectorName: ''
     }
   };
 
-  studijskiProgrami: StudijskiProgram[] = [];
-  fakulteti: Fakultet[] = [];
+  studyPrograms: StudyProgram[] = [];
+  faculties: Faculty[] = [];
 
-  constructor(private univerzitetService: UniverzitetService, private fakultetService: FakultetService, private titleService: Title, private spService: StudijskiProgramService){}
+  constructor(private universityService: UniversityService, private facultyService: FacultyService, private titleService: Title, private spService: StudyProgramService){}
 
   ngOnInit(): void {
-    this.titleService.setTitle("LMS Univerzitet");
-    this.getUniverzitet();
-    this.getFakulteti();
-    this.getStudijskiProgrami();
+    this.titleService.setTitle("LMS University");
+    this.getUniversity();
+    this.getFaculties();
+    this.getStudyPrograms();
   }
 
-  getUniverzitet(){
-    return this.univerzitetService.getAll().subscribe(x=>{
+  getUniversity(){
+    return this.universityService.getAll().subscribe(x=>{
       this.univerzitet = x[0];
     })
   }
 
-  getFakulteti(){
-    return this.fakultetService.getAll().subscribe( f => {
-      this.fakulteti = f;
+  getFaculties(){
+    return this.facultyService.getAll().subscribe( f => {
+      this.faculties = f;
     })
   }
 
-  getStudijskiProgrami(){
+  getStudyPrograms(){
     return this.spService.getAll().subscribe( x => {
-      this.studijskiProgrami = x;
+      this.studyPrograms = x;
     })
   }
 

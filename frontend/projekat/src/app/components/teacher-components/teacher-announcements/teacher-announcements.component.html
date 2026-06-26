@@ -1,0 +1,58 @@
+<div class="content">
+    <h2>Course Announcements</h2>
+    <p-button label="Add Announcement" severity="success" (onClick)="openAddDialog()"/>
+    <p-dropdown
+        [options]="myCourses"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="selectedCourseId"
+        placeholder="Select a course"
+        (onChange)="onCourseChange($event)"
+    />
+    <div>
+        <p-dialog header="Add Announcement" [(visible)]="visible" [modal]="true" [closable]="true">
+            <div class="p-fluid">
+                <div class="p-field">
+                    <label for="course">Course:</label>
+                    <p-dropdown id="course" name="course" [options]="myCourses" optionLabel="name" [(ngModel)]="newAnnouncement.course" placeholder="Select a course" required></p-dropdown>
+                </div>
+                <div class="p-field">
+                    <label for="title">Title:</label>
+                    <input id="title" name="title" type="text" pInputText [(ngModel)]="newAnnouncement.title" required />
+                </div>
+                <div class="p-field">
+                    <label for="content">Content:</label>
+                    <textarea id="content" name="content" pInputTextarea [(ngModel)]="newAnnouncement.content" required></textarea>
+                </div>
+                <div class="p-field">
+                    <label for="startDate">Start time:</label>
+                    <p-calendar id="startDate" name="startDate" [(ngModel)]="newAnnouncement.startDate" [showTime]="true" required></p-calendar>
+                </div>
+                <div class="p-field">
+                    <label for="endDate">End time:</label>
+                    <p-calendar id="endDate" name="endDate" [(ngModel)]="newAnnouncement.endDate" [showTime]="true" required></p-calendar>
+                </div>
+                <p-footer>
+                    <p-button type="submit" (onClick)="addAnnouncement()" severity="success" label="Add" />
+                    <p-button label="Cancel" severity="danger" (onClick)="visible = false" />
+                </p-footer>
+            </div>
+        </p-dialog>
+    </div>
+    <p-dataView #dv [value]="filteredAnnouncements">
+        <ng-template pTemplate="list">
+            <div *ngFor="let a of filteredAnnouncements">
+                <div class="gObavestenje">
+                    <h4>{{a.title}}</h4>
+                    <p><span>from: </span> <br> {{formatDate(a.startDate)}}, <br> <span>to: </span> <br>{{formatDate(a.endDate)}}</p>
+                    <p>{{a.content}}</p>
+                    <p>
+                        <p-button label="Remove" (click)="deleteAnnouncement($event, a)" severity="danger" rounded="true" [raised]="true"/>
+                    </p>
+                </div>
+            </div>
+        </ng-template>
+    </p-dataView>
+    <p-toast />
+    <p-confirmPopup />
+</div>

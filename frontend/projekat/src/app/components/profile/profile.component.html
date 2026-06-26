@@ -1,0 +1,51 @@
+<div class="content">
+    <h3>My Profile</h3>
+
+    <h4>First Name</h4>
+    <p>{{ currentUser?.firstName || 'Not set' }}</p>
+
+    <h4>Last Name</h4>
+    <p>{{ currentUser?.lastName || 'Not set' }}</p>
+
+    <p-divider />
+
+    <h4>Email</h4>
+    <p>{{currentUser?.email}}</p>
+
+    <p-divider />
+
+    <h4>Username</h4>
+    <p>{{currentUser?.username}}</p>
+
+    <p-button label="Edit Profile" (onClick)="editDialog()" [rounded]="true" [raised]="true"/>
+
+    <p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [draggable]="false">
+        <form [formGroup]="profileForm" (ngSubmit)="saveChanges()">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input pInputText id="firstName" formControlName="firstName" />
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input pInputText id="lastName" formControlName="lastName"/>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input pInputText id="email" type="email" formControlName="email" />
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input pInputText id="username" formControlName="username"/>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input pInputText id="password" type="password" formControlName="password" />
+            </div>
+            <div>
+                <p-button label="Save" [rounded]="true" [raised]="true" severity="success" type="submit"/>
+                <p-button label="Cancel" [rounded]="true" [raised]="true" severity="danger" (onClick)="visible = false" />
+            </div>
+        </form>
+    </p-dialog>
+</div>
+<p-toast />

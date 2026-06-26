@@ -1,0 +1,48 @@
+<div class="content">
+    <h2>Grade Entry</h2>
+    <p-dropdown
+        [options]="courses"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="selectedCourseId"
+        placeholder="Select a course"
+        (onChange)="onCourseChange($event)"
+    />
+    <p-table [value]="examAttempts" styleClass="p-datatable-striped">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="student">Student <p-sortIcon field="student"></p-sortIcon></th>
+                <th pSortableColumn="indexNumber">Index Number <p-sortIcon field="indexNumber"></p-sortIcon></th>
+                <th>Options</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-a>
+            <tr>
+                <td>{{a.id}}</td>
+                <td>{{a.student?.firstName}} {{a.student?.lastName}}</td>
+                <td>{{a.student?.indexNumber}}</td>
+                <td>
+                    <p-button (onClick)="openGradeDialog(a)" label="Enter results" />
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <p-dialog header="Enter results" [modal]="true" class="dialog" [(visible)]="visible">
+        <div class="p-field">
+            <label for="points">Points</label>
+            <input id="points" type="number" pInputText [(ngModel)]="result.points" />
+        </div>
+        <div class="p-field">
+            <label for="grade">Grade</label>
+            <input id="grade" type="number" pInputText [(ngModel)]="result.grade" />
+        </div>
+        <div class="p-field">
+            <label for="note">Note</label>
+            <input id="note" type="text" pInputText [(ngModel)]="result.note" />
+        </div>
+        <p-button label="Submit" (click)="submitGrade()" rounded="true" severity="success"/>
+        <p-button label="Cancel" (click)="closeDialog()" rounded="true" severity="danger" />
+    </p-dialog>
+    <p-toast />
+</div>
