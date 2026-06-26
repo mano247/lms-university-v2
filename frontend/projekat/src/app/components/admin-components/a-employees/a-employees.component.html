@@ -1,0 +1,203 @@
+﻿<div class="content">
+    <h2>Employees</h2>
+    <p-dropdown 
+        [options]="employeeCategories" 
+        [(ngModel)]="selected" 
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select category" />
+    <div *ngIf="selected === 'teachers'">
+        <div class="pretraga">
+            <p-inputGroup class="prvi_input">
+                <input type="text" [(ngModel)]="filterTeacher.firstName" pInputText placeholder="First Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterTeacher.lastName" pInputText placeholder="Last Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterTeacher.email" pInputText placeholder="email" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterTeachers()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredTeachers">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">ime <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">lastName <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th>opcije</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-n let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ n.id }}</td>
+                    <td>{{ n.firstName }}</td>
+                    <td>{{ n.lastName }}</td>
+                    <td>{{ n.email }}</td>
+                    <td>
+                        <p-button label="Edit" (onClick)="openEditTeacher(n)" />
+                        <p-button label="Remove" (onClick)="deleteTeacher(n.id, $event)" severity="danger"/>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div *ngIf="selected === 'officeStaff'">
+        <div class="pretraga">
+            <p-inputGroup class="prvi_input">
+                <input type="text" [(ngModel)]="filterOffice.firstName" pInputText placeholder="First Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterOffice.lastName" pInputText placeholder="Last Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterOffice.email" pInputText placeholder="email" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterOfficeStaff()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredOfficeStaff">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">ime <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">lastName <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th>opcije</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ s.id }}</td>
+                    <td>{{ s.firstName }}</td>
+                    <td>{{ s.lastName }}</td>
+                    <td>{{ s.email }}</td>
+                    <td>
+                        <p-button label="Edit" (onClick)="openEditOffice(s)" />
+                        <p-button label="Remove" (onClick)="deleteOfficeEmployee(s.id, $event)" severity="danger" />
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div *ngIf="selected === 'admins'">
+        <div class="pretraga">
+            <p-inputGroup class="prvi_input">
+                <input type="text" [(ngModel)]="filterAdmin.username" pInputText placeholder="First Name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterAdmin.email" pInputText placeholder="Last Name" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterAdmins()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredAdmins">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">ime <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">lastName <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th>opcije</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-a let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ a.id }}</td>
+                    <td>{{ a.firstName }}</td>
+                    <td>{{ a.lastName }}</td>
+                    <td>{{ a.email }}</td>
+                    <td>
+                        <p-button label="Edit" (onClick)="openEditAdmin(a)" />
+                        <p-button label="Remove" (onClick)="deleteAdmin(a.id, $event)" severity="danger" />
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <p-dialog header="Izmeni Profesora" [(visible)]="editTeacherVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="ime">First Name</label>
+                <input id="ime" type="text" pInputText [(ngModel)]="newTeacher.firstName" />
+            </div>
+            <div class="p-field">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="newTeacher.lastName" />
+            </div>
+            <div class="p-field">
+                <label for="username">Username</label>
+                <input id="username" type="text" pInputText [(ngModel)]="newTeacher.username" />
+            </div>
+            <div class="p-field">
+                <label for="email">Email</label>
+                <input id="email" type="email" pInputText [(ngModel)]="newTeacher.email" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="SaÄuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="saveTeacher()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeTeacherDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <p-dialog header="Izmeni sluzbu" [(visible)]="editOfficeVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="ime">First Name</label>
+                <input id="ime" type="text" pInputText [(ngModel)]="newOfficeEmployee.firstName" />
+            </div>
+            <div class="p-field">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="newOfficeEmployee.lastName" />
+            </div>
+            <div class="p-field">
+                <label for="username">Username</label>
+                <input id="username" type="text" pInputText [(ngModel)]="newOfficeEmployee.username" />
+            </div>
+            <div class="p-field">
+                <label for="email">Email</label>
+                <input id="email" type="email" pInputText [(ngModel)]="newOfficeEmployee.email" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="SaÄuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="saveOfficeStaff()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeOfficeDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+
+    <p-dialog header="Izmeni Admina" [(visible)]="editAdminVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="ime">First Name</label>
+                <input id="ime" type="text" pInputText [(ngModel)]="newAdmin.firstName" />
+            </div>
+            <div class="p-field">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="newAdmin.lastName" />
+            </div>
+            <div class="p-field">
+                <label for="username">Username</label>
+                <input id="username" type="text" pInputText [(ngModel)]="newAdmin.username" />
+            </div>
+            <div class="p-field">
+                <label for="email">Email</label>
+                <input id="email" type="email" pInputText [(ngModel)]="newAdmin.email" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="SaÄuvaj" rounded="true" severity="success" icon="pi pi-check" (click)="saveAdmin()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAdminDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+    
+
+    <p-toast />
+    <p-confirmPopup />
+</div>
+
+
+

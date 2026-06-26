@@ -15,7 +15,6 @@ import { Router } from '@angular/router';
 })
 export class DashboardComponent implements OnInit {
   roles: string[] = [];
-  selectedTabIndex: number = 0;
 
   constructor(private loginService: LoginService, private router: Router) {}
 
@@ -23,23 +22,9 @@ export class DashboardComponent implements OnInit {
     this.roles = this.loginService.getUserRole();
   }
 
-  goToUniversity() {
-    this.router.navigate(['']);
-  }
-
-  goToStudentPortal() {
-    this.router.navigate(['eStudent']);
-  }
-
-  goToTeacherPortal() {
-    this.router.navigate(['eProfesor']);
-  }
-
-  goToOfficePortal() {
-    this.router.navigate(['eSSluzba']);
-  }
-
-  goToAdminPortal() {
-    this.router.navigate(['eAdmin']);
-  }
+  navigateToHome(){ this.router.navigate(['']); }
+  navigateToStudent(){ this.router.navigate(['eStudent']); }
+  navigateToTeacher(){ this.router.navigate(['eProfesor']); }
+  navigateToOffice(){ this.router.navigate(['eSofficeStaff']); }
+  navigateToAdmin(){ this.router.navigate(['eAdmin']); }
 }

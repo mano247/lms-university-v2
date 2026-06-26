@@ -1,5 +1,5 @@
 import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
-import { University } from '../../../model/academic/univerzitet';
+import { University } from '../../../model/academic/university';
 
 @Component({
   schemas: [NO_ERRORS_SCHEMA],
@@ -10,23 +10,14 @@ import { University } from '../../../model/academic/univerzitet';
   styleUrl: './footer.component.css'
 })
 export class FooterComponent {
-  currentYear: Date = new Date();
+  currentYear: number = new Date().getFullYear();
 
-  @Input()
-  university: University = {
+  @Input() univerzitet: University = {
     name: '',
     foundingDate: new Date(),
     contact: '',
     description: '',
     image: '',
-    address: '',
-    rectorate: {
-      name: '',
-      contact: '',
-      image: '',
-      address: '',
-      universities: [],
-      rectorName: ''
-    }
+    address: ''
   };
 }

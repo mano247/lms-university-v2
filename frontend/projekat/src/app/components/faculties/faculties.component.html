@@ -1,0 +1,14 @@
+<div class="content" >
+    <h2>Faculties</h2>
+    <div class="kartice">
+        <p-card header="{{f.name}}" [style]="{ height: '400px' }"  *ngFor="let f of faculties">
+            <ng-template pTemplate="header">
+                <img alt="Faculty image" src="{{f.image}}" />
+            </ng-template>
+            <p>
+                {{truncateDescription(f.description)}}
+            </p>
+            <p-button label="Learn More" (onClick)="viewDetails(f)" [rounded]="true" severity="info" [raised]="true" class="button"/>
+        </p-card>
+    </div>
+</div>

@@ -1,10 +1,10 @@
 import { Component, Input, OnChanges, SimpleChanges, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
-import { Faculty } from '../../../model/academic/fakultet';
+import { Faculty } from '../../../model/academic/faculty';
 import { Router } from '@angular/router';
-import { FacultyService } from '../../../services/fakultet.service';
-import { StudyProgram } from '../../../model/academic/studijskiProgram';
+import { FacultyService } from '../../../services/faculty.service';
+import { StudyProgram } from '../../../model/academic/study-program';
 import { LoginService } from '../../../services/auth/login.service';
 
 @Component({
@@ -21,87 +21,51 @@ export class MenuBarComponent implements OnChanges {
 
   items: MenuItem[] | undefined;
 
-  constructor(
-    private router: Router,
-    private facultyService: FacultyService,
-    private loginService: LoginService
-  ) {}
+  constructor(private router: Router, private facultyService: FacultyService, private loginService: LoginService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['faculties'] || changes['studyPrograms']) {
-      this.buildMenuItems();
+      this.buildMenu();
     }
   }
 
-  buildMenuItems() {
+  buildMenu() {
     this.items = [
       {
         label: 'University',
         icon: 'pi pi-graduation-cap',
-        command: () => this.goToUniversity()
+        command: () => this.router.navigate([''])
       },
       {
         label: 'Faculties',
         icon: 'pi pi-building-columns',
-        command: () => this.goToFaculties(),
-        items: this.faculties.map(faculty => ({
-          label: faculty.name,
+        command: () => this.router.navigate(['faculties']),
+        items: this.faculties.map(f => ({
+          label: f.name,
           icon: 'pi pi-building',
-          command: () => this.goToFaculty(faculty.facultyCode)
+          command: () => this.router.navigate([`faculty/${f.facultyCode}`])
         }))
       },
       {
         label: 'Enrollment',
         icon: 'pi pi-pen-to-square',
-        command: () => this.goToEnrollment()
+        command: () => this.router.navigate(['enrollment'])
       },
       {
         label: 'Announcements',
         icon: 'pi pi-bell',
-        command: () => this.goToAnnouncements()
+        command: () => this.router.navigate(['all-announcements'])
       },
       {
         label: 'Rectorate',
         icon: 'pi pi-users',
-        command: () => this.goToRectorate()
+        command: () => this.router.navigate(['rectorate'])
       },
       {
         label: 'Contact',
         icon: 'pi pi-envelope',
-        command: () => this.goToContact()
+        command: () => this.router.navigate(['contact'])
       }
     ];
-  }
-
-  goToUniversity() {
-    this.router.navigate(['']);
-  }
-
-  goToFaculty(facultyCode: string) {
-    this.router.navigate([`fakultet/${facultyCode}`]);
-  }
-
-  goToEnrollment() {
-    this.router.navigate(['upis']);
-  }
-
-  goToAnnouncements() {
-    this.router.navigate(['sva_obavestenja']);
-  }
-
-  goToRectorate() {
-    this.router.navigate(['rektorat']);
-  }
-
-  goToContact() {
-    this.router.navigate(['kontakt']);
-  }
-
-  goToLogin() {
-    this.router.navigate(['login']);
-  }
-
-  goToFaculties() {
-    this.router.navigate(['fakulteti']);
   }
 }

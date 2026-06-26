@@ -1,0 +1,45 @@
+<div class="content">
+    <h2>My Courses</h2>
+    <p-dataView #dv [value]="courses">
+        <ng-template pTemplate="list">
+            <div *ngFor="let c of courses">
+                <div class="predmet">
+                    <h4>{{c.name}}</h4>
+                    <p><span>Code:</span> <br> {{c.courseCode}}</p>
+                    <p><span>Study program:</span> <br> {{c.studyProgram?.name}}</p>
+                    <p><span>ECTS:</span> <br> {{c.ects}}</p>
+                    <p><span>Description:</span> <br> {{c.description}}</p>
+                    <div class="udzbenici"><span>Teaching materials:</span> <br>
+                        <ul>
+                          <li *ngFor="let m of c.teachingMaterials">
+                            <strong>{{m.title}}</strong> - Author: {{m.authors}}
+                          </li>
+                        </ul>
+                    </div>
+                    <p><span>Syllabus:</span> <br> {{c.syllabus}}</p>
+                    <p>
+                        <p-button label="Edit Syllabus" (onClick)="openSyllabusDialog(c)" [raised]="true" severity="primary"/>
+                    </p>
+                </div>
+                <p-divider />
+            </div>
+        </ng-template>
+    </p-dataView>
+    <p-dialog header="Edit Syllabus" [modal]="true" [(visible)]="visible">
+        <div class="uredjivanje">
+            <textarea
+                rows="5"
+                cols="30"
+                pInputTextarea
+                [style.width]="'500px'"
+                [style.height]="'300px'"
+                [(ngModel)]="courseSyllabus">
+            </textarea>
+        </div>
+        <div class="uredjivanje">
+            <p-button label="Save changes" severity="success" rounded="true" (onClick)="updateSyllabus()" />
+            <p-button label="Cancel" severity="danger" (onClick)="closeDialog()" rounded="true" />
+        </div>
+    </p-dialog>
+    <p-toast />
+</div>

@@ -1,5 +1,5 @@
 import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
-import { University } from '../../../model/academic/univerzitet';
+import { University } from '../../../model/academic/university';
 import { Router, RouterModule } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { TieredMenuModule } from 'primeng/tieredmenu';
@@ -17,22 +17,13 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  @Input()
-  university: University = {
+  @Input() univerzitet: University = {
     name: '',
     foundingDate: new Date(),
     contact: '',
     description: '',
     image: '',
-    address: '',
-    rectorate: {
-      name: '',
-      contact: '',
-      image: '',
-      address: '',
-      universities: [],
-      rectorName: ''
-    }
+    address: ''
   };
 
   items: MenuItem[];
@@ -42,47 +33,31 @@ export class HeaderComponent {
       {
         label: 'My Menu',
         icon: 'pi pi-bars',
-        command: () => this.goToMenu()
+        command: () => this.router.navigate(['menu'])
       },
       {
         label: 'My Profile',
         icon: 'pi pi-user',
-        command: () => this.goToProfile()
+        command: () => this.router.navigate(['my-profile'])
       },
       {
         label: 'Announcements',
         icon: 'pi pi-bell',
-        command: () => this.goToAnnouncements()
+        command: () => this.router.navigate(['all-announcements'])
       },
       {
         label: 'Logout',
         icon: 'pi pi-sign-out',
-        command: () => this.logout()
+        command: () => this.loginService.logout()
       }
     ];
-  }
-
-  goToMenu() {
-    this.router.navigate(['menu']);
-  }
-
-  goToProfile() {
-    this.router.navigate(['moj-profil']);
-  }
-
-  goToAnnouncements() {
-    this.router.navigate(['sva_obavestenja']);
-  }
-
-  logout() {
-    this.loginService.logout();
   }
 
   isLoggedIn(): boolean {
     return this.loginService.loggedIn();
   }
 
-  goToLogin() {
+  navigateToLogin() {
     this.router.navigate(['/login']);
   }
 }

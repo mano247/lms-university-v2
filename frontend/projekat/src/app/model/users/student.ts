@@ -1,11 +1,8 @@
-import { Course } from '../academic/predmet';
-import { StudyYear } from '../godinaStudija';
-import { ExamAttempt } from '../polaganje';
-import { RegisteredUser } from './registrovaniKorisnik';
+import { RegisteredUser } from './registered-user';
+import { Faculty } from '../academic/faculty';
 
 export interface Student extends RegisteredUser {
-    indexNumber: string;
-    studyYears: StudyYear[];
-    examAttempts: ExamAttempt[];
-    courses: Course[];
+    userType?: string;
+    indexNumber?: string;
+    faculty?: Faculty;
 }

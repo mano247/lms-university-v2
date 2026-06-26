@@ -1,0 +1,164 @@
+<div class="content">
+    <h2>Student Enrollment</h2>
+    <div class="dugme">
+        <p>Registered users</p>
+        <p-inputSwitch [(ngModel)]="visible" />
+        <p>Year enrollment</p>
+    </div>
+    <div class="postojeci" *ngIf="!visible">
+        <div class="pretraga">
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="userFilter.username" pInputText placeholder="Username" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="userFilter.email" pInputText placeholder="Email" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="searchUsers()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredUsers">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="username">Username <p-sortIcon field="username"></p-sortIcon></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th>Options</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-k let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ k.id }}</td>
+                    <td>{{ k.username }}</td>
+                    <td>{{ k.email }}</td>
+                    <td>
+                        <p-button (onClick)="enrollExistingStudent(k)" label="Enroll" rounded="true" />
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div class="novi" *ngIf="visible">
+        <div class="pretraga">
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterStudent.firstName" pInputText placeholder="First name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterStudent.lastName" pInputText placeholder="Last name" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterStudent.indexNumber" pInputText placeholder="Index number" />
+            </p-inputGroup>
+            <p-inputGroup>
+                <input type="text" [(ngModel)]="filterStudent.email" pInputText placeholder="Email" />
+            </p-inputGroup>
+            <p-button icon="pi pi-search" (click)="filterStudents()" rounded="true" [raised]="true" />
+            <p-button icon="pi pi-times" (click)="clearFilter()" rounded="true" [raised]="true" severity="danger" />
+        </div>
+        <p-table [value]="filteredStudents">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="indexNumber">Index Number <p-sortIcon field="indexNumber"></p-sortIcon></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th>Options</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
+                    <td>{{ s.id }}</td>
+                    <td>{{ s.firstName }}</td>
+                    <td>{{ s.lastName }}</td>
+                    <td>{{ s.indexNumber }}</td>
+                    <td>{{ s.email }}</td>
+                    <td>
+                        <p-button (onClick)="enrollToYear(s)" label="Enroll to year" rounded="true" />
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <p-dialog header="Enroll student" [(visible)]="enrollmentVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="faculty">Faculty</label>
+                <p-dropdown [options]="faculties" [(ngModel)]="existingUserForEnrollment.faculty" optionLabel="name" placeholder="Select faculty">
+                </p-dropdown>
+            </div>
+            <div class="p-field">
+                <label for="username">Username</label>
+                <input id="username" type="text" pInputText [(ngModel)]="existingUserForEnrollment.username" />
+            </div>
+            <div class="p-field">
+                <label for="firstName">First name</label>
+                <input id="firstName" type="text" pInputText [(ngModel)]="existingUserForEnrollment.firstName" />
+            </div>
+            <div class="p-field">
+                <label for="lastName">Last name</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="existingUserForEnrollment.lastName" />
+            </div>
+            <div class="p-field">
+                <label for="email">Email</label>
+                <input id="email" type="text" pInputText [(ngModel)]="existingUserForEnrollment.email" />
+            </div>
+            <div class="p-field">
+                <label for="indexNumber">Index number</label>
+                <input id="indexNumber" type="text" pInputText [(ngModel)]="existingUserForEnrollment.indexNumber" />
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="enrollExisting()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeEnrollmentDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <p-dialog header="Enroll to year" [(visible)]="yearEnrollmentVisible" modal="modal" [closable]="true">
+        <div class="p-fluid">
+            <div class="p-field">
+                <label for="studyProgram">Study Program</label>
+                <p-dropdown [options]="programs" [(ngModel)]="enrollmentData.studijskiProgram" optionLabel="name" placeholder="Select program">
+                </p-dropdown>
+            </div>
+            <div class="p-field">
+                <label for="studyYear">Year of Study</label>
+                <p-dropdown [options]="studyYears" [(ngModel)]="enrollmentData.StudyYear" optionLabel="name" placeholder="Select year">
+                </p-dropdown>
+            </div>
+            <div>
+                <p><strong>First Name:</strong> {{studentForYear.firstName}}</p>
+            </div>
+            <div>
+                <p><strong>Last Name:</strong> {{studentForYear.lastName}}</p>
+            </div>
+            <div>
+                <p><strong>Study program:</strong></p>
+                <div *ngIf="enrollments && enrollments.length > 0">
+                    <ul>
+                        <li *ngFor="let e of enrollments">
+                            {{ e?.studijskiProgram?.naziv || 'No data' }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <p><strong>Enrolled years:</strong></p>
+                <div *ngIf="enrollments && enrollments.length > 0">
+                    <ul>
+                        <li *ngFor="let e of enrollments">
+                            <strong>Year:</strong> {{ e?.godinaStudija?.godina || 'No data' }},
+                            <strong>Date:</strong> {{ e?.datumUpisa || 'No date' }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <p-footer>
+            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="saveYearEnrollment()" />
+            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeYearEnrollmentDialog()" class="p-button-secondary" />
+        </p-footer>
+    </p-dialog>
+
+    <p-toast />
+</div>

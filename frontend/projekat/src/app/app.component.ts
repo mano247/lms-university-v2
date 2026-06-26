@@ -1,17 +1,17 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+﻿import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { HeaderComponent } from "./components/layout/header/header.component";
 import { FooterComponent } from "./components/layout/footer/footer.component";
-import { University } from './model/academic/univerzitet';
-import { UniversityService } from './services/univerzitet.service';
+import { University } from './model/academic/university';
+import { UniversityService } from './services/university.service';
 import { MenubarModule } from 'primeng/menubar';
-import { FacultyService } from './services/fakultet.service';
-import { Faculty } from './model/academic/fakultet';
+import { FacultyService } from './services/faculty.service';
+import { Faculty } from './model/academic/faculty';
 import { MenuBarComponent } from "./components/layout/menu-bar/menu-bar.component";
 import { Title } from '@angular/platform-browser';
-import { StudyProgramService } from './services/studijski-program.service';
-import { StudyProgram } from './model/academic/studijskiProgram';
+import { StudyProgramService } from './services/study-program.service';
+import { StudyProgram } from './model/academic/study-program';
 import { TabViewModule } from 'primeng/tabview';
 
 @Component({
@@ -25,7 +25,7 @@ import { TabViewModule } from 'primeng/tabview';
 export class AppComponent implements OnInit {
   title = "LMS";
 
-  university: University = {
+  univerzitet: University = {
     name: '',
     foundingDate: new Date(),
     contact: '',
@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
       contact: '',
       image: '',
       address: '',
-      universities: [],
       rectorName: ''
     }
   };
@@ -45,12 +44,7 @@ export class AppComponent implements OnInit {
   studyPrograms: StudyProgram[] = [];
   faculties: Faculty[] = [];
 
-  constructor(
-    private universityService: UniversityService,
-    private facultyService: FacultyService,
-    private titleService: Title,
-    private studyProgramService: StudyProgramService
-  ) {}
+  constructor(private universityService: UniversityService, private facultyService: FacultyService, private titleService: Title, private spService: StudyProgramService){}
 
   ngOnInit(): void {
     this.titleService.setTitle("LMS University");
@@ -59,21 +53,21 @@ export class AppComponent implements OnInit {
     this.getStudyPrograms();
   }
 
-  getUniversity() {
-    return this.universityService.getAll().subscribe(x => {
-      this.university = x[0];
-    });
+  getUniversity(){
+    return this.universityService.getAll().subscribe(x=>{
+      this.univerzitet = x[0];
+    })
   }
 
-  getFaculties() {
-    return this.facultyService.getAll().subscribe(f => {
+  getFaculties(){
+    return this.facultyService.getAll().subscribe( f => {
       this.faculties = f;
-    });
+    })
   }
 
-  getStudyPrograms() {
-    return this.studyProgramService.getAll().subscribe(x => {
+  getStudyPrograms(){
+    return this.spService.getAll().subscribe( x => {
       this.studyPrograms = x;
-    });
+    })
   }
 }

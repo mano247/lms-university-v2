@@ -1,0 +1,33 @@
+<div class="content">
+    <h2>{{faculty?.name}}</h2>
+    <p>{{faculty?.description}}</p>
+
+    <p-divider />
+
+    <h3>Study Programs</h3>
+    <ul>
+        <li *ngFor="let sp of studyPrograms">
+            <a *ngIf="faculty" [routerLink]="['/faculty', faculty.facultyCode, 'study-program', sp.programCode]">{{sp.name}}</a>
+        </li>
+    </ul>
+
+    <p-divider />
+
+    <h3>Dean</h3>
+    <p>{{faculty?.dean?.firstName}} {{faculty?.dean?.lastName}}</p>
+
+    <p-divider />
+
+    <h3>Address</h3>
+    <p>{{faculty?.address}}</p>
+    <div class="map-container">
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs"
+        ></iframe>
+    </div>
+
+    <p-divider />
+
+    <h3>Contact</h3>
+    <p>{{faculty?.contact}}</p>
+</div>
