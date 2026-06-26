@@ -1,54 +1,70 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
+import { NgFor, NgIf } from '@angular/common';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Faculty } from '../../model/academic/fakultet';
 import { FacultyService } from '../../services/fakultet.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { DividerModule } from 'primeng/divider';
-import { NgFor, NgIf } from '@angular/common';
 import { StudyProgram } from '../../model/academic/studijskiProgram';
 import { StudyProgramService } from '../../services/studijski-program.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-fakultet',
   standalone: true,
-  imports: [MenuModule, DividerModule, NgIf, NgFor],
+  imports: [NgFor, NgIf, RouterModule],
   templateUrl: './fakultet.component.html',
   styleUrl: './fakultet.component.css'
 })
 export class FakultetComponent implements OnInit {
-  faculty: Faculty | undefined;
-  facultyCode: string | null = null;
+  faculty: Faculty | null = null;
   studyPrograms: StudyProgram[] = [];
+  isLoading = true;
 
   constructor(
     private facultyService: FacultyService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private studyProgramService: StudyProgramService
+    private studyProgramService: StudyProgramService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      this.facultyCode = params.get('sifraFakulteta');
-      this.loadFaculty();
+      const code = params.get('sifraFakulteta');
+      if (code) this.loadFaculty(code);
     });
   }
 
-  loadFaculty() {
-    if (this.facultyCode) {
-      this.facultyService.getByCode(this.facultyCode).subscribe(x => {
-        this.faculty = x;
-        this.getStudyPrograms();
-      });
-    }
+  private loadFaculty(code: string): void {
+    this.isLoading = true;
+    this.facultyService.getByCode(code).subscribe({
+      next: f => {
+        this.faculty = f;
+        this.loadPrograms();
+      },
+      error: () => { this.isLoading = false; }
+    });
   }
 
-  getStudyPrograms() {
-    return this.studyProgramService.getAll().subscribe(x => {
-      this.studyPrograms = x.filter(program => program.faculty.name === this.faculty?.name);
+  private loadPrograms(): void {
+    this.studyProgramService.getAll().subscribe({
+      next: all => {
+        this.studyPrograms = all.filter(
+          p => p.faculty?.facultyCode === this.faculty?.facultyCode
+        );
+        this.isLoading = false;
+      },
+      error: () => { this.isLoading = false; }
     });
+  }
+
+  getProgramBadge(program: StudyProgram): { label: string; cls: string } {
+    const name = (program.name + ' ' + program.programCode).toLowerCase();
+    if (name.includes('phd') || name.includes('doct')) return { label: 'Doctorate', cls: 'badge-gold' };
+    if (name.includes('master') || name.includes(' ma ') || name.includes(' msc') || name.includes('-ma') || name.includes('postgrad')) return { label: 'Postgraduate', cls: 'badge-gold' };
+    return { label: 'Undergraduate', cls: 'badge-blue' };
+  }
+
+  getDeanName(): string {
+    const dean = this.faculty?.dean;
+    if (!dean) return '—';
+    if (typeof dean === 'string') return dean;
+    return `${dean.firstName ?? ''} ${dean.lastName ?? ''}`.trim() || '—';
   }
 }

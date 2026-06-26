@@ -1,88 +1,59 @@
-import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
-import { University } from '../../../model/academic/univerzitet';
-import { Router, RouterModule } from '@angular/router';
-import { AvatarModule } from 'primeng/avatar';
-import { TieredMenuModule } from 'primeng/tieredmenu';
-import { MenuItem } from 'primeng/api';
-import { LoginService } from '../../../services/auth/login.service';
+import { Component, HostListener } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { NgIf } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, AvatarModule, TieredMenuModule, NgIf, ButtonModule],
+  imports: [RouterModule, NgIf, MatMenuModule, MatDividerModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  @Input()
-  university: University = {
-    name: '',
-    foundingDate: new Date(),
-    contact: '',
-    description: '',
-    image: '',
-    address: '',
-    rectorate: {
-      name: '',
-      contact: '',
-      image: '',
-      address: '',
-      universities: [],
-      rectorName: ''
-    }
-  };
+  mobileMenuOpen = false;
+  scrolled = false;
 
-  items: MenuItem[];
+  constructor(public authService: AuthService, private router: Router) {}
 
-  constructor(private router: Router, private loginService: LoginService) {
-    this.items = [
-      {
-        label: 'My Menu',
-        icon: 'pi pi-bars',
-        command: () => this.goToMenu()
-      },
-      {
-        label: 'My Profile',
-        icon: 'pi pi-user',
-        command: () => this.goToProfile()
-      },
-      {
-        label: 'Announcements',
-        icon: 'pi pi-bell',
-        command: () => this.goToAnnouncements()
-      },
-      {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
-        command: () => this.logout()
-      }
-    ];
+  @HostListener('window:scroll')
+  onScroll() {
+    this.scrolled = window.scrollY > 30;
+  }
+
+  get userInitial(): string {
+    const user = this.authService.getCurrentUser();
+    return (user?.username ?? user?.email ?? 'U')[0].toUpperCase();
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
   }
 
   goToMenu() {
-    this.router.navigate(['menu']);
+    this.router.navigate(['/menu']);
+    this.closeMobileMenu();
   }
 
   goToProfile() {
-    this.router.navigate(['moj-profil']);
+    this.router.navigate(['/moj-profil']);
+    this.closeMobileMenu();
   }
 
   goToAnnouncements() {
-    this.router.navigate(['sva_obavestenja']);
+    this.router.navigate(['/obavestenja']);
+    this.closeMobileMenu();
   }
 
   logout() {
-    this.loginService.logout();
-  }
-
-  isLoggedIn(): boolean {
-    return this.loginService.loggedIn();
-  }
-
-  goToLogin() {
-    this.router.navigate(['/login']);
+    this.authService.logout();
+    this.closeMobileMenu();
   }
 }

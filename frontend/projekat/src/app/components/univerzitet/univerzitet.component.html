@@ -1,44 +1,134 @@
-<div class="content">
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-container">
+    <div class="hero-content">
+      <span class="hero-badge">ESTABLISHED 1892</span>
+      <h1 class="hero-title">Shaping the Future Through Excellence in Education</h1>
+      <p class="hero-subtitle">
+        At Ashford, we combine a rich heritage of academic rigor with modern innovation,
+        fostering a global community of scholars dedicated to solving tomorrow's challenges.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/fakulteti" class="btn-hero-primary">Explore Programs</a>
+        <a routerLink="/upis" class="btn-hero-secondary">Apply Now</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <h2>{{university.name}}</h2>
+<!-- Statistics Bar -->
+<section class="stats-bar">
+  <div class="stats-container">
+    <div class="stat">
+      <span class="stat-number">{{ faculties.length > 0 ? faculties.length : 10 }}</span>
+      <span class="stat-label">Faculties</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">{{ studyProgramCount > 0 ? studyProgramCount : 74 }}</span>
+      <span class="stat-label">Study Programs</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">7,400+</span>
+      <span class="stat-label">Students</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">390+</span>
+      <span class="stat-label">Faculty Members</span>
+    </div>
+  </div>
+</section>
 
-    <p>{{university.description}}</p>
-
-    <p-divider />
-
-    <h4>Datum osnivanja</h4>
-    <p>{{ getFoundingDate() }}</p>
-
-    <p-divider />
-
-    <h3>Fakulteti pri univerzitetu</h3>
-    <ul>
-        <li *ngFor="let f of faculties">
-           <a [routerLink]="['/fakultet', f.facultyCode]">{{f.name}}</a>
-        </li>
-    </ul>
-
-
-    <p-divider />
-
-    <h3>Rektor</h3>
-    <p>{{university.rectorate.rectorName}}</p>
-    <p>{{university.rectorate.contact}}</p>
-    <p-divider class="kraci_divider"/>
-    <a [routerLink]="['/rektorat']">Stranica rektorata</a>
-
-    <p-divider />
-
-    <h3>Lokacija</h3>
-    <p>{{university.address}} </p>
-    <div class="map-container">
-        <iframe loading="lazy"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs" >
-        </iframe>
+<!-- Faculties Section -->
+<section class="faculties" id="faculties">
+  <div class="section-container">
+    <div class="section-head">
+      <div class="section-head-text">
+        <h2 class="section-title">Our Faculties</h2>
+        <div class="title-rule"></div>
+        <p class="section-desc">
+          Discover our diverse academic disciplines, led by world-class experts and researchers
+          dedicated to intellectual growth.
+        </p>
+      </div>
+      <a routerLink="/fakulteti" class="view-all">
+        View All Faculties
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </a>
     </div>
 
-    <p-divider />
+    <!-- Skeleton loading -->
+    @if (isLoading) {
+      <div class="faculties-grid">
+        @for (item of [1,2,3,4,5,6]; track item) {
+          <div class="skeleton-card"></div>
+        }
+      </div>
+    } @else if (faculties.length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">school</span>
+        <p>No faculties found. Please check the backend connection.</p>
+      </div>
+    } @else {
+      <div class="faculties-grid">
+        @for (faculty of faculties; track faculty.facultyCode; let i = $index) {
+          <article class="faculty-card" (click)="navigateToFaculty(faculty.facultyCode, $event)" tabindex="0">
+            <div class="card-img" [style.background-color]="getCardColor(i).bg">
+              <span class="card-initials" [style.color]="getCardColor(i).text">
+                {{ getFacultyInitials(faculty.name) }}
+              </span>
+              <span class="material-symbols-outlined card-bg-icon" [style.color]="getCardColor(i).text">
+                {{ getCardColor(i).icon }}
+              </span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">{{ faculty.name }}</h3>
+              <p class="card-desc">{{ faculty.description }}</p>
+              <div class="card-footer">
+                <button class="learn-btn" (click)="navigateToFaculty(faculty.facultyCode, $event)">
+                  Learn More
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
 
-    <h3>Kontakt</h3>
-    <p>{{university.contact}}</p>
-</div>
+<!-- Admissions CTA Section -->
+<section class="cta-section">
+  <div class="section-container">
+    <div class="cta-card">
+      <div class="cta-text">
+        <h2 class="cta-title">Admissions for 2025 are now open.</h2>
+        <p class="cta-desc">
+          Take the first step toward a transformative education. Our application process is designed
+          to identify promising individuals who wish to make a difference.
+        </p>
+        <div class="cta-actions">
+          <a routerLink="/upis" class="btn-cta-gold">Apply Today</a>
+          <button class="btn-cta-text">
+            Download Prospectus
+            <span class="material-symbols-outlined">download</span>
+          </button>
+        </div>
+      </div>
+      <div class="cta-visual">
+        <div class="cta-image-box">
+          <div class="cta-image-inner">
+            <span class="material-symbols-outlined cta-icon">school</span>
+            <p class="cta-visual-text">University of Ashford</p>
+            <p class="cta-visual-sub">Est. 1892</p>
+          </div>
+        </div>
+        <div class="join-badge">
+          <span>JOIN<br>US</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

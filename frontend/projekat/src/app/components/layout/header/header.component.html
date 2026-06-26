@@ -1,20 +1,78 @@
-<header>
-    <div class="header-left">
-        <img src="assets/images/logo.png" alt="logo" class="logo">  
-        <a routerLink="/">
-            <h1>{{university.name}}</h1>
-        </a>
+<header class="site-header" [class.scrolled]="scrolled">
+  <div class="header-inner">
+    <!-- Brand -->
+    <a routerLink="/" class="brand" (click)="closeMobileMenu()">University of Ashford</a>
+
+    <!-- Desktop nav -->
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a routerLink="/" routerLinkActive="nav-active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">University</a>
+      <a routerLink="/fakulteti" routerLinkActive="nav-active" class="nav-link">Faculties</a>
+      <a routerLink="/upis" routerLinkActive="nav-active" class="nav-link">Enrollment</a>
+      <a routerLink="/sva_obavestenja" routerLinkActive="nav-active" class="nav-link">Announcements</a>
+      <a routerLink="/rektorat" routerLinkActive="nav-active" class="nav-link">Rectorate</a>
+      <a routerLink="/kontakt" routerLinkActive="nav-active" class="nav-link">Contact</a>
+    </nav>
+
+    <!-- Auth actions -->
+    <div class="header-actions">
+      @if (authService.isLoggedIn()) {
+        <button class="user-btn" [matMenuTriggerFor]="userMenu" aria-label="Open user menu">
+          <span class="user-initial">{{ userInitial }}</span>
+        </button>
+        <mat-menu #userMenu="matMenu" xPosition="before">
+          <button mat-menu-item (click)="goToMenu()">
+            <span class="material-symbols-outlined menu-icon">dashboard</span>
+            My Dashboard
+          </button>
+          <button mat-menu-item (click)="goToProfile()">
+            <span class="material-symbols-outlined menu-icon">person</span>
+            My Profile
+          </button>
+          <button mat-menu-item (click)="goToAnnouncements()">
+            <span class="material-symbols-outlined menu-icon">notifications</span>
+            Announcements
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()" class="danger-item">
+            <span class="material-symbols-outlined menu-icon">logout</span>
+            Sign Out
+          </button>
+        </mat-menu>
+      } @else {
+        <a routerLink="/login" class="sign-in-btn">Sign In</a>
+      }
+
+      <!-- Hamburger -->
+      <button
+        class="hamburger-btn"
+        [class.open]="mobileMenuOpen"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle navigation menu"
+        aria-expanded="{{ mobileMenuOpen }}">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
     </div>
-    <div class="avatar" *ngIf="isLoggedIn()">
-        <p-avatar 
-            label="P" 
-            styleClass="mr-2" 
-            size="large" 
-            shape="circle" 
-            (click)="$any(menu).toggle($event)" />
-        <p-tieredMenu #menu [model]="items" [popup]="true" />
-    </div>
-    <div class="avatar" *ngIf="!isLoggedIn()">
-        <p-button (onClick)="goToLogin()" label="Login" icon="pi pi-sign-in" severity="info" [raised]="true"/>
-    </div>
+  </div>
+
+  <!-- Mobile nav drawer -->
+  @if (mobileMenuOpen) {
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a routerLink="/" routerLinkActive="mobile-active" [routerLinkActiveOptions]="{exact: true}" class="mobile-link" (click)="closeMobileMenu()">University</a>
+      <a routerLink="/fakulteti" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Faculties</a>
+      <a routerLink="/upis" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Enrollment</a>
+      <a routerLink="/sva_obavestenja" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Announcements</a>
+      <a routerLink="/rektorat" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Rectorate</a>
+      <a routerLink="/kontakt" routerLinkActive="mobile-active" class="mobile-link" (click)="closeMobileMenu()">Contact</a>
+      <div class="mobile-auth">
+        @if (authService.isLoggedIn()) {
+          <button class="mobile-btn-primary" (click)="goToMenu()">My Dashboard</button>
+          <button class="mobile-btn-danger" (click)="logout()">Sign Out</button>
+        } @else {
+          <a routerLink="/login" class="mobile-btn-primary" (click)="closeMobileMenu()">Sign In</a>
+        }
+      </div>
+    </nav>
+  }
 </header>

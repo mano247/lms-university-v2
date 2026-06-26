@@ -1,20 +1,147 @@
-<div class="content">
-    <a [routerLink]="['/fakultet', facultyCode]"><h2>{{faculty.name}}</h2></a>
-    <h3>{{studyProgram?.name}}</h3>
+@if (isLoading) {
+  <div class="loading-wrap">
+    <div class="skeleton-hero"></div>
+    <div class="skeleton-grid">
+      <div class="skeleton-box"></div>
+      <div class="skeleton-box"></div>
+    </div>
+  </div>
+} @else if (!studyProgram) {
+  <div class="error-state">
+    <span class="material-symbols-outlined">error_outline</span>
+    <p>Study program not found.</p>
+    <a [routerLink]="['/fakultet', facultyCode]" class="btn-back">Back to Faculty</a>
+  </div>
+} @else {
+  <!-- Hero / Breadcrumb Banner -->
+  <div class="hero-banner">
+    <div class="hero-inner">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/" class="bc-link">Home</a>
+        <span class="material-symbols-outlined bc-sep">chevron_right</span>
+        <a routerLink="/fakulteti" class="bc-link">Faculties</a>
+        <span class="material-symbols-outlined bc-sep">chevron_right</span>
+        <a [routerLink]="['/fakultet', facultyCode]" class="bc-link">{{ faculty?.name }}</a>
+        <span class="material-symbols-outlined bc-sep">chevron_right</span>
+        <span class="bc-current">{{ studyProgram.name }}</span>
+      </nav>
 
-    <p>{{studyProgram?.description}}</p>
+      <div class="hero-details">
+        <div class="hero-text">
+          <span class="program-code-label">PROGRAM CODE: {{ studyProgram.programCode }}</span>
+          <h1 class="program-title">{{ studyProgram.name }}</h1>
+          <div class="director-row">
+            <div class="director-avatar">{{ getDirectorName()[0] ?? 'D' }}</div>
+            <div>
+              <p class="director-role">Program Director</p>
+              <p class="director-name">{{ getDirectorName() }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <a [routerLink]="['/upis']" class="btn-apply">Apply Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <p-divider />
+  <!-- Main grid -->
+  <div class="main-container">
+    <div class="content-grid">
+      <!-- Left: Overview + image -->
+      <div class="left-col">
+        <section class="overview-card">
+          <h2 class="overview-title">Program Overview</h2>
+          <p class="overview-desc">{{ studyProgram.description || 'A rigorous academic program designed to develop expertise and critical thinking.' }}</p>
+          <div class="overview-meta">
+            <div class="meta-cell">
+              <p class="meta-label">Duration</p>
+              <p class="meta-val">{{ availableYears.length }} Year{{ availableYears.length !== 1 ? 's' : '' }}</p>
+            </div>
+            <div class="meta-cell">
+              <p class="meta-label">Total ECTS</p>
+              <p class="meta-val mono">{{ totalEcts }}</p>
+            </div>
+            <div class="meta-cell">
+              <p class="meta-label">Language</p>
+              <p class="meta-val">English</p>
+            </div>
+            <div class="meta-cell">
+              <p class="meta-label">Courses</p>
+              <p class="meta-val mono">{{ courses.length }}</p>
+            </div>
+          </div>
+        </section>
 
-    <h4>Predmeti</h4>
-    <ul>
-        <li *ngFor="let p of courses">
-            <a [routerLink]="['/fakultet', facultyCode, 'studijski-program', studyProgramCode, 'predmet', p.courseCode]">{{p.name}}</a>
-        </li>
-    </ul>
+        <div class="program-img-box">
+          <div class="program-img-inner">
+            <span class="material-symbols-outlined prog-icon">menu_book</span>
+            <p class="prog-img-text">Deep knowledge.<br>Rigorous curriculum.</p>
+          </div>
+        </div>
+      </div>
 
-    <p-divider />
+      <!-- Right: Curriculum table -->
+      <div class="right-col">
+        <section class="curriculum-section">
+          <div class="curriculum-header">
+            <h2 class="curriculum-title">Curriculum Structure</h2>
 
-    <h4>Rukovodilac smera</h4>
-    <p>{{studyProgram?.programDirector}}</p>
-</div>
+            <!-- Year tabs — only show if we have multiple years or year info -->
+            @if (availableYears.length > 1) {
+              <div class="year-tabs" role="tablist">
+                @for (year of availableYears; track year) {
+                  <button
+                    class="year-tab"
+                    [class.active]="selectedYear === year"
+                    (click)="selectedYear = year"
+                    role="tab"
+                    [attr.aria-selected]="selectedYear === year">
+                    Year {{ year }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="table-wrap">
+            <table class="course-table">
+              <thead>
+                <tr>
+                  <th class="col-name">Course Name</th>
+                  <th class="col-ects">ECTS</th>
+                  <th class="col-teacher">Teacher</th>
+                  <th class="col-code">Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (course of getCoursesForYear(selectedYear); track course.courseCode) {
+                  <tr>
+                    <td class="cell-name">{{ course.name }}</td>
+                    <td class="cell-ects mono">{{ course.ects }}</td>
+                    <td class="cell-teacher">{{ getTeacherName(course) }}</td>
+                    <td class="cell-code mono">{{ course.courseCode }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="no-courses">
+                      No courses found for Year {{ selectedYear }}.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer">
+            <p class="courses-count">
+              Showing {{ getCoursesForYear(selectedYear).length }} course{{ getCoursesForYear(selectedYear).length !== 1 ? 's' : '' }}
+              @if (availableYears.length > 1) { for Year {{ selectedYear }} }
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+}
