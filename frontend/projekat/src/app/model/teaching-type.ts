@@ -1,0 +1,5 @@
+﻿export enum TeachingType{
+    PREDAVANJA = 'PREDAVANJA',
+	VEZBE = 'VEZBE',
+	MENTORSKA_NASTAVA = 'MENTORSKA_NASTAVA'
+}
