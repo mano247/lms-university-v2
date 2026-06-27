@@ -7,10 +7,6 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { NgIf } from '@angular/common';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../services/auth/auth.service';
@@ -22,10 +18,6 @@ import { AuthService } from '../../services/auth/auth.service';
     ReactiveFormsModule,
     RouterModule,
     NgIf,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',

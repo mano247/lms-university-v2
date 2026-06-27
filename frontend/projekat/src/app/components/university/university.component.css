@@ -293,13 +293,46 @@
   outline-offset: 2px;
 }
 
+/* Card image area — 256px per Stitch design */
 .card-img {
   position: relative;
-  height: 180px;
+  height: 256px;
+  overflow: hidden;
+}
+
+/* Real photo */
+.card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+  display: block;
+}
+
+.faculty-card:hover .card-photo {
+  transform: scale(1.08);
+}
+
+.card-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.faculty-card:hover .card-photo-overlay {
+  opacity: 1;
+}
+
+/* Placeholder (no image) */
+.card-placeholder {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  position: relative;
 }
 
 .card-initials {

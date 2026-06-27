@@ -12,7 +12,7 @@
       </p>
       <div class="hero-actions">
         <a routerLink="/faculties" class="btn-hero-primary">Explore Programs</a>
-        <a routerLink="/enrollment" class="btn-hero-secondary">Apply Now</a>
+        <a routerLink="/enrollment" class="btn-hero-secondary">Campus Tour</a>
       </div>
     </div>
   </div>
@@ -74,13 +74,20 @@
       <div class="faculties-grid">
         @for (faculty of faculties; track faculty.facultyCode; let i = $index) {
           <article class="faculty-card" (click)="navigateToFaculty(faculty.facultyCode, $event)" tabindex="0">
-            <div class="card-img" [style.background-color]="getCardColor(i).bg">
-              <span class="card-initials" [style.color]="getCardColor(i).text">
-                {{ getFacultyInitials(faculty.name) }}
-              </span>
-              <span class="material-symbols-outlined card-bg-icon" [style.color]="getCardColor(i).text">
-                {{ getCardColor(i).icon }}
-              </span>
+            <div class="card-img">
+              @if (faculty.image) {
+                <img [src]="faculty.image" [alt]="faculty.name" class="card-photo">
+                <div class="card-photo-overlay"></div>
+              } @else {
+                <div class="card-placeholder" [style.background-color]="getCardColor(i).bg">
+                  <span class="card-initials" [style.color]="getCardColor(i).text">
+                    {{ getFacultyInitials(faculty.name) }}
+                  </span>
+                  <span class="material-symbols-outlined card-bg-icon" [style.color]="getCardColor(i).text">
+                    {{ getCardColor(i).icon }}
+                  </span>
+                </div>
+              }
             </div>
             <div class="card-body">
               <h3 class="card-title">{{ faculty.name }}</h3>

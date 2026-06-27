@@ -99,4 +99,17 @@ export class StudyProgramComponent implements OnInit {
     if (!t) return '—';
     return `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim() || '—';
   }
+
+  getDegreeType(): string {
+    const name = (this.studyProgram?.name ?? '').toLowerCase();
+    const code = (this.studyProgram?.programCode ?? '').toLowerCase();
+    if (name.includes('phd') || name.includes('doctor') || code.includes('phd')) return 'Doctor of Philosophy';
+    if (name.includes('master') || name.includes(' msc') || name.includes(' ma ')
+        || code.includes('-ma') || code.includes('-msc') || name.includes('postgrad')) return 'Master of Science';
+    return 'Bachelor of Arts';
+  }
+
+  get totalSemesters(): number {
+    return this.availableYears.length * 2;
+  }
 }

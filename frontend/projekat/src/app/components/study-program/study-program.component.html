@@ -40,6 +40,10 @@
           </div>
         </div>
         <div class="hero-actions">
+          <button class="btn-download" type="button">
+            <span class="material-symbols-outlined">download</span>
+            Download Curriculum
+          </button>
           <a [routerLink]="['/enrollment']" class="btn-apply">Apply Now</a>
         </div>
       </div>
@@ -57,19 +61,19 @@
           <div class="overview-meta">
             <div class="meta-cell">
               <p class="meta-label">Duration</p>
-              <p class="meta-val">{{ availableYears.length }} Year{{ availableYears.length !== 1 ? 's' : '' }}</p>
+              <p class="meta-val">{{ availableYears.length }} Year{{ availableYears.length !== 1 ? 's' : '' }} / {{ totalSemesters }} Semesters</p>
             </div>
             <div class="meta-cell">
               <p class="meta-label">Total ECTS</p>
-              <p class="meta-val mono">{{ totalEcts }}</p>
+              <p class="meta-val mono">{{ totalEcts }} Credits</p>
+            </div>
+            <div class="meta-cell">
+              <p class="meta-label">Degree</p>
+              <p class="meta-val">{{ getDegreeType() }}</p>
             </div>
             <div class="meta-cell">
               <p class="meta-label">Language</p>
               <p class="meta-val">English</p>
-            </div>
-            <div class="meta-cell">
-              <p class="meta-label">Courses</p>
-              <p class="meta-val mono">{{ courses.length }}</p>
             </div>
           </div>
         </section>
@@ -139,6 +143,10 @@
               Showing {{ getCoursesForYear(selectedYear).length }} course{{ getCoursesForYear(selectedYear).length !== 1 ? 's' : '' }}
               @if (availableYears.length > 1) { for Year {{ selectedYear }} }
             </p>
+            <a href="#" class="view-electives">
+              View Electives
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
           </div>
         </section>
       </div>

@@ -4,7 +4,7 @@
     <!-- Branding -->
     <div class="login-brand">
       <div class="login-logo">
-        <mat-icon>school</mat-icon>
+        <span class="material-symbols-outlined login-logo-icon">school</span>
       </div>
       <h1 class="login-title">Welcome Back</h1>
       <p class="login-subtitle">University of Ashford Student Portal</p>
@@ -14,61 +14,67 @@
     <form [formGroup]="form" (ngSubmit)="signIn()" class="login-form" novalidate>
 
       <!-- Email -->
-      <mat-form-field appearance="outline">
-        <mat-label>Email Address</mat-label>
-        <mat-icon matPrefix>mail</mat-icon>
-        <input
-          matInput
-          type="email"
-          formControlName="email"
-          placeholder="student@ashford.edu"
-          autocomplete="email"
-        />
-        <mat-error *ngIf="emailCtrl.hasError('required')">Email is required</mat-error>
-        <mat-error *ngIf="emailCtrl.hasError('email')">Enter a valid email address</mat-error>
-      </mat-form-field>
+      <div class="field-group">
+        <label class="field-label" for="login-email">Email Address</label>
+        <div class="field-wrap" [class.field-wrap--error]="emailCtrl.touched && emailCtrl.invalid">
+          <span class="material-symbols-outlined field-icon">mail</span>
+          <input
+            id="login-email"
+            class="field-input"
+            type="email"
+            formControlName="email"
+            placeholder="student@ashford.edu"
+            autocomplete="email"
+          />
+        </div>
+        <span class="field-error-msg" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Email is required</span>
+        <span class="field-error-msg" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Enter a valid email address</span>
+      </div>
 
       <!-- Password -->
-      <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
-        <mat-icon matPrefix>lock</mat-icon>
-        <input
-          matInput
-          [type]="showPassword ? 'text' : 'password'"
-          formControlName="password"
-          placeholder="••••••••"
-          autocomplete="current-password"
-        />
-        <button
-          mat-icon-button
-          matSuffix
-          type="button"
-          (click)="togglePassword()"
-          [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
-        >
-          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        <mat-error *ngIf="passwordCtrl.hasError('required')">Password is required</mat-error>
-        <mat-error *ngIf="passwordCtrl.hasError('minlength')">
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="login-password">Password</label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <div class="field-wrap" [class.field-wrap--error]="passwordCtrl.touched && passwordCtrl.invalid">
+          <span class="material-symbols-outlined field-icon">lock</span>
+          <input
+            id="login-password"
+            class="field-input"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="field-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+        <span class="field-error-msg" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')">Password is required</span>
+        <span class="field-error-msg" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('minlength')">
           Minimum {{ passwordCtrl.errors?.['minlength']?.requiredLength }} characters
-        </mat-error>
-      </mat-form-field>
+        </span>
+      </div>
 
       <!-- API error -->
       <div class="login-error" *ngIf="errorMessage">
-        <mat-icon>error_outline</mat-icon>
+        <span class="material-symbols-outlined">error_outline</span>
         {{ errorMessage }}
       </div>
 
       <!-- Submit -->
       <button
-        mat-flat-button
-        color="primary"
         type="submit"
         class="login-submit"
         [disabled]="isLoading"
       >
-        <mat-spinner *ngIf="isLoading" diameter="20" color="accent"></mat-spinner>
+        <mat-spinner *ngIf="isLoading" diameter="18"></mat-spinner>
         <span *ngIf="!isLoading">Sign In</span>
         <span *ngIf="isLoading">Authenticating…</span>
       </button>

@@ -4,7 +4,7 @@
     <!-- Side rail (academic branding) -->
     <div class="reg-rail" aria-hidden="true">
       <div class="rail-top">
-        <mat-icon class="rail-icon">account_balance</mat-icon>
+        <span class="material-symbols-outlined rail-icon">account_balance</span>
         <div class="rail-divider"></div>
       </div>
       <span class="rail-label">Est. 1892</span>
@@ -24,54 +24,63 @@
 
         <!-- Name row -->
         <div class="field-row">
-          <mat-form-field appearance="outline">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstName" placeholder="Jane" autocomplete="given-name"/>
-            <mat-error *ngIf="firstNameCtrl.hasError('required')">Required</mat-error>
-            <mat-error *ngIf="firstNameCtrl.hasError('minlength')">Min 2 characters</mat-error>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label" for="reg-first-name">First Name</label>
+            <div class="field-wrap" [class.field-wrap--error]="firstNameCtrl.touched && firstNameCtrl.invalid">
+              <input id="reg-first-name" class="field-input" type="text" formControlName="firstName" placeholder="Jane" autocomplete="given-name"/>
+            </div>
+            <span class="field-error-msg" *ngIf="firstNameCtrl.touched && firstNameCtrl.hasError('required')">Required</span>
+            <span class="field-error-msg" *ngIf="firstNameCtrl.touched && firstNameCtrl.hasError('minlength')">Min 2 characters</span>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastName" placeholder="Doe" autocomplete="family-name"/>
-            <mat-error *ngIf="lastNameCtrl.hasError('required')">Required</mat-error>
-            <mat-error *ngIf="lastNameCtrl.hasError('minlength')">Min 2 characters</mat-error>
-          </mat-form-field>
+          <div class="field-group">
+            <label class="field-label" for="reg-last-name">Last Name</label>
+            <div class="field-wrap" [class.field-wrap--error]="lastNameCtrl.touched && lastNameCtrl.invalid">
+              <input id="reg-last-name" class="field-input" type="text" formControlName="lastName" placeholder="Doe" autocomplete="family-name"/>
+            </div>
+            <span class="field-error-msg" *ngIf="lastNameCtrl.touched && lastNameCtrl.hasError('required')">Required</span>
+            <span class="field-error-msg" *ngIf="lastNameCtrl.touched && lastNameCtrl.hasError('minlength')">Min 2 characters</span>
+          </div>
         </div>
 
         <!-- Username -->
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <mat-icon matPrefix>person</mat-icon>
-          <input matInput formControlName="username" placeholder="jdoe_ashford" autocomplete="username"/>
-          <mat-error *ngIf="usernameCtrl.hasError('required')">Required</mat-error>
-          <mat-error *ngIf="usernameCtrl.hasError('minlength')">Min 4 characters</mat-error>
-          <mat-error *ngIf="usernameCtrl.hasError('pattern')">No spaces allowed</mat-error>
-        </mat-form-field>
+        <div class="field-group">
+          <label class="field-label" for="reg-username">Username</label>
+          <div class="field-wrap" [class.field-wrap--error]="usernameCtrl.touched && usernameCtrl.invalid">
+            <span class="material-symbols-outlined field-icon">person</span>
+            <input id="reg-username" class="field-input" type="text" formControlName="username" placeholder="jdoe_ashford" autocomplete="username"/>
+          </div>
+          <span class="field-error-msg" *ngIf="usernameCtrl.touched && usernameCtrl.hasError('required')">Required</span>
+          <span class="field-error-msg" *ngIf="usernameCtrl.touched && usernameCtrl.hasError('minlength')">Min 4 characters</span>
+          <span class="field-error-msg" *ngIf="usernameCtrl.touched && usernameCtrl.hasError('pattern')">No spaces allowed</span>
+        </div>
 
         <!-- Email -->
-        <mat-form-field appearance="outline">
-          <mat-label>Email Address</mat-label>
-          <mat-icon matPrefix>mail</mat-icon>
-          <input matInput type="email" formControlName="email" placeholder="jane.doe@ashford.edu" autocomplete="email"/>
-          <mat-error *ngIf="emailCtrl.hasError('required')">Required</mat-error>
-          <mat-error *ngIf="emailCtrl.hasError('email')">Invalid email address</mat-error>
-        </mat-form-field>
+        <div class="field-group">
+          <label class="field-label" for="reg-email">Email Address</label>
+          <div class="field-wrap" [class.field-wrap--error]="emailCtrl.touched && emailCtrl.invalid">
+            <span class="material-symbols-outlined field-icon">mail</span>
+            <input id="reg-email" class="field-input" type="email" formControlName="email" placeholder="jane.doe@ashford.edu" autocomplete="email"/>
+          </div>
+          <span class="field-error-msg" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Required</span>
+          <span class="field-error-msg" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Invalid email address</span>
+        </div>
 
         <!-- Password row -->
         <div class="field-row">
 
-          <div class="password-field-wrap">
-            <mat-form-field appearance="outline">
-              <mat-label>Password</mat-label>
-              <mat-icon matPrefix>lock</mat-icon>
-              <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" autocomplete="new-password"/>
-              <button mat-icon-button matSuffix type="button" (click)="togglePassword()">
-                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <!-- Password + strength -->
+          <div class="field-group">
+            <label class="field-label" for="reg-password">Password</label>
+            <div class="field-wrap" [class.field-wrap--error]="passwordCtrl.touched && passwordCtrl.invalid">
+              <span class="material-symbols-outlined field-icon">lock</span>
+              <input id="reg-password" class="field-input" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" autocomplete="new-password"/>
+              <button type="button" class="field-toggle" (click)="togglePassword()">
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
-              <mat-error *ngIf="passwordCtrl.hasError('required')">Required</mat-error>
-              <mat-error *ngIf="passwordCtrl.hasError('minlength')">Min 8 characters</mat-error>
-            </mat-form-field>
+            </div>
+            <span class="field-error-msg" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')">Required</span>
+            <span class="field-error-msg" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('minlength')">Min 8 characters</span>
             <!-- Strength indicator -->
             <div class="strength-bar-wrap" *ngIf="passwordCtrl.value">
               <div class="strength-bar">
@@ -87,38 +96,37 @@
             </div>
           </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Confirm Password</mat-label>
-            <mat-icon matPrefix>lock_reset</mat-icon>
-            <input matInput [type]="showConfirm ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" autocomplete="new-password"/>
-            <button mat-icon-button matSuffix type="button" (click)="toggleConfirm()">
-              <mat-icon>{{ showConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            <mat-error *ngIf="confirmCtrl.hasError('required')">Required</mat-error>
-            <mat-error *ngIf="form.hasError('passwordMismatch') && confirmCtrl.touched">
-              Passwords do not match
-            </mat-error>
-          </mat-form-field>
+          <!-- Confirm password -->
+          <div class="field-group">
+            <label class="field-label" for="reg-confirm">Confirm Password</label>
+            <div class="field-wrap" [class.field-wrap--error]="confirmCtrl.touched && (confirmCtrl.invalid || (form.hasError('passwordMismatch') && confirmCtrl.touched))">
+              <span class="material-symbols-outlined field-icon">lock_reset</span>
+              <input id="reg-confirm" class="field-input" [type]="showConfirm ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" autocomplete="new-password"/>
+              <button type="button" class="field-toggle" (click)="toggleConfirm()">
+                <span class="material-symbols-outlined">{{ showConfirm ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <span class="field-error-msg" *ngIf="confirmCtrl.touched && confirmCtrl.hasError('required')">Required</span>
+            <span class="field-error-msg" *ngIf="form.hasError('passwordMismatch') && confirmCtrl.touched">Passwords do not match</span>
+          </div>
 
         </div>
 
         <!-- API error -->
         <div class="reg-error" *ngIf="errorMessage">
-          <mat-icon>error_outline</mat-icon>
+          <span class="material-symbols-outlined">error_outline</span>
           {{ errorMessage }}
         </div>
 
         <!-- Submit -->
         <button
-          mat-flat-button
-          color="primary"
           type="submit"
           class="reg-submit"
           [disabled]="isLoading"
         >
-          <mat-spinner *ngIf="isLoading" diameter="20" color="accent"></mat-spinner>
+          <mat-spinner *ngIf="isLoading" diameter="18"></mat-spinner>
           <span *ngIf="!isLoading">Create Account</span>
-          <mat-icon *ngIf="!isLoading">arrow_forward</mat-icon>
+          <span class="material-symbols-outlined" *ngIf="!isLoading">arrow_forward</span>
           <span *ngIf="isLoading">Processing…</span>
         </button>
 
