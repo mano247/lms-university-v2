@@ -1,36 +1,61 @@
-<div class="content">
-    <h2>Announcements</h2>
-    <p-dropdown
-      [options]="activeCourses"
-      optionLabel="name"
-      optionValue="id"
-      [(ngModel)]="selectedCourseId"
-      placeholder="Select a course"
-      (onChange)="onCourseChange($event)">
-    </p-dropdown>
+<div class="tab-wrap">
 
-    <div>
-      <p-dialog header="Add Announcement" [modal]="true" [(visible)]="visible">
-        <div>
-          <p-button label="Add" (onClick)="addAnnouncement()"/>
-          <p-button label="Cancel" severity="secondary" (onClick)="visible = false" />
-        </div>
-      </p-dialog>
-    </div>
-
-    <p-dataView #dv [value]="filteredAnnouncements">
-      <ng-template pTemplate="list">
-        <div *ngFor="let o of filteredAnnouncements">
-          <div class="gObavestenje">
-            <h4>{{o.title}}</h4>
-            <p><span>from: </span> <br> {{formatDate(o.startDate)}}, <br> <span>to: </span> <br>{{formatDate(o.endDate)}}</p>
-            <p>{{o.content}}</p>
-          </div>
-          <p-divider />
-        </div>
-      </ng-template>
-    </p-dataView>
-
-    <p-toast></p-toast>
-    <p-confirmPopup></p-confirmPopup>
+  <div class="tab-header">
+    <h2 class="tab-title">Announcements</h2>
+    <p class="tab-sub">University-wide and course-specific notifications</p>
   </div>
+
+  <!-- Filter badges -->
+  <div class="filter-row">
+    <button class="filter-badge" [class.active]="filter === 'all'" (click)="setFilter('all')">
+      All
+      <span class="badge-count">{{ globalCount + courseCount }}</span>
+    </button>
+    <button class="filter-badge global" [class.active]="filter === 'global'" (click)="setFilter('global')">
+      <span class="material-symbols-outlined">public</span>
+      Global
+      <span class="badge-count">{{ globalCount }}</span>
+    </button>
+    <button class="filter-badge course" [class.active]="filter === 'course'" (click)="setFilter('course')">
+      <span class="material-symbols-outlined">school</span>
+      Course
+      <span class="badge-count">{{ courseCount }}</span>
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-list">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="item-skeleton"></div>
+      }
+    </div>
+  } @else if (!filtered.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">campaign</span>
+      <h3 class="empty-title">No announcements</h3>
+      <p class="empty-sub">There are no announcements to show for the selected filter.</p>
+    </div>
+  } @else {
+    <div class="announcements-list">
+      @for (item of filtered; track $index) {
+        <div class="announcement-card" [class.global-card]="item.type === 'global'" [class.course-card]="item.type === 'course'">
+          <div class="card-top">
+            <div class="type-badge" [class.global]="item.type === 'global'" [class.course]="item.type === 'course'">
+              <span class="material-symbols-outlined">{{ item.type === 'global' ? 'public' : 'school' }}</span>
+              {{ item.type === 'global' ? 'Global' : 'Course' }}
+            </div>
+            @if (item.badge) {
+              <span class="course-badge">{{ item.badge }}</span>
+            }
+            @if (item.date) {
+              <span class="ann-date">{{ formatDate(item.date) }}</span>
+            }
+          </div>
+          <h4 class="ann-title">{{ item.title }}</h4>
+          <p class="ann-content">{{ item.content }}</p>
+        </div>
+      }
+    </div>
+  }
+
+</div>

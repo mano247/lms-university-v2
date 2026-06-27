@@ -1,26 +1,105 @@
-<div class="content">
-    <h2>My Courses</h2>
-    <p-dataView  #dv [value]="myCourses">
-        <ng-template  pTemplate="list">
-            <div *ngFor="let p of myCourses">
-                <div class="predmet">
-                    <h4>{{p.name}}</h4>
-                    <p><span>course code: </span> <br> {{p.courseCode}}</p>
-                    <p><span>program: </span> <br> {{p.studyProgram?.name}}</p>
-                    <p><span>duration:</span> <br> {{formatDate(p.startDate)}}, to: {{formatDate(p.endDate)}}</p>
-                    <p><span>ects:</span> <br> {{p.ects}}</p>
-                    <p><span>teacher: </span> <br> {{p.teacher?.firstName}} {{p.teacher?.lastName}}</p>
-                    <p><span>description: </span> <br>  {{p.description}}</p>
-                    <div class="udzbenici"><span>textbooks:</span> <br>
-                        <ul>
-                          <li *ngFor="let materijal of p.teachingMaterials">
-                            <strong>{{materijal.title}}</strong> - Author: {{materijal.authors}}
-                          </li>
-                        </ul>
-                    </div>
-                </div>
-                <p-divider />
+<div class="tab-wrap">
+
+  <!-- Welcome header -->
+  <header class="welcome-header">
+    <div class="welcome-text">
+      <h2 class="welcome-title">Welcome back, {{ studentName }}.</h2>
+      <p class="welcome-sub">Student Portal</p>
+    </div>
+    @if (!isLoading) {
+      <div class="stat-chips">
+        <div class="stat-chip">
+          <span class="stat-label">Current GPA</span>
+          <span class="stat-val mono">{{ gpa }}</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">Credits (ECTS)</span>
+          <span class="stat-val mono">{{ totalEcts }}</span>
+        </div>
+      </div>
+    }
+  </header>
+
+  <!-- Section row -->
+  <div class="section-row">
+    <h3 class="section-title">My Courses</h3>
+    <div class="section-rule"></div>
+    <div class="section-filter">
+      <span class="material-symbols-outlined">filter_list</span>
+      <span>Current Term</span>
+    </div>
+  </div>
+
+  <!-- Loading skeletons -->
+  @if (isLoading) {
+    <div class="course-grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="card-skeleton"></div>
+      }
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (!courses.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">school</span>
+      <h3 class="empty-title">No active courses</h3>
+      <p class="empty-sub">You are not enrolled in any courses for this term. Contact the Student Affairs Office for assistance.</p>
+    </div>
+  }
+
+  <!-- Course cards -->
+  @else {
+    <div class="course-grid">
+      @for (course of courses; track course.id; let i = $index) {
+        <div class="course-card"
+          [style.--card-bg]="cardColor(i).bg"
+          [style.--card-fg]="cardColor(i).fg">
+          <div class="card-top">
+            <div class="card-icon-wrap">
+              <span class="material-symbols-outlined">{{ cardIcon(i) }}</span>
             </div>
-        </ng-template>
-    </p-dataView>
+            <span class="card-code mono">{{ course.courseCode }}</span>
+          </div>
+          <h4 class="card-name">{{ course.name }}</h4>
+          <p class="card-desc">{{ course.description || 'Course details available on the course page.' }}</p>
+          <div class="card-meta">
+            <div class="meta-col">
+              <span class="meta-label">Teacher</span>
+              <span class="meta-val">{{ getTeacher(course) }}</span>
+            </div>
+            <div class="meta-col">
+              <span class="meta-label">ECTS</span>
+              <span class="meta-val mono">{{ course.ects ?? '—' }}</span>
+            </div>
+            <div class="meta-col">
+              <span class="meta-label">Year</span>
+              <span class="meta-val">Year {{ course.studyYear?.yearNumber ?? '—' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Bottom grid: Daily Schedule + Important Note -->
+  <div class="bottom-grid">
+    <div class="widget-schedule">
+      <div class="widget-header">
+        <h5 class="widget-title">Daily Schedule</h5>
+        <a class="widget-link" href="#">View Full Calendar</a>
+      </div>
+      <p class="widget-empty-msg">
+        <span class="material-symbols-outlined">calendar_today</span>
+        Schedule data will appear once configured by Student Affairs.
+      </p>
+    </div>
+
+    <div class="widget-note">
+      <h5 class="note-title">Important Note</h5>
+      <p class="note-body">Check the <strong>Exam Periods</strong> tab to see if exam registration is currently open for upcoming sessions.</p>
+      <button class="note-btn">View Exam Periods</button>
+    </div>
+  </div>
+
 </div>

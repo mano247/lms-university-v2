@@ -1,44 +1,133 @@
-<div class="content">
-    <h2>Exam Registration</h2>
-    <p-table [value]="availableCourses" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header">
+<div class="tab-wrap">
+
+  <!-- Toast notification -->
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  <div class="tab-header">
+    <h2 class="tab-title">Exam Registration</h2>
+    <p class="tab-sub">Register for available exams in open exam periods</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading available exams…</p>
+    </div>
+  } @else {
+
+    <!-- Available courses -->
+    <section class="exam-section">
+      <div class="section-head">
+        <h3 class="section-title">Available for Registration</h3>
+        <span class="section-count">{{ availableCourses.length }} courses</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
             <tr>
-                <th pSortableColumn="name">Course <p-sortIcon field="name"></p-sortIcon></th>
-                <th pSortableColumn="teacher">Teacher <p-sortIcon field="teacher"></p-sortIcon></th>
-                <th pSortableColumn="ects">ECTS <p-sortIcon field="ects"></p-sortIcon></th>
-                <th>Actions</th>
+              <th>Course</th>
+              <th>Code</th>
+              <th>Teacher</th>
+              <th class="col-num">ECTS</th>
+              <th class="col-action">Action</th>
             </tr>
-        </ng-template>
-        <ng-template pTemplate="body"  let-p>
-            <tr>
-                <td>{{p.name}}</td>
-                <td>{{p.teacher?.firstName}} {{p.teacher?.lastName}}</td>
-                <td>{{p.ects}}</td>
-                <td>
-                    <p-button *ngIf="!isExamRegistered(p)" label="Register" (onClick)="registerForExam($event, p)" />
+          </thead>
+          <tbody>
+            @for (course of pagedAvail; track course.id) {
+              <tr [class.registered-row]="isRegistered(course)">
+                <td class="cell-primary">{{ course.name }}</td>
+                <td class="cell-mono">{{ course.courseCode }}</td>
+                <td class="cell-secondary">{{ getTeacher(course) }}</td>
+                <td class="cell-mono">{{ course.ects ?? '—' }}</td>
+                <td class="cell-action">
+                  @if (isRegistered(course)) {
+                    <span class="reg-badge">
+                      <span class="material-symbols-outlined">check</span>
+                      Registered
+                    </span>
+                  } @else {
+                    <button
+                      class="btn-register"
+                      [disabled]="registeringId !== null"
+                      [class.loading]="registeringId === course.id"
+                      (click)="register(course)">
+                      @if (registeringId === course.id) {
+                        <span class="btn-spinner"></span>
+                      } @else {
+                        <span class="material-symbols-outlined">add_circle</span>
+                      }
+                      Register
+                    </button>
+                  }
                 </td>
-            </tr>
-        </ng-template>
-    </p-table>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty-row">No courses available for registration in the current period.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (availPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="availPage === 1" (click)="availPage = availPage - 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ availPage }} / {{ availPages }}</span>
+          <button class="page-btn" [disabled]="availPage === availPages" (click)="availPage = availPage + 1">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
+    </section>
 
-    <h3>Registered Exams</h3>
-    <p-table [value]="registeredExams" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="course.name">Course <p-sortIcon field="course.name"></p-sortIcon></th>
-                <th pSortableColumn="course.teacher">Teacher <p-sortIcon field="course.teacher"></p-sortIcon></th>
-                <th pSortableColumn="course.ects">ECTS <p-sortIcon field="course.ects"></p-sortIcon></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body"  let-p>
-            <tr>
-                <td>{{p.course?.name}}</td>
-                <td>{{p.course?.teacher?.firstName}} {{p.course?.teacher?.lastName}}</td>
-                <td>{{p.course?.ects}}</td>
-            </tr>
-        </ng-template>
-    </p-table>
+    <!-- Registered exams -->
+    <section class="exam-section">
+      <div class="section-head">
+        <h3 class="section-title">My Registered Exams</h3>
+        <span class="section-count">{{ registeredExams.length }} exams</span>
+      </div>
 
-    <p-toast />
-    <p-confirmDialog />
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Teacher</th>
+              <th class="col-num">ECTS</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (exam of pagedReg; track $index) {
+              <tr>
+                <td class="cell-primary">{{ getRegCourse(exam) }}</td>
+                <td class="cell-secondary">{{ getRegTeacher(exam) }}</td>
+                <td class="cell-mono">{{ exam.course?.ects ?? exam.ects ?? '—' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="empty-row">You have not registered for any exams yet.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (regPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="regPage === 1" (click)="regPage = regPage - 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ regPage }} / {{ regPages }}</span>
+          <button class="page-btn" [disabled]="regPage === regPages" (click)="regPage = regPage + 1">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
+    </section>
+
+  }
+
 </div>

@@ -1,147 +1,102 @@
-import { NgFor, NgIf } from '@angular/common';
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Course } from '../../../model/academic/course';
+import { Student } from '../../../model/users/student';
+import { ExamAttempt } from '../../../model/exam-attempt';
 import { StudentService } from '../../../services/student.service';
 import { ExamAttemptService } from '../../../services/exam-attempt.service';
-import { ExamAttempt } from '../../../model/exam-attempt';
-import { Student } from '../../../model/users/student';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-exam-registration',
   standalone: true,
-  imports: [TableModule, ButtonModule, NgFor, ConfirmDialogModule, ToastModule, DialogModule, NgIf],
+  imports: [CommonModule],
   templateUrl: './exam-registration.component.html',
   styleUrl: './exam-registration.component.css',
-  providers: [ConfirmationService, MessageService]
 })
 export class ExamRegistrationComponent implements OnInit {
-  balance: number = 1200.0;
-  visible: boolean = false;
-
-  availableCourses: any[] = [];
-  selectedCourse: any | undefined;
+  availableCourses: Course[] = [];
   registeredExams: any[] = [];
-
-  studentId: number | undefined;
   student: Student | undefined;
+  studentId: number | undefined;
+  isLoading = true;
+  registeringId: number | null = null;
+  toast: { type: 'success' | 'error'; message: string } | null = null;
+
+  availPage = 1;
+  regPage = 1;
+  readonly pageSize = 10;
 
   constructor(
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
     private studentService: StudentService,
-    private examAttemptService: ExamAttemptService
+    private examAttemptService: ExamAttemptService,
   ) {}
 
   ngOnInit(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      this.studentId = parsedUser.id;
-      if (this.studentId) {
-        this.getAvailableExams(this.studentId);
-        this.getStudent(this.studentId);
-        this.getRegisteredExams(this.studentId);
-      }
-    }
+    const raw = localStorage.getItem('user');
+    if (!raw) { this.isLoading = false; return; }
+    this.studentId = JSON.parse(raw).id;
+    if (!this.studentId) { this.isLoading = false; return; }
+
+    let pending = 3;
+    const done = () => { if (--pending === 0) this.isLoading = false; };
+
+    this.studentService.getAvailableExams(this.studentId).subscribe({ next: x => { this.availableCourses = x ?? []; done(); }, error: () => done() });
+    this.studentService.getById(this.studentId).subscribe({ next: s => { this.student = s; done(); }, error: () => done() });
+    this.examAttemptService.getRegisteredByStudent(this.studentId).subscribe({ next: x => { this.registeredExams = x ?? []; done(); }, error: () => done() });
   }
 
-  registerForExam(event: Event, course: Course) {
-    this.selectedCourse = course;
+  get pagedAvail() { return this.availableCourses.slice((this.availPage - 1) * this.pageSize, this.availPage * this.pageSize); }
+  get availPages() { return Math.max(1, Math.ceil(this.availableCourses.length / this.pageSize)); }
 
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Exam registration costs 1000 RSD. Do you want to continue?',
-      header: 'Exam Registration',
-      icon: 'pi pi-question-circle',
-      acceptIcon: 'none',
-      rejectIcon: 'none',
-      rejectButtonStyleClass: 'p-button-text',
-      accept: () => {
-        if (this.balance >= 1000) {
-          this.balance -= 1000;
-          this.messageService.add({ severity: 'info', summary: 'Registration successful', detail: 'You have successfully registered for the exam.' });
+  get pagedReg() { return this.registeredExams.slice((this.regPage - 1) * this.pageSize, this.regPage * this.pageSize); }
+  get regPages() { return Math.max(1, Math.ceil(this.registeredExams.length / this.pageSize)); }
 
-          const examAttempt: ExamAttempt = {
-            course: this.selectedCourse,
-            student: this.student,
-            teacher: this.selectedCourse.teacher
-          };
+  isRegistered(course: Course): boolean {
+    return this.registeredExams.some(e => e.course?.id === course.id);
+  }
 
-          this.examAttemptService.create(examAttempt).subscribe(
-            () => {
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Exam registered successfully.' });
-              if (this.studentId) {
-                this.getRegisteredExams(this.studentId);
-              }
-            },
-            () => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to register for exam.' });
-            }
-          );
-        } else {
-          this.messageService.add({ severity: 'error', summary: 'Insufficient funds', detail: 'You do not have enough funds.' });
+  register(course: Course): void {
+    if (!this.student || this.registeringId !== null) return;
+
+    this.registeringId = course.id ?? null;
+    const attempt: ExamAttempt = { course, student: this.student, teacher: course.teacher };
+
+    this.examAttemptService.create(attempt).subscribe({
+      next: () => {
+        this.registeringId = null;
+        this.showToast('success', `Successfully registered for ${course.name}.`);
+        if (this.studentId) {
+          this.examAttemptService.getRegisteredByStudent(this.studentId).subscribe({
+            next: x => { this.registeredExams = x ?? []; },
+            error: () => {},
+          });
         }
       },
-      reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Exam registration cancelled.', life: 3000 });
-      }
-    });
-  }
-
-  getAvailableExams(id: number) {
-    this.studentService.getAvailableExams(id).subscribe(x => {
-      this.availableCourses = x;
-    });
-  }
-
-  getStudent(id: number) {
-    this.studentService.getById(id).subscribe(x => {
-      this.student = x;
-    });
-  }
-
-  getRegisteredExams(id: number) {
-    this.examAttemptService.getRegisteredByStudent(id).subscribe(x => {
-      this.registeredExams = x;
-    });
-  }
-
-  showPaymentDialog() {
-    this.visible = true;
-  }
-
-  confirmPayment(event: Event, amount: number) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Do you want to make this payment?',
-      header: 'Confirm payment',
-      icon: 'pi pi-question-circle',
-      acceptIcon: 'none',
-      rejectIcon: 'none',
-      rejectButtonStyleClass: 'p-button-text',
-      accept: () => {
-        this.balance += amount;
-        this.visible = false;
-        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Payment successful.' });
+      error: () => {
+        this.registeringId = null;
+        this.showToast('error', 'Registration failed. Please try again later.');
       },
-      reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Cancelled!', detail: 'Payment cancelled.', life: 3000 });
-      }
     });
   }
 
-  cancelPayment() {
-    this.visible = false;
+  private showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => { this.toast = null; }, 4500);
   }
 
-  isExamRegistered(course: Course): boolean {
-    return this.registeredExams.some(exam => exam.course.id === course.id);
+  getTeacher(course: Course): string {
+    const t = course.teacher;
+    if (!t) return '—';
+    return `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim() || '—';
+  }
+
+  getRegCourse(exam: any): string {
+    return exam.courseName ?? exam.course?.name ?? '—';
+  }
+
+  getRegTeacher(exam: any): string {
+    const t = exam.teacher ?? exam.course?.teacher;
+    if (!t) return '—';
+    return `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim() || '—';
   }
 }

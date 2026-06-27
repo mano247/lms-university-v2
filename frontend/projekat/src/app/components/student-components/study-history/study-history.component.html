@@ -1,53 +1,181 @@
-<div class="content">
-    <h2>Study History</h2>
-    <h3>Passed Courses</h3>
-    <p-table [value]="passedExams" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="course.name">Course <p-sortIcon field="course.name"></p-sortIcon></th>
-                <th pSortableColumn="points">Points <p-sortIcon field="points"></p-sortIcon></th>
-                <th pSortableColumn="teacher.firstName">Teacher <p-sortIcon field="teacher.firstName"></p-sortIcon></th>
-                <th pSortableColumn="finalGrade">Grade <p-sortIcon field="finalGrade"></p-sortIcon></th>
-                <th pSortableColumn="ects">ECTS <p-sortIcon field="ects"></p-sortIcon></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-p>
-            <tr>
-                <td>{{p.course?.name}}</td>
-                <td>{{p.points}}</td>
-                <td>{{p.teacher?.firstName}} {{p.teacher?.lastName}}</td>
-                <td>{{p.finalGrade}}</td>
-                <td>{{p.ects}}</td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="footer">
-            <tr class="footer-row">
-                <td colspan="5">
-                    <div class="footer-content">
-                        <span class="footer-item">Average Grade: {{getAverageGrade()}}</span>
-                        <span class="footer-item">ECTS: {{getTotalEcts()}}</span>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+<div class="tab-wrap">
 
+  <div class="tab-header">
+    <h2 class="tab-title">Study History</h2>
+    <p class="tab-sub">Academic record, passed courses, and enrollment history</p>
+  </div>
 
-    <h3>Enrollments</h3>
-    <p-table [value]="enrollments" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header">
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading academic record…</p>
+    </div>
+  } @else {
+
+    <!-- Summary stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="material-symbols-outlined stat-icon">task_alt</span>
+        <div>
+          <span class="stat-num mono">{{ passedExams.length }}</span>
+          <span class="stat-desc">Passed Courses</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="material-symbols-outlined stat-icon accent">grade</span>
+        <div>
+          <span class="stat-num mono">{{ avgGpa }}</span>
+          <span class="stat-desc">Average Grade</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="material-symbols-outlined stat-icon">school</span>
+        <div>
+          <span class="stat-num mono">{{ totalEcts }}</span>
+          <span class="stat-desc">Total ECTS</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="material-symbols-outlined stat-icon">calendar_today</span>
+        <div>
+          <span class="stat-num mono">{{ enrollments.length }}</span>
+          <span class="stat-desc">Enrollments</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Passed Courses ── -->
+    <section class="history-section">
+      <div class="section-head">
+        <h3 class="section-title">Passed Courses</h3>
+        <span class="section-count">{{ passedExams.length }} records</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
             <tr>
-                <th>Study Year</th>
-                <th>Enrollment Date</th>
-                <th>Study Program</th>
+              <th>Course</th>
+              <th class="col-num">Points</th>
+              <th>Teacher</th>
+              <th class="col-num">Grade</th>
+              <th class="col-num">ECTS</th>
             </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-u>
+          </thead>
+          <tbody>
+            @for (e of pagedPassed; track $index) {
+              <tr>
+                <td class="cell-primary">{{ getCourseName(e) }}</td>
+                <td class="cell-mono">{{ e.points ?? '—' }}</td>
+                <td class="cell-secondary">{{ getTeacher(e) }}</td>
+                <td class="cell-mono grade">{{ e.finalGrade ?? '—' }}</td>
+                <td class="cell-mono">{{ e.ects ?? '—' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty-row">No passed courses on record.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (passedPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="passedPage === 1" (click)="passedPage = passedPage - 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ passedPage }} / {{ passedPages }}</span>
+          <button class="page-btn" [disabled]="passedPage === passedPages" (click)="passedPage = passedPage + 1">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
+    </section>
+
+    <!-- ── Failed Attempts ── -->
+    <section class="history-section">
+      <div class="section-head">
+        <h3 class="section-title">Failed Attempts</h3>
+        <span class="section-count">{{ failedExams.length }} records</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
             <tr>
-                <td>{{u.studyYear?.year}}</td>
-                <td>{{u.enrollmentDate}}</td>
-                <td>{{u.studyProgram?.name}}</td>
+              <th>Course</th>
+              <th class="col-num">Points</th>
+              <th>Teacher</th>
+              <th class="col-num">Grade</th>
             </tr>
-        </ng-template>
-    </p-table>
+          </thead>
+          <tbody>
+            @for (e of pagedFailed; track $index) {
+              <tr>
+                <td class="cell-primary">{{ getCourseName(e) }}</td>
+                <td class="cell-mono">{{ e.points ?? '—' }}</td>
+                <td class="cell-secondary">{{ getTeacher(e) }}</td>
+                <td class="cell-mono fail">{{ e.finalGrade ?? '5' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="empty-row">No failed attempts on record.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (failedPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="failedPage === 1" (click)="failedPage = failedPage - 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ failedPage }} / {{ failedPages }}</span>
+          <button class="page-btn" [disabled]="failedPage === failedPages" (click)="failedPage = failedPage + 1">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
+    </section>
+
+    <!-- ── Enrollments ── -->
+    <section class="history-section">
+      <div class="section-head">
+        <h3 class="section-title">Enrollment History</h3>
+        <span class="section-count">{{ enrollments.length }} records</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Study Year</th>
+              <th>Enrollment Date</th>
+              <th>Study Program</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of pagedEnroll; track $index) {
+              <tr>
+                <td class="cell-mono">Year {{ e.studyYear?.yearNumber ?? e.studyYear?.year ?? '—' }}</td>
+                <td class="cell-secondary">{{ formatDate(e.enrollmentDate) }}</td>
+                <td class="cell-primary">{{ e.studyProgram?.name ?? '—' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="empty-row">No enrollment records found.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (enrollPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="enrollPage === 1" (click)="enrollPage = enrollPage - 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ enrollPage }} / {{ enrollPages }}</span>
+          <button class="page-btn" [disabled]="enrollPage === enrollPages" (click)="enrollPage = enrollPage + 1">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
+    </section>
+
+  }
+
 </div>

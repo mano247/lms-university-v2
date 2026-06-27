@@ -1,55 +1,73 @@
-import { NgFor } from '@angular/common';
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { TableModule } from 'primeng/table';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { StudentService } from '../../../services/student.service';
-import { Course } from '../../../model/academic/course';
-import { SortEvent } from 'primeng/api';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-study-history',
   standalone: true,
-  imports: [TableModule, NgFor],
+  imports: [CommonModule],
   templateUrl: './study-history.component.html',
-  styleUrl: './study-history.component.css'
+  styleUrl: './study-history.component.css',
 })
 export class StudyHistoryComponent implements OnInit {
   passedExams: any[] = [];
-  failedCourses: Course[] = [];
+  failedExams: any[] = [];
   enrollments: any[] = [];
+  isLoading = true;
+
+  passedPage = 1;
+  failedPage = 1;
+  enrollPage = 1;
+  readonly pageSize = 10;
 
   constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      const id = parsedUser.id;
-      this.getPassedExams(id);
-      this.getEnrollments(id);
-    }
+    const raw = localStorage.getItem('user');
+    if (!raw) { this.isLoading = false; return; }
+    const id: number = JSON.parse(raw).id;
+    if (!id) { this.isLoading = false; return; }
+
+    let pending = 3;
+    const done = () => { if (--pending === 0) this.isLoading = false; };
+
+    this.studentService.getPassedExams(id).subscribe({ next: x => { this.passedExams = x ?? []; done(); }, error: () => done() });
+    this.studentService.getFailedExams(id).subscribe({ next: x => { this.failedExams = x ?? []; done(); }, error: () => done() });
+    this.studentService.getEnrollments(id).subscribe({ next: x => { this.enrollments = x ?? []; done(); }, error: () => done() });
   }
 
-  getPassedExams(id: number) {
-    this.studentService.getPassedExams(id).subscribe(x => {
-      this.passedExams = x;
-    });
+  get avgGpa(): string {
+    if (!this.passedExams.length) return '—';
+    const avg = this.passedExams.reduce((s, e) => s + (e.finalGrade ?? 0), 0) / this.passedExams.length;
+    return avg.toFixed(2);
   }
 
-  getEnrollments(id: number) {
-    this.studentService.getEnrollments(id).subscribe(x => {
-      this.enrollments = x;
-    });
+  get totalEcts(): number {
+    return this.passedExams.reduce((s, e) => s + (e.ects ?? 0), 0);
   }
 
-  getAverageGrade(): number {
-    if (this.passedExams.length === 0) return 0;
-    const total = this.passedExams.reduce((sum, exam) => sum + exam.finalGrade, 0);
-    return parseFloat((total / this.passedExams.length).toFixed(2));
+  // Pagination helpers
+  get pagedPassed() { return this.passedExams.slice((this.passedPage - 1) * this.pageSize, this.passedPage * this.pageSize); }
+  get passedPages() { return Math.max(1, Math.ceil(this.passedExams.length / this.pageSize)); }
+
+  get pagedFailed() { return this.failedExams.slice((this.failedPage - 1) * this.pageSize, this.failedPage * this.pageSize); }
+  get failedPages() { return Math.max(1, Math.ceil(this.failedExams.length / this.pageSize)); }
+
+  get pagedEnroll() { return this.enrollments.slice((this.enrollPage - 1) * this.pageSize, this.enrollPage * this.pageSize); }
+  get enrollPages() { return Math.max(1, Math.ceil(this.enrollments.length / this.pageSize)); }
+
+  getTeacher(exam: any): string {
+    const t = exam.teacher;
+    if (!t) return '—';
+    return `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim() || '—';
   }
 
-  getTotalEcts(): number {
-    if (this.passedExams.length === 0) return 0;
-    return this.passedExams.reduce((sum, exam) => sum + exam.ects, 0);
+  getCourseName(exam: any): string {
+    return exam.courseName ?? exam.course?.name ?? '—';
+  }
+
+  formatDate(d: any): string {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 }

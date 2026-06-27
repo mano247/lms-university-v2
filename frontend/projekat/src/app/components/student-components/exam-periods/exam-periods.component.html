@@ -1,0 +1,84 @@
+<div class="tab-wrap">
+
+  <div class="tab-header">
+    <h2 class="tab-title">Exam Periods</h2>
+    <p class="tab-sub">Open exam periods and available exam terms for registration</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading exam periods…</p>
+    </div>
+  } @else if (hasError || !periods.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">event_repeat</span>
+      <h3 class="empty-title">No open exam periods</h3>
+      <p class="empty-sub">There are currently no open exam periods. Check back when the Student Affairs Office opens a new session, or go to <strong>Exam Registration</strong> to register for available exams.</p>
+    </div>
+  } @else {
+    <div class="periods-list">
+      @for (period of periods; track period.id) {
+        <div class="period-card" [class.expanded]="isExpanded(period.id)">
+
+          <button class="period-header" (click)="toggle(period.id)" [attr.aria-expanded]="isExpanded(period.id)">
+            <div class="period-left">
+              <div class="period-status" [class.open]="period.isOpen">
+                {{ period.isOpen ? 'Open' : 'Closed' }}
+              </div>
+              <div class="period-info">
+                <span class="period-name">{{ period.name }}</span>
+                <span class="period-dates">
+                  {{ formatDate(period.startDate) }} – {{ formatDate(period.endDate) }}
+                </span>
+              </div>
+            </div>
+            <div class="period-right">
+              @if (period.isOpen) {
+                <span class="days-left">{{ getDaysLeft(period.endDate) }} days left</span>
+              }
+              <span class="expand-icon material-symbols-outlined">
+                {{ isExpanded(period.id) ? 'expand_less' : 'expand_more' }}
+              </span>
+            </div>
+          </button>
+
+          @if (isExpanded(period.id)) {
+            <div class="period-body">
+              @if (!period.terms || !period.terms.length) {
+                <p class="no-terms">No exam terms defined for this period yet.</p>
+              } @else {
+                <table class="terms-table">
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Code</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Room</th>
+                      <th>Teacher</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (term of period.terms; track term.id) {
+                      <tr>
+                        <td class="cell-course">{{ term.courseName }}</td>
+                        <td class="cell-code mono">{{ term.courseCode }}</td>
+                        <td class="cell-date">{{ formatDate(term.examDate) }}</td>
+                        <td class="cell-time mono">{{ term.startTime }}</td>
+                        <td class="cell-room">{{ term.room }}</td>
+                        <td class="cell-teacher">{{ term.teacherName ?? '—' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
