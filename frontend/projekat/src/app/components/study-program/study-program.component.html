@@ -32,7 +32,7 @@
           <span class="program-code-label">PROGRAM CODE: {{ studyProgram.programCode }}</span>
           <h1 class="program-title">{{ studyProgram.name }}</h1>
           <div class="director-row">
-            <div class="director-avatar">{{ getDirectorName()[0] ?? 'D' }}</div>
+            <div class="director-avatar">{{ getDirectorName()[0] || 'D' }}</div>
             <div>
               <p class="director-role">Program Director</p>
               <p class="director-name">{{ getDirectorName() }}</p>

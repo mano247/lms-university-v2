@@ -1,22 +1,18 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { StudyProgramService } from '../../services/study-program.service';
 import { StudyProgram } from '../../model/academic/study-program';
 import { CourseService } from '../../services/course.service';
 import { Course } from '../../model/academic/course';
-import { DividerModule } from 'primeng/divider';
 import { Faculty } from '../../model/academic/faculty';
 import { FacultyService } from '../../services/faculty.service';
-import { CourseMaterialService } from '../../services/teaching-material.service';
-import { NgFor } from '@angular/common';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-course',
   standalone: true,
-  imports: [RouterModule, DividerModule, NgFor],
+  imports: [RouterModule],
   templateUrl: './course.component.html',
-  styleUrl: './course.component.css'
+  styleUrl: './course.component.css',
 })
 export class CourseComponent implements OnInit {
   facultyCode: string | null = null;
@@ -26,13 +22,13 @@ export class CourseComponent implements OnInit {
   faculty: Faculty | null = null;
   course: Course | null = null;
   studyProgram: StudyProgram | null = null;
+  isLoading = true;
 
   constructor(
     private route: ActivatedRoute,
-    private courseMaterialService: CourseMaterialService,
     private studyProgramService: StudyProgramService,
     private facultyService: FacultyService,
-    private courseService: CourseService
+    private courseService: CourseService,
   ) {}
 
   ngOnInit(): void {
@@ -40,61 +36,50 @@ export class CourseComponent implements OnInit {
       this.facultyCode = params.get('facultyCode');
       this.studyProgramCode = params.get('studyProgramCode');
       this.courseCode = params.get('courseCode');
-
-      this.getCourse();
-      this.getStudyProgram();
-      this.getFaculty();
+      this.isLoading = true;
+      this.loadAll();
     });
   }
 
-  getCourse() {
-    if (this.courseCode !== null) {
-      this.courseService.getByCode(this.courseCode).subscribe(x => {
-        this.course = x;
+  private loadAll(): void {
+    if (this.courseCode) {
+      this.courseService.getByCode(this.courseCode).subscribe({
+        next: x => { this.course = x; this.isLoading = false; },
+        error: () => (this.isLoading = false),
       });
     }
-  }
-
-  getFaculty() {
-    if (this.facultyCode !== null) {
-      this.facultyService.getByCode(this.facultyCode).subscribe(x => {
-        this.faculty = x;
+    if (this.facultyCode) {
+      this.facultyService.getByCode(this.facultyCode).subscribe({
+        next: x => (this.faculty = x),
       });
     }
-  }
-
-  getStudyProgram() {
-    if (this.studyProgramCode !== null) {
-      this.studyProgramService.getByCode(this.studyProgramCode).subscribe(x => {
-        this.studyProgram = x;
+    if (this.studyProgramCode) {
+      this.studyProgramService.getByCode(this.studyProgramCode).subscribe({
+        next: x => (this.studyProgram = x),
       });
     }
   }
 
   formatSyllabus(syllabus: string | undefined): string {
-    if (!syllabus) return 'syllabus';
-
-    let formatted = syllabus
+    if (!syllabus) return '';
+    return syllabus
       .replace(/"/g, '')
-      .replace(/\n\n/g, '</p><p><br>')
-      .replace(/\n/g, '<br>');
-
-    formatted = formatted.replace(/\[([^\]]+)\]/g, (match, p1) => {
-      const items = p1.split(';').map((item: string) => `<p>${item.trim()}</p>`).join('');
-      return `<div>${items}</div>`;
-    });
-
-    return formatted;
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/\[([^\]]+)\]/g, (_m, p1) =>
+        p1.split(';').map((item: string) => `<p>${item.trim()}</p>`).join(''),
+      );
   }
 
   formatDate(date: Date | undefined): string {
-    if (date) {
-      const d = new Date(date);
-      const year = d.getUTCFullYear();
-      const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
-      const day = d.getUTCDate().toString().padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-    return '';
+    if (!date) return '—';
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  get teacherName(): string {
+    const t = this.course?.teacher as any;
+    if (!t) return '—';
+    return [t.firstName, t.lastName].filter(Boolean).join(' ') || t.username || '—';
   }
 }

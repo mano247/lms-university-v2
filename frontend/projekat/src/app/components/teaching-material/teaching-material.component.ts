@@ -1,21 +1,17 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CourseMaterial } from '../../model/academic/teaching-material';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { CourseMaterialService } from '../../services/teaching-material.service';
-import { DividerModule } from 'primeng/divider';
-import { NgFor } from '@angular/common';
-import { FacultyService } from '../../services/faculty.service';
 import { CourseService } from '../../services/course.service';
-import { StudyProgramService } from '../../services/study-program.service';
 import { Course } from '../../model/academic/course';
+import { FacultyService } from '../../services/faculty.service';
+import { StudyProgramService } from '../../services/study-program.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-teaching-material',
   standalone: true,
-  imports: [RouterModule, DividerModule, NgFor],
+  imports: [RouterModule],
   templateUrl: './teaching-material.component.html',
-  styleUrl: './teaching-material.component.css'
+  styleUrl: './teaching-material.component.css',
 })
 export class TeachingMaterialComponent implements OnInit {
   facultyCode: string | null = null;
@@ -25,29 +21,15 @@ export class TeachingMaterialComponent implements OnInit {
 
   facultyName: string | null = null;
   programName: string | null = null;
-  course: Course = {
-    syllabus: '',
-    name: '',
-    ects: 0,
-    startDate: new Date(),
-    endDate: new Date(),
-    description: '',
-    teachingMaterials: [],
-    examAttempts: [],
-    teacher: undefined,
-    students: [],
-    announcements: [],
-    studyProgram: '',
-    courseCode: ''
-  };
-
+  course: Course | null = null;
   material: CourseMaterial | null = null;
+  isLoading = true;
 
   constructor(
     private route: ActivatedRoute,
     private facultyService: FacultyService,
     private courseService: CourseService,
-    private studyProgramService: StudyProgramService
+    private studyProgramService: StudyProgramService,
   ) {}
 
   ngOnInit(): void {
@@ -56,37 +38,27 @@ export class TeachingMaterialComponent implements OnInit {
       this.studyProgramCode = params.get('studyProgramCode');
       this.courseCode = params.get('courseCode');
       this.materialTitle = params.get('materialTitle');
+      this.loadAll();
     });
-    this.getFaculty();
-    this.getStudyProgram();
-    this.getCourse();
   }
 
-  getFaculty() {
-    if (this.facultyCode !== null) {
-      this.facultyService.getByCode(this.facultyCode).subscribe(x => {
-        this.facultyName = x.name;
-      });
+  private loadAll(): void {
+    if (this.facultyCode) {
+      this.facultyService.getByCode(this.facultyCode).subscribe({ next: x => (this.facultyName = x.name) });
     }
-  }
-
-  getCourse() {
-    if (this.courseCode !== null) {
-      this.courseService.getByCode(this.courseCode).subscribe(x => {
-        this.course = x;
-        if (this.materialTitle) {
-          this.material = this.course.teachingMaterials.find(m => m.title === this.materialTitle) || null;
-        } else {
-          this.material = null;
-        }
-      });
+    if (this.studyProgramCode) {
+      this.studyProgramService.getByCode(this.studyProgramCode).subscribe({ next: x => (this.programName = x.name) });
     }
-  }
-
-  getStudyProgram() {
-    if (this.studyProgramCode !== null) {
-      this.studyProgramService.getByCode(this.studyProgramCode).subscribe(x => {
-        this.programName = x.name;
+    if (this.courseCode) {
+      this.courseService.getByCode(this.courseCode).subscribe({
+        next: x => {
+          this.course = x;
+          this.material = this.materialTitle
+            ? (x.teachingMaterials.find((m: CourseMaterial) => m.title === this.materialTitle) ?? null)
+            : null;
+          this.isLoading = false;
+        },
+        error: () => (this.isLoading = false),
       });
     }
   }

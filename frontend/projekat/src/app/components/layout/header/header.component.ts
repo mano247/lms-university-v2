@@ -1,7 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
-import { NgIf } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -9,7 +8,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, NgIf, MatMenuModule, MatDividerModule],
+  imports: [RouterModule, MatMenuModule, MatDividerModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

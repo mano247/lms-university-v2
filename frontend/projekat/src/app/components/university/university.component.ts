@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { FacultyService } from '../../services/faculty.service';
@@ -11,7 +10,7 @@ interface CardColor { bg: string; text: string; icon: string; }
 @Component({
   selector: 'app-university',
   standalone: true,
-  imports: [NgFor, NgIf, RouterModule],
+  imports: [RouterModule],
   templateUrl: './university.component.html',
   styleUrl: './university.component.css'
 })

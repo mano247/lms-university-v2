@@ -1,35 +1,143 @@
-<div class="content">
-    <a [routerLink]="['/faculty', facultyCode]"><h2>{{faculty?.name}}</h2></a>
-    <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode]"><h3>{{studyProgram?.name}}</h3></a>
+<div class="course-page">
 
-    <p-divider />
-    <h4>{{course?.name}}</h4>
+  @if (isLoading) {
+    <div class="loading-wrap">
+      <div class="skeleton-hero"></div>
+      <div class="skeleton-body"></div>
+    </div>
+  } @else {
 
-    <p>{{course?.description}}</p>
-    <p-divider />
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+      <div class="bc-inner">
+        <a routerLink="/" class="bc-link">Home</a>
+        <span class="bc-sep material-symbols-outlined">chevron_right</span>
+        <a routerLink="/faculties" class="bc-link">Faculties</a>
+        @if (faculty) {
+          <span class="bc-sep material-symbols-outlined">chevron_right</span>
+          <a [routerLink]="['/faculty', facultyCode]" class="bc-link">{{ faculty.name }}</a>
+        }
+        @if (studyProgram) {
+          <span class="bc-sep material-symbols-outlined">chevron_right</span>
+          <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode]" class="bc-link">{{ studyProgram.name }}</a>
+        }
+        <span class="bc-sep material-symbols-outlined">chevron_right</span>
+        <span class="bc-current">{{ course?.name ?? courseCode }}</span>
+      </div>
+    </div>
 
-    <h5>Syllabus</h5>
-    <p class="silabus" [innerHTML]="formatSyllabus(course?.syllabus)"></p>
-    <p-divider />
+    <!-- Course header -->
+    <div class="course-hero">
+      <div class="hero-inner">
+        <div class="course-badges">
+          @if (course?.courseCode) {
+            <span class="badge badge-code">{{ course?.courseCode }}</span>
+          }
+          @if (course?.ects) {
+            <span class="badge badge-ects">{{ course?.ects }} ECTS</span>
+          }
+        </div>
+        <h1 class="course-title">{{ course?.name }}</h1>
+        @if (teacherName !== '—') {
+          <div class="teacher-row">
+            <span class="material-symbols-outlined t-icon">person</span>
+            <span class="t-label">Lecturer:</span>
+            <strong class="t-name">{{ teacherName }}</strong>
+          </div>
+        }
+      </div>
+    </div>
 
-    <h5>Teaching Materials</h5>
-    <ul>
-        <li *ngFor="let nm of course?.teachingMaterials">
-           <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', course?.courseCode,
-           'course-material', nm.title]">{{nm.title}}</a>
-        </li>
-    </ul>
-    <p-divider />
+    <!-- Content grid -->
+    <div class="content-grid">
 
-    <h5>Course Duration</h5>
-    <p>from: {{formatDate(course?.startDate)}}</p>
-    <p>to: {{formatDate(course?.endDate)}}</p>
-    <p-divider />
+      <!-- Main column -->
+      <div class="main-col">
 
-    <h5>ECTS</h5>
-    <p>{{course?.ects}}</p>
-    <p-divider />
+        @if (course?.description) {
+          <section class="info-card">
+            <h2 class="card-heading">
+              <span class="material-symbols-outlined">info</span>
+              Description
+            </h2>
+            <p class="card-text">{{ course?.description }}</p>
+          </section>
+        }
 
-    <h5>Teacher</h5>
-    <p>{{course?.teacher?.firstName}} {{course?.teacher?.lastName}}</p>
+        @if (course?.syllabus) {
+          <section class="info-card">
+            <h2 class="card-heading">
+              <span class="material-symbols-outlined">menu_book</span>
+              Syllabus
+            </h2>
+            <div class="syllabus-body" [innerHTML]="formatSyllabus(course?.syllabus)"></div>
+          </section>
+        }
+
+        @if (course?.teachingMaterials?.length) {
+          <section class="info-card">
+            <h2 class="card-heading">
+              <span class="material-symbols-outlined">library_books</span>
+              Teaching Materials
+            </h2>
+            <ul class="materials-list">
+              @for (nm of course?.teachingMaterials; track nm.title) {
+                <li class="material-item">
+                  <span class="material-symbols-outlined mat-icon">article</span>
+                  <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', course?.courseCode, 'course-material', nm.title]" class="mat-link">
+                    {{ nm.title }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar-col">
+
+        <div class="sidebar-card">
+          <h3 class="sidebar-title">Course Details</h3>
+          <div class="detail-list">
+            <div class="detail-row">
+              <span class="detail-label">Code</span>
+              <span class="detail-val mono">{{ course?.courseCode ?? '—' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">ECTS Credits</span>
+              <span class="detail-val">{{ course?.ects ?? '—' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Start Date</span>
+              <span class="detail-val">{{ formatDate(course?.startDate) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">End Date</span>
+              <span class="detail-val">{{ formatDate(course?.endDate) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Lecturer</span>
+              <span class="detail-val">{{ teacherName }}</span>
+            </div>
+          </div>
+        </div>
+
+        @if (studyProgram) {
+          <div class="sidebar-card back-card">
+            <span class="material-symbols-outlined back-icon">school</span>
+            <p class="back-prog">{{ studyProgram.name }}</p>
+            <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode]" class="btn-back">
+              <span class="material-symbols-outlined">arrow_back</span>
+              Back to Program
+            </a>
+          </div>
+        }
+
+      </aside>
+    </div>
+
+  }
+
 </div>

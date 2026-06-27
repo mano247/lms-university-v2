@@ -44,7 +44,7 @@
                 <td class="cell-primary">{{ course.name }}</td>
                 <td class="cell-mono">{{ course.courseCode }}</td>
                 <td class="cell-secondary">{{ getTeacher(course) }}</td>
-                <td class="cell-mono">{{ course.ects ?? '—' }}</td>
+                <td class="cell-mono">{{ course.ects || '—' }}</td>
                 <td class="cell-action">
                   @if (isRegistered(course)) {
                     <span class="reg-badge">
@@ -107,7 +107,7 @@
               <tr>
                 <td class="cell-primary">{{ getRegCourse(exam) }}</td>
                 <td class="cell-secondary">{{ getRegTeacher(exam) }}</td>
-                <td class="cell-mono">{{ exam.course?.ects ?? exam.ects ?? '—' }}</td>
+                <td class="cell-mono">{{ exam.course?.ects ?? exam.ects || '—' }}</td>
               </tr>
             } @empty {
               <tr><td colspan="3" class="empty-row">You have not registered for any exams yet.</td></tr>

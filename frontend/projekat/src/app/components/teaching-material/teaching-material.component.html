@@ -1,26 +1,122 @@
-<div class="content">
-    <a [routerLink]="['/faculty', facultyCode]"><h2>{{facultyName}}</h2></a>
-    <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode]"><h3>{{programName}}</h3></a>
-    <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', courseCode]"><h4>{{course.name}}</h4></a>
-    <p-divider />
-    <h3>{{materialTitle}}</h3>
+<div class="material-page">
 
-    <p>{{material?.description}}</p>
-    <p>{{material?.url}}</p>
-    <p-divider />
+  @if (isLoading) {
+    <div class="loading-wrap">
+      <div class="skeleton-bar"></div>
+      <div class="skeleton-body"></div>
+    </div>
+  } @else if (!material) {
+    <div class="error-state">
+      <span class="material-symbols-outlined">error_outline</span>
+      <p>Teaching material not found.</p>
+      <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', courseCode]" class="btn-back">Back to Course</a>
+    </div>
+  } @else {
 
-    <h5>Author</h5>
-    <p>{{material?.authors}}</p>
-    <p-divider />
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+      <div class="bc-inner">
+        <a routerLink="/" class="bc-link">Home</a>
+        <span class="bc-sep material-symbols-outlined">chevron_right</span>
+        <a routerLink="/faculties" class="bc-link">Faculties</a>
+        @if (facultyName) {
+          <span class="bc-sep material-symbols-outlined">chevron_right</span>
+          <a [routerLink]="['/faculty', facultyCode]" class="bc-link">{{ facultyName }}</a>
+        }
+        @if (programName) {
+          <span class="bc-sep material-symbols-outlined">chevron_right</span>
+          <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode]" class="bc-link">{{ programName }}</a>
+        }
+        @if (course) {
+          <span class="bc-sep material-symbols-outlined">chevron_right</span>
+          <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', courseCode]" class="bc-link">{{ course.name }}</a>
+        }
+        <span class="bc-sep material-symbols-outlined">chevron_right</span>
+        <span class="bc-current">{{ materialTitle }}</span>
+      </div>
+    </div>
 
-    <h5>Publisher</h5>
-    <p>{{material?.publisher}}</p>
-    <p-divider />
+    <!-- Material hero -->
+    <div class="mat-hero">
+      <div class="hero-inner">
+        <div class="mat-icon-wrap">
+          <span class="material-symbols-outlined">article</span>
+        </div>
+        <h1 class="mat-title">{{ material.title }}</h1>
+        @if (material.authors) {
+          <p class="mat-authors">
+            <span class="material-symbols-outlined">person</span>
+            {{ material.authors }}
+          </p>
+        }
+      </div>
+    </div>
 
-    <h5>Publication Year</h5>
-    <p>{{material?.publicationYear}}</p>
-    <p-divider />
+    <!-- Content -->
+    <div class="mat-content">
 
-    <h5>Page Count</h5>
-    <p>{{material?.pageCount}}</p>
+      @if (material.description) {
+        <section class="info-card">
+          <h2 class="card-heading">
+            <span class="material-symbols-outlined">info</span>
+            Description
+          </h2>
+          <p class="card-text">{{ material.description }}</p>
+        </section>
+      }
+
+      <section class="info-card">
+        <h2 class="card-heading">
+          <span class="material-symbols-outlined">format_list_bulleted</span>
+          Publication Details
+        </h2>
+        <div class="detail-grid">
+          @if (material.publisher) {
+            <div class="detail-cell">
+              <span class="d-label">Publisher</span>
+              <span class="d-val">{{ material.publisher }}</span>
+            </div>
+          }
+          @if (material.publicationYear) {
+            <div class="detail-cell">
+              <span class="d-label">Publication Year</span>
+              <span class="d-val mono">{{ material.publicationYear }}</span>
+            </div>
+          }
+          @if (material.pageCount) {
+            <div class="detail-cell">
+              <span class="d-label">Page Count</span>
+              <span class="d-val mono">{{ material.pageCount }}</span>
+            </div>
+          }
+          @if (material.authors) {
+            <div class="detail-cell">
+              <span class="d-label">Authors</span>
+              <span class="d-val">{{ material.authors }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      @if (material.url) {
+        <section class="info-card">
+          <h2 class="card-heading">
+            <span class="material-symbols-outlined">link</span>
+            Resource URL
+          </h2>
+          <p class="mat-url">{{ material.url }}</p>
+        </section>
+      }
+
+      <div class="back-nav">
+        <a [routerLink]="['/faculty', facultyCode, 'study-program', studyProgramCode, 'course', courseCode]" class="btn-back">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back to Course
+        </a>
+      </div>
+
+    </div>
+
+  }
+
 </div>

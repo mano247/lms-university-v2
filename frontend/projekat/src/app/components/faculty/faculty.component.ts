@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Faculty } from '../../model/academic/faculty';
 import { FacultyService } from '../../services/faculty.service';
@@ -9,7 +8,7 @@ import { StudyProgramService } from '../../services/study-program.service';
 @Component({
   selector: 'app-faculty',
   standalone: true,
-  imports: [NgFor, NgIf, RouterModule],
+  imports: [RouterModule],
   templateUrl: './faculty.component.html',
   styleUrl: './faculty.component.css'
 })

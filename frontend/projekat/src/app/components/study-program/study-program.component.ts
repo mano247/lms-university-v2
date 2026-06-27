@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { map, switchMap, tap } from 'rxjs';
 import { FacultyService } from '../../services/faculty.service';
@@ -12,7 +11,7 @@ import { Course } from '../../model/academic/course';
 @Component({
   selector: 'app-study-program',
   standalone: true,
-  imports: [NgFor, NgIf, RouterModule],
+  imports: [RouterModule],
   templateUrl: './study-program.component.html',
   styleUrl: './study-program.component.css'
 })
