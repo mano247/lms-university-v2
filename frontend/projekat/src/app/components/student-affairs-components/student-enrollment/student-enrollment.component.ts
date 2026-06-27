@@ -1,235 +1,240 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { TableModule } from 'primeng/table';
-import { StudentOfficeService } from '../../../services/student-affairs.service';
-import { StudentService } from '../../../services/student.service';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { RegisteredUser } from '../../../model/users/registered-user';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { DialogModule } from 'primeng/dialog';
-import { Faculty } from '../../../model/academic/faculty';
-import { FacultyService } from '../../../services/faculty.service';
-import { DropdownModule } from 'primeng/dropdown';
 import { RegisteredUserService } from '../../../services/registered-user.service';
-import { Student } from '../../../model/users/student';
-import { CourseService } from '../../../services/course.service';
-import { Course } from '../../../model/academic/course';
+import { StudentService } from '../../../services/student.service';
+import { FacultyService } from '../../../services/faculty.service';
 import { StudyProgramService } from '../../../services/study-program.service';
-import { StudyProgram } from '../../../model/academic/study-program';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-student-enrollment',
   standalone: true,
-  imports: [InputSwitchModule, FormsModule, ButtonModule, NgIf, TableModule, NgClass, ToastModule, InputGroupModule, DialogModule, DropdownModule, NgFor],
+  imports: [CommonModule, FormsModule],
   templateUrl: './student-enrollment.component.html',
-  styleUrl: './student-enrollment.component.css',
-  providers: [MessageService]
+  styleUrl: './student-enrollment.component.css'
 })
 export class StudentEnrollmentComponent implements OnInit {
-  visible: boolean = false;
-  enrollDialog: boolean = false;
+  viewMode: 'new-users' | 'students' = 'new-users';
 
-  students: Student[] = [];
-  filteredStudents: Student[] = [];
-
-  courses: Course[] = [];
-  studyPrograms: StudyProgram[] = [];
-
-  yearEnrollmentDialog: boolean = false;
-  studentForYear: any = {};
-  yearEnrollmentData: any = {};
-
-  faculties: Faculty[] = [];
-  selectedStudent: any = {};
   users: any[] = [];
-  userForEnrollment: any = {};
-  enrollments: any = {};
+  filteredUsers: any[] = [];
+  students: any[] = [];
+  filteredStudents: any[] = [];
+  faculties: any[] = [];
+  studyPrograms: any[] = [];
+  filteredPrograms: any[] = [];
 
-  newStudent: any = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    username: '',
-    password: '',
-    faculty: undefined
+  showEnrollModal = false;
+  showYearModal = false;
+  enrollingUser: any = null;
+  enrollingStudent: any = null;
+
+  enrollForm: { userId: number | null; facultyId: number | null; programId: number | null; yearId: number } = {
+    userId: null,
+    facultyId: null,
+    programId: null,
+    yearId: 1
   };
 
-  programForEnrollment: any = {};
-  firstYear: any = { id: 1, year: 1 };
-
-  userSearch: any = {
-    username: '',
-    email: ''
+  yearForm: { studentId: number | null; programId: number | null; yearId: number } = {
+    studentId: null,
+    programId: null,
+    yearId: 1
   };
 
-  studentSearch: any = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    indexNumber: ''
-  };
+  userSearch = { username: '', email: '' };
+  studentSearch = { firstName: '', lastName: '', indexNumber: '', email: '' };
 
-  studyYears: any = [
-    { label: 'first', id: 1, year: 1 },
-    { label: 'second', id: 2, year: 2 },
-    { label: 'third', id: 3, year: 3 },
-    { label: 'fourth', id: 4, year: 4 }
+  toast: { type: 'success' | 'error'; message: string } | null = null;
+  isLoading = false;
+  submitting = false;
+
+  studyYears = [
+    { id: 1, label: '1st Year' },
+    { id: 2, label: '2nd Year' },
+    { id: 3, label: '3rd Year' },
+    { id: 4, label: '4th Year' }
   ];
 
-  filteredUsers: any[] = [];
-
   constructor(
-    private studentOfficeService: StudentOfficeService,
-    private studentService: StudentService,
-    private messageService: MessageService,
-    private facultyService: FacultyService,
     private registeredUserService: RegisteredUserService,
-    private courseService: CourseService,
+    private studentService: StudentService,
+    private facultyService: FacultyService,
     private studyProgramService: StudyProgramService
   ) {}
 
   ngOnInit(): void {
-    this.getUsers();
-    this.getFaculties();
-    this.getStudents();
-    this.getCourses();
-    this.getStudyPrograms();
+    this.isLoading = true;
+    this.loadAll();
   }
 
-  getStudyPrograms() {
-    this.studyProgramService.getAll().subscribe(x => {
-      this.studyPrograms = x;
+  loadAll(): void {
+    this.registeredUserService.getAll().subscribe({
+      next: (data: any[]) => {
+        this.users = data;
+        this.filteredUsers = [...this.users];
+      },
+      error: () => this.showToast('error', 'Failed to load registered users.')
     });
-  }
 
-  getUsers() {
-    this.studentOfficeService.getUsers().subscribe(x => {
-      this.users = x.filter((user: any) => user.tipZaIzmenu === 'RegistrovaniKorisnik');
-      this.filteredUsers = this.users;
-    });
-  }
-
-  getFaculties() {
-    this.facultyService.getAll().subscribe(x => {
-      this.faculties = x;
-    });
-  }
-
-  getStudents() {
-    this.studentService.getAll().subscribe(x => {
-      this.students = x;
-      this.filteredStudents = this.students;
-    });
-  }
-
-  getCourses() {
-    this.courseService.getAll().subscribe(x => {
-      this.courses = x;
-    });
-  }
-
-  openEnrollExistingUser(user: RegisteredUser) {
-    this.userForEnrollment = user;
-    this.userForEnrollment = { ...this.userForEnrollment };
-    this.enrollDialog = true;
-  }
-
-  enrollExistingUser() {
-    this.registeredUserService.assignStudent(this.userForEnrollment.id, this.userForEnrollment).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Enrolled', detail: 'Student enrolled successfully.' });
-        this.programForEnrollment = {};
-        this.getUsers();
-        this.closeEnrollDialog();
-        this.getStudents();
-        this.userForEnrollment = {};
+    this.studentService.getAll().subscribe({
+      next: (data: any[]) => {
+        this.students = data;
+        this.filteredStudents = [...this.students];
+        this.isLoading = false;
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while enrolling student.' });
+        this.showToast('error', 'Failed to load students.');
+        this.isLoading = false;
       }
+    });
+
+    this.facultyService.getAll().subscribe({
+      next: (data: any[]) => { this.faculties = data; },
+      error: () => this.showToast('error', 'Failed to load faculties.')
+    });
+
+    this.studyProgramService.getAll().subscribe({
+      next: (data: any[]) => { this.studyPrograms = data; },
+      error: () => this.showToast('error', 'Failed to load study programs.')
     });
   }
 
-  closeEnrollDialog() {
-    this.enrollDialog = false;
+  setView(mode: 'new-users' | 'students'): void {
+    this.viewMode = mode;
   }
 
-  resetForm() {
-    this.newStudent = {
-      firstName: '',
-      lastName: '',
-      email: '',
-      username: '',
-      password: '',
-      faculty: undefined
-    };
-  }
+  // ── New Users search ──────────────────────────────────────────
 
-  searchUsers() {
-    this.filteredUsers = this.users.filter((u: any) =>
-      (this.userSearch.username ? u.username.toLowerCase().includes(this.userSearch.username.toLowerCase()) : true) &&
-      (this.userSearch.email ? u.email.toLowerCase().includes(this.userSearch.email.toLowerCase()) : true)
+  searchUsers(): void {
+    this.filteredUsers = this.users.filter(u =>
+      (this.userSearch.username
+        ? (u.username || '').toLowerCase().includes(this.userSearch.username.toLowerCase())
+        : true) &&
+      (this.userSearch.email
+        ? (u.email || '').toLowerCase().includes(this.userSearch.email.toLowerCase())
+        : true)
     );
   }
 
-  clearSearch() {
-    this.filteredUsers = this.users;
+  clearUserSearch(): void {
     this.userSearch = { username: '', email: '' };
-    this.filteredStudents = this.students;
-    this.studentSearch = { firstName: '', lastName: '', email: '', indexNumber: '' };
+    this.filteredUsers = [...this.users];
   }
 
-  searchStudents() {
-    this.filteredStudents = this.students.filter(s => {
-      if (s && s.firstName && s.lastName && s.indexNumber && s.email) {
-        return (
-          (this.studentSearch.firstName ? s.firstName.toLowerCase().includes(this.studentSearch.firstName.toLowerCase()) : true) &&
-          (this.studentSearch.lastName ? s.lastName.toLowerCase().includes(this.studentSearch.lastName.toLowerCase()) : true) &&
-          (this.studentSearch.email ? s.email.toLowerCase().includes(this.studentSearch.email.toLowerCase()) : true) &&
-          (this.studentSearch.indexNumber ? s.indexNumber.toLowerCase().includes(this.studentSearch.indexNumber.toLowerCase()) : true)
-        );
-      } else {
-        return false;
+  // ── Existing Students search ──────────────────────────────────
+
+  searchStudents(): void {
+    this.filteredStudents = this.students.filter(s =>
+      (this.studentSearch.firstName
+        ? (s.firstName || '').toLowerCase().includes(this.studentSearch.firstName.toLowerCase())
+        : true) &&
+      (this.studentSearch.lastName
+        ? (s.lastName || '').toLowerCase().includes(this.studentSearch.lastName.toLowerCase())
+        : true) &&
+      (this.studentSearch.indexNumber
+        ? (s.indexNumber || '').toLowerCase().includes(this.studentSearch.indexNumber.toLowerCase())
+        : true) &&
+      (this.studentSearch.email
+        ? (s.email || '').toLowerCase().includes(this.studentSearch.email.toLowerCase())
+        : true)
+    );
+  }
+
+  clearStudentSearch(): void {
+    this.studentSearch = { firstName: '', lastName: '', indexNumber: '', email: '' };
+    this.filteredStudents = [...this.students];
+  }
+
+  // ── Enroll Modal (new users) ──────────────────────────────────
+
+  openEnrollModal(user: any): void {
+    this.enrollingUser = user;
+    this.enrollForm = { userId: user.id, facultyId: null, programId: null, yearId: 1 };
+    this.filteredPrograms = [];
+    this.showEnrollModal = true;
+  }
+
+  closeEnrollModal(): void {
+    this.showEnrollModal = false;
+    this.enrollingUser = null;
+    this.filteredPrograms = [];
+  }
+
+  onFacultyChange(facultyId: any): void {
+    this.enrollForm.facultyId = facultyId;
+    this.enrollForm.programId = null;
+    this.filteredPrograms = this.studyPrograms.filter(p => p.faculty?.id == facultyId);
+  }
+
+  submitEnroll(): void {
+    if (!this.enrollForm.facultyId || !this.enrollForm.programId) {
+      this.showToast('error', 'Please fill in all fields.');
+      return;
+    }
+    this.submitting = true;
+    const payload = {
+      studyYear: { id: this.enrollForm.yearId },
+      studyProgram: { id: this.enrollForm.programId },
+      faculty: { id: this.enrollForm.facultyId }
+    };
+    this.registeredUserService.assignStudent(this.enrollForm.userId!, payload).subscribe({
+      next: () => {
+        this.showToast('success', 'User enrolled as student successfully.');
+        this.submitting = false;
+        this.closeEnrollModal();
+        this.loadAll();
+      },
+      error: () => {
+        this.showToast('error', 'Failed to enroll user as student.');
+        this.submitting = false;
       }
     });
   }
 
-  openYearEnrollmentDialog(student: Student) {
-    this.yearEnrollmentDialog = true;
-    this.studentForYear = student;
-    if (student.id) {
-      this.studentService.getEnrollments(student.id).subscribe(x => {
-        this.enrollments = x;
-      });
-    }
+  // ── Year Modal (existing students) ───────────────────────────
+
+  openYearModal(student: any): void {
+    this.enrollingStudent = student;
+    this.yearForm = { studentId: student.id, programId: null, yearId: 1 };
+    this.showYearModal = true;
   }
 
-  enrollInYear() {
-    const enrollmentData = {
+  closeYearModal(): void {
+    this.showYearModal = false;
+    this.enrollingStudent = null;
+  }
+
+  submitYearEnroll(): void {
+    if (!this.yearForm.programId) {
+      this.showToast('error', 'Please select a study program.');
+      return;
+    }
+    this.submitting = true;
+    const payload = {
       enrollmentDate: new Date(),
-      studyYear: this.yearEnrollmentData.studyYear,
-      student: this.studentForYear,
-      studyProgram: { id: this.yearEnrollmentData.studyProgram.id }
+      studyYear: { id: this.yearForm.yearId },
+      student: { id: this.yearForm.studentId },
+      studyProgram: { id: this.yearForm.programId }
     };
-    const studentRef = { id: this.studentForYear.id };
-    this.studentService.enrollInYear(enrollmentData).subscribe(x => {
-      this.studentService.addStudentToCourse(this.yearEnrollmentData.studyProgram.id, studentRef).subscribe(() => {});
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Student enrolled in year successfully.' });
-      this.closeYearEnrollmentDialog();
-      this.studentForYear = {};
-      this.yearEnrollmentData = {};
-    }, () => {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while enrolling student in year.' });
+    this.studentService.enrollInYear(payload).subscribe({
+      next: () => {
+        this.showToast('success', 'Student enrolled in next year successfully.');
+        this.submitting = false;
+        this.closeYearModal();
+        this.loadAll();
+      },
+      error: () => {
+        this.showToast('error', 'Failed to enroll student in year.');
+        this.submitting = false;
+      }
     });
   }
 
-  closeYearEnrollmentDialog() {
-    this.yearEnrollmentDialog = false;
-    this.studentForYear = {};
+  // ── Toast ─────────────────────────────────────────────────────
+
+  showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => { this.toast = null; }, 4000);
   }
 }

@@ -1,117 +1,149 @@
-import { NgClass, NgIf } from '@angular/common';
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { TableModule } from 'primeng/table';
 import { OfficeMaterialService } from '../../../services/office-supplies.service';
-import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-office-supplies',
   standalone: true,
-  imports: [TableModule, NgClass, ButtonModule, NgIf, InputGroupModule, FormsModule, DialogModule, ToastModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './office-supplies.component.html',
-  styleUrl: './office-supplies.component.css',
-  providers: [MessageService]
+  styleUrl: './office-supplies.component.css'
 })
 export class OfficeSuppliesComponent implements OnInit {
   inventory: any[] = [];
   filteredInventory: any[] = [];
 
-  visible: boolean = false;
-  requestVisible: boolean = false;
+  isLoading = false;
+  submitting = false;
+  deleting = false;
+  showAddModal = false;
+  showRequestModal = false;
+  confirmDeleteId: number | null = null;
 
-  newItem: any = {};
-  additionalQuantity: number = 0;
-  selectedItem: any = {};
+  requestingItem: any = null;
+  additionalQty = 1;
 
-  search = {
-    name: ''
-  };
+  newItem = { name: '', quantity: 1, category: '' };
+  search = { name: '' };
 
-  constructor(private officeMaterialService: OfficeMaterialService, private messageService: MessageService) {}
+  toast: { type: 'success' | 'error'; message: string } | null = null;
+
+  constructor(private materialService: OfficeMaterialService) {}
 
   ngOnInit(): void {
-    this.getInventory();
+    this.loadInventory();
   }
 
-  getInventory() {
-    this.officeMaterialService.getAll().subscribe(x => {
-      this.inventory = x;
-      this.inventory.sort((a, b) => {
-        if (a.quantity <= 10 && b.quantity > 10) {
-          return -1;
-        } else if (a.quantity > 10 && b.quantity <= 10) {
-          return 1;
-        } else {
-          return a.quantity - b.quantity;
-        }
-      });
-      this.filteredInventory = this.inventory;
+  loadInventory(): void {
+    this.isLoading = true;
+    this.materialService.getAll().subscribe({
+      next: (data: any[]) => {
+        this.inventory = data ?? [];
+        this.applySearch();
+        this.isLoading = false;
+      },
+      error: () => { this.showToast('error', 'Failed to load inventory.'); this.isLoading = false; }
     });
   }
 
-  requestItem(item: any) {
-    this.selectedItem = item;
-    this.requestVisible = true;
-  }
-
-  searchInventory() {
+  applySearch(): void {
     this.filteredInventory = this.inventory.filter(i =>
-      (this.search.name ? i.name.toLowerCase().includes(this.search.name.toLowerCase()) : true)
+      !this.search.name || (i.name || '').toLowerCase().includes(this.search.name.toLowerCase())
     );
   }
 
-  clearSearch() {
+  clearSearch(): void {
     this.search.name = '';
-    this.filteredInventory = this.inventory;
+    this.filteredInventory = [...this.inventory];
   }
 
-  openAddDialog() {
-    this.visible = true;
+  isLowStock(item: any): boolean {
+    return (item.quantity ?? 0) <= 5;
   }
 
-  addItem() {
-    this.officeMaterialService.create(this.newItem).subscribe({
+  issueItem(item: any): void {
+    if ((item.quantity ?? 0) <= 0) return;
+    const updated = { ...item, quantity: item.quantity - 1 };
+    this.materialService.update(item.id, updated).subscribe({
+      next: () => { this.showToast('success', 'Item issued.'); this.loadInventory(); },
+      error: () => this.showToast('error', 'Failed to issue item.')
+    });
+  }
+
+  openRequestModal(item: any): void {
+    this.requestingItem = item;
+    this.additionalQty = 1;
+    this.showRequestModal = true;
+  }
+
+  closeRequestModal(): void {
+    this.showRequestModal = false;
+    this.requestingItem = null;
+  }
+
+  submitRequest(): void {
+    if (!this.requestingItem || this.additionalQty < 1) return;
+    this.submitting = true;
+    const updated = { ...this.requestingItem, quantity: (this.requestingItem.quantity ?? 0) + this.additionalQty };
+    this.materialService.update(this.requestingItem.id, updated).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Item added successfully.' });
-        this.newItem = {};
-        this.getInventory();
-        this.closeDialog();
+        this.submitting = false;
+        this.showToast('success', `${this.additionalQty} units added to stock.`);
+        this.closeRequestModal();
+        this.loadInventory();
       },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding item.' });
-      }
+      error: () => { this.submitting = false; this.showToast('error', 'Failed to update stock.'); }
     });
   }
 
-  closeDialog() {
-    this.selectedItem = {};
-    this.visible = false;
-    this.requestVisible = false;
+  askDelete(id: number): void {
+    this.confirmDeleteId = id;
   }
 
-  processRequest() {
-    const newQuantity = Number(this.selectedItem.quantity) + Number(this.additionalQuantity);
-    const updated = { ...this.selectedItem, quantity: newQuantity };
-    this.officeMaterialService.update(updated.id, updated).subscribe(() => {
-      this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Quantity increased.' });
-      this.closeDialog();
-      this.getInventory();
-      this.additionalQuantity = 0;
+  cancelDelete(): void {
+    this.confirmDeleteId = null;
+  }
+
+  deleteItem(id: number): void {
+    this.deleting = true;
+    this.confirmDeleteId = null;
+    this.materialService.delete(id).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.inventory = this.inventory.filter(i => i.id !== id);
+        this.applySearch();
+        this.showToast('success', 'Item deleted.');
+      },
+      error: () => { this.deleting = false; this.showToast('error', 'Failed to delete item.'); }
     });
   }
 
-  issueItem(item: any) {
-    if (item.quantity > 0) {
-      const updated = { ...item, quantity: item.quantity - 1 };
-      this.officeMaterialService.update(updated.id, updated).subscribe(() => {
-        this.getInventory();
-      });
-    }
+  openAddModal(): void {
+    this.newItem = { name: '', quantity: 1, category: '' };
+    this.showAddModal = true;
+  }
+
+  closeAddModal(): void {
+    this.showAddModal = false;
+  }
+
+  submitAddItem(): void {
+    if (!this.newItem.name.trim()) return;
+    this.submitting = true;
+    this.materialService.create(this.newItem as any).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.showToast('success', 'Item added successfully.');
+        this.closeAddModal();
+        this.loadInventory();
+      },
+      error: () => { this.submitting = false; this.showToast('error', 'Failed to add item.'); }
+    });
+  }
+
+  private showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => { this.toast = null; }, 4000);
   }
 }

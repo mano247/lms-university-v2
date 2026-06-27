@@ -1,45 +1,104 @@
-<div class="content">
-    <h2>Announcements</h2>
-    <p-button label="Post Announcement" (click)="openDialog()" />
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Announcements</h2>
+      <p class="tab-sub">Post and manage global university announcements</p>
+    </div>
+    <button class="add-btn" (click)="openAddModal()">
+      <span class="material-symbols-outlined">add</span>
+      Post Announcement
+    </button>
+  </div>
 
-    <p-divider />
-    <p-dataView  #dv [value]="announcements">
-        <ng-template  pTemplate="list">
-            <div *ngFor="let o of announcements">
-                <div class="gObavestenje">
-                    <h4>{{o.title}}</h4>
-                    <p><span>from: </span> <br> {{formatDate(o.startDate)}}</p>
-                    <p><span>to: </span> <br> {{formatDate(o.endDate)}}</p>
-                    <p>{{o.content}}</p>
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading announcements…</p></div>
+  } @else if (!announcements.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">campaign</span>
+      <h3 class="empty-title">No announcements yet</h3>
+      <p class="empty-sub">Click "Post Announcement" to create the first global announcement.</p>
+    </div>
+  } @else {
+    <div class="ann-list">
+      @for (ann of announcements; track ann.id) {
+        <div class="ann-card">
+          <div class="ann-body">
+            <div class="ann-top">
+              <div class="ann-icon"><span class="material-symbols-outlined">campaign</span></div>
+              <div class="ann-info">
+                <div class="ann-title">{{ ann.title }}</div>
+                <div class="ann-dates">
+                  <span class="material-symbols-outlined">schedule</span>
+                  {{ formatDate(ann.startDate) }} – {{ formatDate(ann.endDate) }}
                 </div>
-                <p-divider />
+              </div>
             </div>
-        </ng-template>
-    </p-dataView>
-
-    <p-dialog header="Add New Announcement" [(visible)]="displayDialog" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="title">Title</label>
-                <input id="title" type="text" pInputText [(ngModel)]="newAnnouncement.title" />
-            </div>
-            <div class="p-field">
-                <label for="content">Content</label>
-                <textarea id="content" rows="4" pInputTextarea [(ngModel)]="newAnnouncement.content"></textarea>
-            </div>
-            <div class="p-field">
-                <label for="startDate">Start Date</label>
-                <p-calendar id="startDate" [(ngModel)]="newAnnouncement.startDate" [showTime]="true" ></p-calendar>
-            </div>
-            <div class="p-field">
-                <label for="endDate">End Date</label>
-                <p-calendar id="endDate" [(ngModel)]="newAnnouncement.endDate" [showTime]="true" ></p-calendar>
-            </div>
+            <p class="ann-content">{{ ann.content }}</p>
+          </div>
+          <div class="ann-actions">
+            @if (confirmDeleteId === ann.id) {
+              <div class="confirm-row">
+                <span class="confirm-text">Delete this announcement?</span>
+                <button class="btn-confirm-yes" (click)="confirmDelete(ann.id)">Delete</button>
+                <button class="btn-confirm-no" (click)="cancelDelete()">Cancel</button>
+              </div>
+            } @else {
+              <button class="delete-btn" (click)="askDelete(ann.id)" [disabled]="deletingId === ann.id">
+                @if (deletingId === ann.id) { <span class="btn-spinner"></span> } @else { <span class="material-symbols-outlined">delete</span> }
+                Remove
+              </button>
+            }
+          </div>
         </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addAnnouncement()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
-    <p-toast />
+      }
+    </div>
+  }
 </div>
+
+<!-- Add Announcement Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeAddModal()" role="dialog" aria-modal="true" aria-labelledby="ann-modal-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="ann-modal-title">Post Announcement</h3>
+          <p class="modal-sub">Visible to all users of the platform</p>
+        </div>
+        <button class="modal-close" (click)="closeAddModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="ann-title">Title <span class="required">*</span></label>
+          <input id="ann-title" class="form-input" type="text" placeholder="Announcement title" [(ngModel)]="form.title" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ann-content">Content <span class="required">*</span></label>
+          <textarea id="ann-content" class="form-textarea" rows="5" placeholder="Write the announcement content…" [(ngModel)]="form.content" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ann-start">Publish From</label>
+            <input id="ann-start" class="form-input" type="datetime-local" [(ngModel)]="form.startDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ann-end">Publish Until</label>
+            <input id="ann-end" class="form-input" type="datetime-local" [(ngModel)]="form.endDate">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitAnnouncement()" [disabled]="submitting || !form.title.trim() || !form.content.trim()">
+          @if (submitting) { <span class="btn-spinner"></span> } Publish
+        </button>
+      </div>
+    </div>
+  </div>
+}

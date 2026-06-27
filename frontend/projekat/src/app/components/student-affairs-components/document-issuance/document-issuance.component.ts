@@ -1,89 +1,126 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { TableModule } from 'primeng/table';
-import { Teacher } from '../../../model/users/teacher';
+import { HttpClient } from '@angular/common/http';
 import { TeacherService } from '../../../services/teacher.service';
-import { NgClass, NgIf } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { Course } from '../../../model/academic/course';
 import { StudentService } from '../../../services/student.service';
-import { Student } from '../../../model/users/student';
-import { InputGroupModule } from 'primeng/inputgroup';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-document-issuance',
   standalone: true,
-  imports: [InputSwitchModule, FormsModule, TableModule, NgClass, ButtonModule, NgIf, InputGroupModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './document-issuance.component.html',
   styleUrl: './document-issuance.component.css'
 })
 export class DocumentIssuanceComponent implements OnInit {
-  visible: boolean = false;
+  viewMode: 'professors' | 'students' = 'professors';
 
-  teachers: Teacher[] = [];
-  filteredTeachers: Teacher[] = [];
+  teachers: any[] = [];
+  filteredTeachers: any[] = [];
+  students: any[] = [];
+  filteredStudents: any[] = [];
 
-  students: Student[] = [];
-  filteredStudents: Student[] = [];
+  teacherSearch = { firstName: '', lastName: '', email: '' };
+  studentSearch = { firstName: '', lastName: '', indexNumber: '' };
 
-  teacherCourses: Course[] = [];
+  isLoading = false;
+  downloadingId: string | null = null;
+  toast: { type: 'success' | 'error'; message: string } | null = null;
 
-  search = {
-    firstName: '',
-    lastName: '',
-    email: ''
-  };
+  private readonly base = 'http://localhost:8080';
 
-  constructor(private teacherService: TeacherService, private studentService: StudentService) {}
+  constructor(
+    private http: HttpClient,
+    private teacherService: TeacherService,
+    private studentService: StudentService
+  ) {}
 
   ngOnInit(): void {
-    this.getTeachers();
-    this.getStudents();
-  }
-
-  getTeachers() {
-    this.teacherService.getAll().subscribe(x => {
-      this.teachers = x;
-      this.filteredTeachers = this.teachers;
+    this.isLoading = true;
+    this.teacherService.getAll().subscribe({
+      next: (data: any[]) => {
+        this.teachers = data ?? [];
+        this.filteredTeachers = [...this.teachers];
+      },
+      error: () => this.showToast('error', 'Failed to load professors.')
+    });
+    this.studentService.getAll().subscribe({
+      next: (data: any[]) => {
+        this.students = data ?? [];
+        this.filteredStudents = [...this.students];
+        this.isLoading = false;
+      },
+      error: () => { this.showToast('error', 'Failed to load students.'); this.isLoading = false; }
     });
   }
 
-  getStudents() {
-    this.studentService.getAll().subscribe(x => {
-      this.students = x;
-      this.filteredStudents = this.students;
-    });
+  setView(mode: 'professors' | 'students'): void {
+    this.viewMode = mode;
   }
 
-  searchTeachers() {
+  searchTeachers(): void {
     this.filteredTeachers = this.teachers.filter(p =>
-      (this.search.firstName ? p.firstName.toLowerCase().includes(this.search.firstName.toLowerCase()) : true) &&
-      (this.search.lastName ? p.lastName.toLowerCase().includes(this.search.lastName.toLowerCase()) : true) &&
-      (this.search.email ? p.email.toLowerCase().includes(this.search.email.toLowerCase()) : true)
+      (!this.teacherSearch.firstName || (p.firstName || '').toLowerCase().includes(this.teacherSearch.firstName.toLowerCase())) &&
+      (!this.teacherSearch.lastName || (p.lastName || '').toLowerCase().includes(this.teacherSearch.lastName.toLowerCase())) &&
+      (!this.teacherSearch.email || (p.email || '').toLowerCase().includes(this.teacherSearch.email.toLowerCase()))
     );
   }
 
-  searchStudents() {
+  clearTeacherSearch(): void {
+    this.teacherSearch = { firstName: '', lastName: '', email: '' };
+    this.filteredTeachers = [...this.teachers];
+  }
+
+  searchStudents(): void {
     this.filteredStudents = this.students.filter(s =>
-      (this.search.firstName ? s.firstName.toLowerCase().includes(this.search.firstName.toLowerCase()) : true) &&
-      (this.search.lastName ? s.lastName.toLowerCase().includes(this.search.lastName.toLowerCase()) : true) &&
-      (this.search.email ? s.email.toLowerCase().includes(this.search.email.toLowerCase()) : true)
+      (!this.studentSearch.firstName || (s.firstName || '').toLowerCase().includes(this.studentSearch.firstName.toLowerCase())) &&
+      (!this.studentSearch.lastName || (s.lastName || '').toLowerCase().includes(this.studentSearch.lastName.toLowerCase())) &&
+      (!this.studentSearch.indexNumber || (s.indexNumber || '').toLowerCase().includes(this.studentSearch.indexNumber.toLowerCase()))
     );
   }
 
-  clearSearch() {
-    this.filteredStudents = this.students;
-    this.filteredTeachers = this.teachers;
-    this.search = { firstName: '', lastName: '', email: '' };
+  clearStudentSearch(): void {
+    this.studentSearch = { firstName: '', lastName: '', indexNumber: '' };
+    this.filteredStudents = [...this.students];
   }
 
-  exportTeacherXml(teacher: Teacher) {}
+  downloadBlob(url: string, filename: string, key: string): void {
+    this.downloadingId = key;
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        this.downloadingId = null;
+        this.showToast('success', `${filename} downloaded.`);
+      },
+      error: () => {
+        this.downloadingId = null;
+        this.showToast('error', 'Export failed. Please try again.');
+      }
+    });
+  }
 
-  exportTeacherPdf(teacher: Teacher) {}
+  exportTeacherXml(teacher: any): void {
+    this.downloadBlob(`${this.base}/api/export/teachers/${teacher.id}/xml`, `teacher_${teacher.id}.xml`, `t-xml-${teacher.id}`);
+  }
 
-  exportStudentXml(student: Student) {}
+  exportTeacherPdf(teacher: any): void {
+    this.downloadBlob(`${this.base}/api/export/teachers/${teacher.id}/pdf`, `teacher_${teacher.id}.pdf`, `t-pdf-${teacher.id}`);
+  }
 
-  exportStudentPdf(student: Student) {}
+  exportStudentXml(student: any): void {
+    this.downloadBlob(`${this.base}/api/export/students/${student.id}/xml`, `student_${student.id}.xml`, `s-xml-${student.id}`);
+  }
+
+  exportStudentPdf(student: any): void {
+    this.downloadBlob(`${this.base}/api/export/students/${student.id}/pdf`, `student_${student.id}.pdf`, `s-pdf-${student.id}`);
+  }
+
+  private showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => { this.toast = null; }, 4000);
+  }
 }

@@ -1,65 +1,149 @@
-<div class="content">
-    <h2>Office Supplies</h2>
-    <div class="dugme">
-        <p-button label="New Item" (onClick)="openAddDialog()" />
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Office Supplies</h2>
+      <p class="tab-sub">Manage office inventory, issue items and request restocking</p>
     </div>
-    <div class="pretraga">
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.name" pInputText placeholder="Name" />
-        </p-inputGroup>
-        <p-button icon="pi pi-search" (click)="searchInventory()" rounded="true" [raised]="true" />
-        <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
+    <button class="add-btn" (click)="openAddModal()">
+      <span class="material-symbols-outlined">add</span>
+      Add Item
+    </button>
+  </div>
+
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
     </div>
-    <p-table [value]="filteredInventory">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                <th pSortableColumn="quantity">Quantity <p-sortIcon field="quantity"></p-sortIcon></th>
-                <th>Actions</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-i let-rowIndex="rowIndex">
-            <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                <td>{{ i.id }}</td>
-                <td>{{ i.name }}</td>
-                <td [ngClass]="{'low-quantity': i.quantity < 10}">
-                    {{ i.quantity }}
-                </td>
-                <td>
-                    <p-button icon="pi pi-minus-circle" rounded="true" severity="danger" (onClick)="issueItem(i)" />
-                    <p-button label="Request" severity="info" (onClick)="requestItem(i)" />
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-    <p-dialog header="Add Inventory Item" [(visible)]="visible" modal="modal" [closable]="true">
-            <div class="p-field">
-                <label for="itemName">Name</label>
-                <input id="itemName" type="text" pInputText [(ngModel)]="newItem.name" />
-            </div>
-            <div class="p-field">
-                <label for="itemQuantity">Quantity</label>
-                <input id="itemQuantity" type="number" step="1" [(ngModel)]="newItem.quantity"  >
-            </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addItem()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
+  }
 
-    <p-dialog header="Request Inventory" [(visible)]="requestVisible" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="addQty">Quantity</label>
-                <input id="addQty" type="text" pInputText [(ngModel)]="additionalQuantity" />
-            </div>
-        </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="processRequest()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
+  <div class="search-row">
+    <input class="search-input" type="text" placeholder="Item name" [(ngModel)]="search.name">
+    <button class="search-btn" (click)="applySearch()">
+      <span class="material-symbols-outlined">search</span> Search
+    </button>
+    <button class="clear-btn" (click)="clearSearch()">
+      <span class="material-symbols-outlined">close</span> Clear
+    </button>
+  </div>
 
-    <p-toast />
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading inventory…</p></div>
+  } @else if (!filteredInventory.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">inventory_2</span>
+      <h3 class="empty-title">No items found</h3>
+      <p class="empty-sub">Add an item to get started or refine your search.</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredInventory; track item.id; let i = $index) {
+            <tr [class.low-stock-row]="isLowStock(item)">
+              <td class="mono">{{ i + 1 }}</td>
+              <td>
+                {{ item.name }}
+                @if (isLowStock(item)) { <span class="low-badge">Low</span> }
+              </td>
+              <td class="mono">{{ item.quantity ?? 0 }}</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="icon-action-btn issue" (click)="issueItem(item)" [disabled]="(item.quantity ?? 0) <= 0" title="Issue one">
+                    <span class="material-symbols-outlined">remove</span>
+                  </button>
+                  <button class="action-btn-outlined" (click)="openRequestModal(item)">
+                    <span class="material-symbols-outlined">add_shopping_cart</span> Request
+                  </button>
+                  @if (confirmDeleteId === item.id) {
+                    <div class="confirm-row">
+                      <button class="btn-confirm-yes" (click)="deleteItem(item.id)">Delete</button>
+                      <button class="btn-confirm-no" (click)="cancelDelete()">Cancel</button>
+                    </div>
+                  } @else {
+                    <button class="icon-action-btn del" (click)="askDelete(item.id)" title="Delete">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
+
+<!-- Add Item Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeAddModal()" role="dialog" aria-modal="true" aria-labelledby="add-item-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="add-item-title">Add Item</h3>
+          <p class="modal-sub">Add a new office supply to inventory</p>
+        </div>
+        <button class="modal-close" (click)="closeAddModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="i-name">Name <span class="required">*</span></label>
+          <input id="i-name" class="form-input" type="text" placeholder="e.g. A4 Paper" [(ngModel)]="newItem.name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="i-qty">Quantity</label>
+            <input id="i-qty" class="form-input" type="number" min="1" [(ngModel)]="newItem.quantity">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="i-cat">Category <span class="optional">(optional)</span></label>
+            <input id="i-cat" class="form-input" type="text" placeholder="e.g. Paper" [(ngModel)]="newItem.category">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitAddItem()" [disabled]="submitting || !newItem.name.trim()">
+          @if (submitting) { <span class="btn-spinner"></span> } Add Item
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Request/Restock Modal -->
+@if (showRequestModal && requestingItem) {
+  <div class="modal-overlay" (click)="closeRequestModal()" role="dialog" aria-modal="true" aria-labelledby="req-item-title">
+    <div class="modal-panel modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="req-item-title">Request Stock</h3>
+          <p class="modal-sub">{{ requestingItem.name }}</p>
+        </div>
+        <button class="modal-close" (click)="closeRequestModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="req-qty">Additional Units <span class="required">*</span></label>
+          <input id="req-qty" class="form-input" type="number" min="1" [(ngModel)]="additionalQty">
+        </div>
+        <p class="req-info">Current: <strong>{{ requestingItem.quantity ?? 0 }}</strong> → After: <strong>{{ (requestingItem.quantity ?? 0) + additionalQty }}</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeRequestModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitRequest()" [disabled]="submitting || additionalQty < 1">
+          @if (submitting) { <span class="btn-spinner"></span> } Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+}

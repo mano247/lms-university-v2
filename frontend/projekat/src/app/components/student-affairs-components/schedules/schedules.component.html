@@ -1,3 +1,122 @@
-<div class="content">
-    <h2>Schedules</h2>
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Class Schedule</h2>
+      <p class="tab-sub">Manage weekly class timetable — overlapping classroom bookings are automatically prevented</p>
+    </div>
+    <button class="add-btn" (click)="openAddModal()">
+      <span class="material-symbols-outlined">add</span>
+      Add Class
+    </button>
+  </div>
+
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading schedule…</p></div>
+  } @else {
+    <div class="week-grid">
+      @for (day of days; track day) {
+        <div class="day-col">
+          <div class="day-header">{{ day }}</div>
+          <div class="day-slots">
+            @if (!slotsByDay(day).length) {
+              <div class="day-empty">No classes</div>
+            }
+            @for (slot of slotsByDay(day); track slot.id) {
+              <div class="slot-card">
+                <div class="slot-time">
+                  <span class="material-symbols-outlined">schedule</span>
+                  {{ slot.startTime }} – {{ slot.endTime }}
+                </div>
+                <div class="slot-course">{{ getCourseName(slot) }}</div>
+                <div class="slot-meta">
+                  <span class="material-symbols-outlined">location_on</span>
+                  {{ slot.classroom ?? '—' }}
+                </div>
+                <div class="slot-meta">
+                  <span class="material-symbols-outlined">person</span>
+                  {{ getTeacherName(slot) }}
+                </div>
+                <div class="slot-actions">
+                  @if (confirmDeleteId === slot.id) {
+                    <div class="confirm-row">
+                      <button class="btn-confirm-yes" (click)="confirmDelete(slot.id)">Remove</button>
+                      <button class="btn-confirm-no" (click)="cancelDelete()">Keep</button>
+                    </div>
+                  } @else {
+                    <button class="slot-del-btn" (click)="askDelete(slot.id)" [disabled]="deletingId === slot.id">
+                      @if (deletingId === slot.id) { <span class="del-spinner"></span> } @else { <span class="material-symbols-outlined">delete</span> }
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>
+
+<!-- Add Class Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeAddModal()" role="dialog" aria-modal="true" aria-labelledby="add-class-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="add-class-title">Add Class Slot</h3>
+          <p class="modal-sub">Classroom conflicts are checked automatically</p>
+        </div>
+        <button class="modal-close" (click)="closeAddModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="s-day">Day <span class="required">*</span></label>
+          <select id="s-day" class="form-select" [(ngModel)]="form.day">
+            @for (d of days; track d) { <option [value]="d">{{ d }}</option> }
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="s-start">Start Time <span class="required">*</span></label>
+            <input id="s-start" class="form-input" type="time" [(ngModel)]="form.startTime">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="s-end">End Time <span class="required">*</span></label>
+            <input id="s-end" class="form-input" type="time" [(ngModel)]="form.endTime">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="s-room">Classroom <span class="required">*</span></label>
+          <input id="s-room" class="form-input" type="text" placeholder="e.g. Room 201" [(ngModel)]="form.classroom">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="s-course">Course</label>
+          <select id="s-course" class="form-select" [(ngModel)]="form.courseId">
+            <option [value]="null">— Select course —</option>
+            @for (c of courses; track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="s-teacher">Lecturer</label>
+          <select id="s-teacher" class="form-select" [(ngModel)]="form.teacherId">
+            <option [value]="null">— Select lecturer —</option>
+            @for (t of teachers; track t.id) { <option [value]="t.id">{{ t.firstName }} {{ t.lastName }}</option> }
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitSlot()" [disabled]="submitting">
+          @if (submitting) { <span class="btn-spinner"></span> } Add Class
+        </button>
+      </div>
+    </div>
+  </div>
+}

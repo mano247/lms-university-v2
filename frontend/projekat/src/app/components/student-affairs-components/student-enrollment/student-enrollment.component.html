@@ -1,163 +1,217 @@
-<div class="content">
-    <h2>Student Enrollment</h2>
-    <div class="dugme">
-        <p>Registered Users</p>
-        <p-inputSwitch [(ngModel)]="visible" />
-        <p>Enroll in Year</p>
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Student Enrollment</h2>
+      <p class="tab-sub">Enroll new users as students or advance existing students to the next year</p>
     </div>
-    <div class="postojeci" *ngIf="!visible">
-        <div class="pretraga">
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="userSearch.username" pInputText placeholder="Username" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="userSearch.email" pInputText placeholder="Email" />
-            </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="searchUsers()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
-        </div>
-        <p-table [value]="filteredUsers">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="username">Username <p-sortIcon field="username"></p-sortIcon></th>
-                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>Actions</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-k let-rowIndex="rowIndex">
-                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                    <td>{{ k.id }}</td>
-                    <td>{{ k.username }}</td>
-                    <td>{{ k.email }}</td>
-                    <td>
-                        <p-button (onClick)="openEnrollExistingUser(k)" label="Enroll" rounded="true" />
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
-    <div class="novi" *ngIf="visible">
-        <div class="pretraga">
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="studentSearch.firstName" pInputText placeholder="First Name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="studentSearch.lastName" pInputText placeholder="Last Name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="studentSearch.indexNumber" pInputText placeholder="Index Number" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="studentSearch.email" pInputText placeholder="Email" />
-            </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="searchStudents()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
-        </div>
-        <p-table [value]="filteredStudents">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
-                    <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
-                    <th pSortableColumn="indexNumber">Index Number <p-sortIcon field="indexNumber"></p-sortIcon></th>
-                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>Actions</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
-                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                    <td>{{ s.id }}</td>
-                    <td>{{ s.firstName }}</td>
-                    <td>{{ s.lastName }}</td>
-                    <td>{{ s.indexNumber }}</td>
-                    <td>{{ s.email }}</td>
-                    <td>
-                        <p-button (onClick)="openYearEnrollmentDialog(s)" label="Enroll in Year" rounded="true" />
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
-    <p-dialog header="Enroll Student" [(visible)]="enrollDialog" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="faculty">Faculty</label>
-                <p-dropdown [options]="faculties" [(ngModel)]="userForEnrollment.faculty" optionLabel="name" placeholder="Select a faculty">
-                </p-dropdown>
-            </div>
-            <div class="p-field">
-                <label for="username">Username</label>
-                <input id="username" type="text" pInputText [(ngModel)]="userForEnrollment.username" />
-            </div>
-            <div class="p-field">
-                <label for="firstName">First Name</label>
-                <input id="firstName" type="text" pInputText [(ngModel)]="userForEnrollment.firstName" />
-            </div>
-            <div class="p-field">
-                <label for="lastName">Last Name</label>
-                <input id="lastName" type="text" pInputText [(ngModel)]="userForEnrollment.lastName" />
-            </div>
-            <div class="p-field">
-                <label for="email">Email</label>
-                <input id="email" type="text" pInputText [(ngModel)]="userForEnrollment.email" />
-            </div>
-            <div class="p-field">
-                <label for="indexNumber">Index Number</label>
-                <input id="indexNumber" type="text" pInputText [(ngModel)]="userForEnrollment.indexNumber" />
-            </div>
-        </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="enrollExistingUser()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeEnrollDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
+  </div>
 
-    <p-dialog header="Enroll in Year" [(visible)]="yearEnrollmentDialog" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="studyProgram">Study Program</label>
-                <p-dropdown [options]="studyPrograms" [(ngModel)]="yearEnrollmentData.studyProgram" optionLabel="name" placeholder="Select a study program">
-                </p-dropdown>
-            </div>
-            <div class="p-field">
-                <label for="studyYear">Year</label>
-                <p-dropdown [options]="studyYears" [(ngModel)]="yearEnrollmentData.studyYear" optionLabel="label" placeholder="Select a year">
-                </p-dropdown>
-            </div>
-            <div>
-                <p><strong>First Name:</strong> {{studentForYear.firstName}}</p>
-            </div>
-            <div>
-                <p><strong>Last Name:</strong> {{studentForYear.lastName}}</p>
-            </div>
-            <div>
-                <p><strong>Study Program:</strong></p>
-                <div *ngIf="enrollments && enrollments.length > 0;">
-                    <ul>
-                        <li *ngFor="let enrollment of enrollments">
-                            {{ enrollment?.studijskiProgram?.naziv || 'No data' }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div>
-                <p><strong>Enrolled Years:</strong></p>
-                <div *ngIf="enrollments && enrollments.length > 0;">
-                    <ul>
-                        <li *ngFor="let enrollment of enrollments">
-                            <strong>Year:</strong> {{ enrollment?.godinaStudija?.godina || 'No data' }},
-                            <strong>Enrollment Date:</strong> {{ enrollment?.datumUpisa || 'No date' }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="enrollInYear()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeYearEnrollmentDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
 
-    <p-toast />
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="toggle-btn" [class.active]="viewMode === 'new-users'" (click)="setView('new-users')">New Users</button>
+    <button class="toggle-btn" [class.active]="viewMode === 'students'" (click)="setView('students')">Existing Students</button>
+  </div>
+
+  <!-- ── NEW USERS ── -->
+  @if (viewMode === 'new-users') {
+    <div class="search-row">
+      <input class="search-input" type="text" placeholder="Username" [(ngModel)]="userSearch.username">
+      <input class="search-input" type="text" placeholder="Email">
+      <button class="search-btn" (click)="searchUsers()">
+        <span class="material-symbols-outlined">search</span> Search
+      </button>
+      <button class="clear-btn" (click)="clearUserSearch()">
+        <span class="material-symbols-outlined">close</span> Clear
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Loading users…</p></div>
+    } @else if (!filteredUsers.length) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">person_search</span>
+        <h3 class="empty-title">No registered users found</h3>
+        <p class="empty-sub">All registered users have already been enrolled, or no users match your search.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of filteredUsers; track u.id; let i = $index) {
+              <tr>
+                <td class="mono">{{ i + 1 }}</td>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <button class="action-btn" (click)="openEnrollModal(u)">
+                    <span class="material-symbols-outlined">person_add</span> Enroll as Student
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- ── EXISTING STUDENTS ── -->
+  @if (viewMode === 'students') {
+    <div class="search-row">
+      <input class="search-input" type="text" placeholder="First name" [(ngModel)]="studentSearch.firstName">
+      <input class="search-input" type="text" placeholder="Last name" [(ngModel)]="studentSearch.lastName">
+      <input class="search-input" type="text" placeholder="Index number" [(ngModel)]="studentSearch.indexNumber">
+      <button class="search-btn" (click)="searchStudents()">
+        <span class="material-symbols-outlined">search</span> Search
+      </button>
+      <button class="clear-btn" (click)="clearStudentSearch()">
+        <span class="material-symbols-outlined">close</span> Clear
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Loading students…</p></div>
+    } @else if (!filteredStudents.length) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">group</span>
+        <h3 class="empty-title">No students found</h3>
+        <p class="empty-sub">No students match your search. Try clearing the filters.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Index Number</th>
+              <th>Email</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of filteredStudents; track s.id; let i = $index) {
+              <tr>
+                <td class="mono">{{ i + 1 }}</td>
+                <td>{{ s.firstName }}</td>
+                <td>{{ s.lastName }}</td>
+                <td class="mono">{{ s.indexNumber ?? '—' }}</td>
+                <td>{{ s.email }}</td>
+                <td>
+                  <button class="action-btn" (click)="openYearModal(s)">
+                    <span class="material-symbols-outlined">upgrade</span> Enroll Next Year
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
 </div>
+
+<!-- Enroll as Student Modal -->
+@if (showEnrollModal && enrollingUser) {
+  <div class="modal-overlay" (click)="closeEnrollModal()" role="dialog" aria-modal="true" aria-labelledby="enroll-modal-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="enroll-modal-title">Enroll as Student</h3>
+          <p class="modal-sub">{{ enrollingUser.username }} · {{ enrollingUser.email }}</p>
+        </div>
+        <button class="modal-close" (click)="closeEnrollModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="e-faculty">Faculty <span class="required">*</span></label>
+          <select id="e-faculty" class="form-select" [value]="enrollForm.facultyId ?? ''" (change)="onFacultyChange($any($event.target).value)" required>
+            <option value="">— Select faculty —</option>
+            @for (f of faculties; track f.id) {
+              <option [value]="f.id">{{ f.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="e-program">Study Program <span class="required">*</span></label>
+          <select id="e-program" class="form-select" [(ngModel)]="enrollForm.programId" required [disabled]="!enrollForm.facultyId">
+            <option [value]="null">— Select program —</option>
+            @for (p of filteredPrograms; track p.id) {
+              <option [value]="p.id">{{ p.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="e-year">Study Year <span class="required">*</span></label>
+          <select id="e-year" class="form-select" [(ngModel)]="enrollForm.yearId">
+            @for (y of studyYears; track y.id) {
+              <option [value]="y.id">{{ y.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeEnrollModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitEnroll()" [disabled]="submitting || !enrollForm.facultyId || !enrollForm.programId">
+          @if (submitting) { <span class="btn-spinner"></span> } Enroll
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Enroll Next Year Modal -->
+@if (showYearModal && enrollingStudent) {
+  <div class="modal-overlay" (click)="closeYearModal()" role="dialog" aria-modal="true" aria-labelledby="year-modal-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="year-modal-title">Enroll Next Year</h3>
+          <p class="modal-sub">{{ enrollingStudent.firstName }} {{ enrollingStudent.lastName }} · {{ enrollingStudent.indexNumber }}</p>
+        </div>
+        <button class="modal-close" (click)="closeYearModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="y-program">Study Program <span class="required">*</span></label>
+          <select id="y-program" class="form-select" [(ngModel)]="yearForm.programId" required>
+            <option [value]="null">— Select program —</option>
+            @for (p of studyPrograms; track p.id) {
+              <option [value]="p.id">{{ p.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="y-year">Study Year <span class="required">*</span></label>
+          <select id="y-year" class="form-select" [(ngModel)]="yearForm.yearId">
+            @for (y of studyYears; track y.id) {
+              <option [value]="y.id">{{ y.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeYearModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitYearEnroll()" [disabled]="submitting || !yearForm.programId">
+          @if (submitting) { <span class="btn-spinner"></span> } Enroll
+        </button>
+      </div>
+    </div>
+  </div>
+}

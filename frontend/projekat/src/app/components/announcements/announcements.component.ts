@@ -1,115 +1,126 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { GlobalNotification } from '../../model/global-announcement';
-import { DataViewModule } from 'primeng/dataview';
-import { NgFor } from '@angular/common';
-import { DividerModule } from 'primeng/divider';
-import { GlobalNotificationsService } from '../../services/global-announcements.service';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { GlobalNotificationsService } from '../../services/global-announcements.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-announcements',
   standalone: true,
-  imports: [NgFor, DataViewModule, DividerModule, ButtonModule, DialogModule, FormsModule, CalendarModule, ToastModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './announcements.component.html',
-  styleUrl: './announcements.component.css',
-  providers: [MessageService]
+  styleUrl: './announcements.component.css'
 })
 export class AnnouncementsComponent implements OnInit {
-  announcements: GlobalNotification[] = [];
-  displayDialog: boolean = false;
+  announcements: any[] = [];
+  isLoading = false;
+  showAddModal = false;
+  submitting = false;
+  confirmDeleteId: number | null = null;
+  deletingId: number | null = null;
+  toast: { type: 'success' | 'error'; message: string } | null = null;
 
-  newAnnouncement: GlobalNotification = {
-    date: new Date(),
-    content: '',
+  form = {
     title: '',
-    image: '',
-    startDate: new Date(),
-    endDate: new Date()
+    content: '',
+    startDate: '',
+    endDate: ''
   };
 
-  constructor(
-    private globalNotificationsService: GlobalNotificationsService,
-    private messageService: MessageService
-  ) {}
+  constructor(private notificationsService: GlobalNotificationsService) {}
 
   ngOnInit(): void {
-    this.getAnnouncements();
+    this.loadAnnouncements();
   }
 
-  getAnnouncements() {
-    this.globalNotificationsService.getAll().subscribe(x => {
-      this.announcements = x;
-    });
-  }
-
-  formatDate(date: any): string {
-    let d: Date;
-
-    if (typeof date === 'string') {
-      d = new Date(date);
-    } else if (date instanceof Date) {
-      d = date;
-    } else {
-      return '';
-    }
-
-    if (isNaN(d.getTime())) {
-      return '';
-    }
-
-    const hours = d.getUTCHours().toString().padStart(2, '0');
-    const minutes = d.getUTCMinutes().toString().padStart(2, '0');
-    const day = d.getUTCDate().toString().padStart(2, '0');
-    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
-    const year = d.getUTCFullYear();
-
-    return `${hours}:${minutes}, ${day}-${month}-${year}`;
-  }
-
-  openDialog() {
-    this.displayDialog = true;
-  }
-
-  addAnnouncement() {
-    this.globalNotificationsService.create(this.newAnnouncement).subscribe({
-      next: () => {
-        this.getAnnouncements();
-        this.resetForm();
-        this.closeDialog();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Announcement added successfully.'
-        });
+  loadAnnouncements(): void {
+    this.isLoading = true;
+    this.notificationsService.getAll().subscribe({
+      next: (data) => {
+        this.announcements = data;
+        this.isLoading = false;
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'An error occurred while adding the announcement.'
-        });
+        this.isLoading = false;
+        this.showToast('error', 'Failed to load announcements.');
       }
     });
   }
 
-  closeDialog() {
-    this.displayDialog = false;
+  openAddModal(): void {
+    this.form = { title: '', content: '', startDate: '', endDate: '' };
+    this.showAddModal = true;
   }
 
-  resetForm() {
-    this.newAnnouncement = {
-      date: new Date(),
-      content: '',
-      title: '',
-      image: '',
-      startDate: new Date(),
-      endDate: new Date()
+  closeAddModal(): void {
+    this.showAddModal = false;
+  }
+
+  submitAnnouncement(): void {
+    if (!this.form.title.trim() || !this.form.content.trim()) return;
+    this.submitting = true;
+    const payload: any = {
+      title: this.form.title,
+      content: this.form.content,
+      startDate: this.form.startDate || null,
+      endDate: this.form.endDate || null
     };
+    this.notificationsService.create(payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.showAddModal = false;
+        this.showToast('success', 'Announcement posted successfully.');
+        this.loadAnnouncements();
+      },
+      error: () => {
+        this.submitting = false;
+        this.showToast('error', 'Failed to post announcement.');
+      }
+    });
+  }
+
+  askDelete(id: number): void {
+    this.confirmDeleteId = id;
+  }
+
+  cancelDelete(): void {
+    this.confirmDeleteId = null;
+  }
+
+  confirmDelete(id: number): void {
+    this.deletingId = id;
+    this.confirmDeleteId = null;
+    this.notificationsService.delete(id).subscribe({
+      next: () => {
+        this.deletingId = null;
+        this.announcements = this.announcements.filter(a => a.id !== id);
+        this.showToast('success', 'Announcement deleted.');
+      },
+      error: () => {
+        this.deletingId = null;
+        this.showToast('error', 'Failed to delete announcement.');
+      }
+    });
+  }
+
+  formatDate(d: any): string {
+    if (!d) return '—';
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  formatDateRange(start: any, end: any): string {
+    return `${this.formatDate(start)} – ${this.formatDate(end)}`;
+  }
+
+  showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => (this.toast = null), 4000);
   }
 }

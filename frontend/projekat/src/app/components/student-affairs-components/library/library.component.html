@@ -1,94 +1,153 @@
-<div class="content">
-    <h2>Library</h2>
-    <h3>Textbooks</h3>
-    <p-button label="New Textbook" (click)="openAddDialog()"/>
-    <p-dialog header="Add New Textbook" [(visible)]="addDialog" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="title">Title</label>
-                <input id="title" type="text" pInputText [(ngModel)]="newTextbook.title" />
-            </div>
-            <div class="p-field">
-                <label for="description">Description</label>
-                <textarea id="description" rows="4" pInputTextarea [(ngModel)]="newTextbook.description"></textarea>
-            </div>
-            <div>
-                <p-dropdown [options]="courses" [(ngModel)]="newTextbook.course" optionLabel="name" placeholder="Select a course"></p-dropdown>
-            </div>
-            <div class="p-field">
-                <label for="publicationYear">Publication Year</label>
-                <input id="publicationYear" type="text" [(ngModel)]="newTextbook.publicationYear"  >
-            </div>
-            <div class="p-field">
-                <label for="authors">Authors</label>
-                <input id="authors" type="text" pInputText [(ngModel)]="newTextbook.authors" />
-            </div>
-            <div class="p-field">
-                <label for="publisher">Publisher</label>
-                <input id="publisher" type="text" pInputText [(ngModel)]="newTextbook.publisher" />
-            </div>
-            <div class="p-field">
-                <label for="pageCount">Page Count</label>
-                <input id="pageCount" type="number" step="1" pInputText [(ngModel)]="newTextbook.pageCount" />
-            </div>
-            <div class="p-field">
-                <label for="quantity">Quantity</label>
-                <input id="quantity" type="number" step="1" pInputText [(ngModel)]="newTextbook.quantity" />
-            </div>
-        </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addTextbook()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAddDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
-    <div class="pretraga">
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.title" pInputText placeholder="Title" />
-        </p-inputGroup>
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.author" pInputText placeholder="Author" />
-        </p-inputGroup>
-        <p-button icon="pi pi-search" (click)="searchTextbooks()" rounded="true" [raised]="true" />
-        <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger"  />
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Library</h2>
+      <p class="tab-sub">Manage textbooks and study materials</p>
     </div>
-    <p-table [value]="filteredTextbooks">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
-                <th pSortableColumn="authors">Author <p-sortIcon field="authors"></p-sortIcon></th>
-                <th pSortableColumn="publicationYear">Publication Year <p-sortIcon field="publicationYear"></p-sortIcon></th>
-                <th pSortableColumn="quantity">In Stock <p-sortIcon field="quantity"></p-sortIcon></th>
-                <th>Actions</th>
+    <button class="add-btn" (click)="openAddModal()">
+      <span class="material-symbols-outlined">add</span>
+      Add Textbook
+    </button>
+  </div>
+
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  <div class="search-row">
+    <input class="search-input" type="text" placeholder="Title" [(ngModel)]="search.title">
+    <input class="search-input" type="text" placeholder="Author" [(ngModel)]="search.author">
+    <button class="search-btn" (click)="applySearch()">
+      <span class="material-symbols-outlined">search</span> Search
+    </button>
+    <button class="clear-btn" (click)="clearSearch()">
+      <span class="material-symbols-outlined">close</span> Clear
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading textbooks…</p></div>
+  } @else if (!filteredTextbooks.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">menu_book</span>
+      <h3 class="empty-title">No textbooks found</h3>
+      <p class="empty-sub">Add a textbook to get started or refine your search.</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Year</th>
+            <th>In Stock</th>
+            <th>Issue</th>
+            <th>Request</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (book of filteredTextbooks; track book.id; let i = $index) {
+            <tr [class.low-stock-row]="isLowStock(book)">
+              <td class="mono">{{ i + 1 }}</td>
+              <td>
+                {{ book.title }}
+                @if (isLowStock(book)) { <span class="low-badge">Low</span> }
+              </td>
+              <td>{{ book.authors ?? '—' }}</td>
+              <td class="mono">{{ book.publicationYear ?? '—' }}</td>
+              <td class="mono">{{ book.quantity ?? 0 }}</td>
+              <td>
+                <button class="action-btn" (click)="issueTextbook(book)" [disabled]="(book.quantity ?? 0) <= 0">
+                  <span class="material-symbols-outlined">arrow_outward</span> Issue
+                </button>
+              </td>
+              <td>
+                <button class="action-btn-outlined" (click)="openRequestModal(book)">
+                  <span class="material-symbols-outlined">add_shopping_cart</span> Request
+                </button>
+              </td>
             </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-u let-rowIndex="rowIndex">
-            <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                <td>{{ u.id }}</td>
-                <td>{{ u.title }}</td>
-                <td>{{ u.authors }}</td>
-                <td>{{ u.publicationYear }}</td>
-                <td [ngClass]="{'low-quantity': u.quantity < 10}">
-                    {{ u.quantity }}
-                </td>
-                <td>
-                    <p-button label="Issue" (onClick)="issueTextbook(u)"/>
-                    <p-button *ngIf="u.quantity < 50" label="Request" severity="info" (onClick)="requestTextbook(u)" />
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-        <p-dialog header="Request Textbook" [(visible)]="visible" modal="modal" [closable]="true">
-            <div class="p-fluid">
-                <div class="p-field">
-                    <label for="additionalQty">Quantity</label>
-                    <input id="additionalQty" type="text" pInputText [(ngModel)]="additionalQuantity" />
-                </div>
-            </div>
-            <p-footer>
-                <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="processRequest()" />
-                <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeDialog()" class="p-button-secondary" />
-            </p-footer>
-        </p-dialog>
-    <p-toast />
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
+
+<!-- Add Textbook Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeAddModal()" role="dialog" aria-modal="true" aria-labelledby="add-book-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="add-book-title">Add Textbook</h3>
+          <p class="modal-sub">Add a new textbook to the library</p>
+        </div>
+        <button class="modal-close" (click)="closeAddModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="b-title">Title <span class="required">*</span></label>
+          <input id="b-title" class="form-input" type="text" placeholder="e.g. Introduction to Algorithms" [(ngModel)]="newBook.title" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="b-authors">Author(s)</label>
+          <input id="b-authors" class="form-input" type="text" placeholder="e.g. Cormen, Leiserson" [(ngModel)]="newBook.authors">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="b-year">Publication Year</label>
+            <input id="b-year" class="form-input" type="number" [(ngModel)]="newBook.publicationYear">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="b-qty">Quantity</label>
+            <input id="b-qty" class="form-input" type="number" min="1" [(ngModel)]="newBook.quantity">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="b-isbn">ISBN <span class="optional">(optional)</span></label>
+          <input id="b-isbn" class="form-input" type="text" placeholder="978-…" [(ngModel)]="newBook.isbn">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitAddBook()" [disabled]="submitting || !newBook.title.trim()">
+          @if (submitting) { <span class="btn-spinner"></span> } Add Textbook
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Request/Restock Modal -->
+@if (showRequestModal && requestingBook) {
+  <div class="modal-overlay" (click)="closeRequestModal()" role="dialog" aria-modal="true" aria-labelledby="req-book-title">
+    <div class="modal-panel modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="req-book-title">Request Copies</h3>
+          <p class="modal-sub">{{ requestingBook.title }}</p>
+        </div>
+        <button class="modal-close" (click)="closeRequestModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="req-qty">Additional Copies <span class="required">*</span></label>
+          <input id="req-qty" class="form-input" type="number" min="1" [(ngModel)]="additionalQty">
+        </div>
+        <p class="req-info">Current stock: <strong>{{ requestingBook.quantity ?? 0 }}</strong> → After: <strong>{{ (requestingBook.quantity ?? 0) + additionalQty }}</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeRequestModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitRequest()" [disabled]="submitting || additionalQty < 1">
+          @if (submitting) { <span class="btn-spinner"></span> } Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+}

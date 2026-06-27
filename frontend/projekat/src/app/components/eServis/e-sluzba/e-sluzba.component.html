@@ -1,17 +1,109 @@
-<p-tabView [activeIndex]="selectedTabIndex" (onChange)="onTabChange($event)">
-    <p-tabPanel header="Student Enrollment">
-        <app-student-enrollment></app-student-enrollment>
-    </p-tabPanel>
-    <p-tabPanel header="Document Issuance">
-        <app-document-issuance></app-document-issuance>
-    </p-tabPanel>
-    <p-tabPanel header="Announcements">
-        <app-obavestenja></app-obavestenja>
-    </p-tabPanel>
-    <p-tabPanel header="Library">
-        <app-library></app-library>
-    </p-tabPanel>
-    <p-tabPanel header="Office Supplies">
-        <app-office-supplies></app-office-supplies>
-    </p-tabPanel>
-</p-tabView>
+<div class="dashboard-wrap">
+
+  <!-- Sidebar (desktop) -->
+  <aside class="sidebar" role="complementary" aria-label="Dashboard navigation">
+    <div class="sidebar-logo">
+      <span class="logo-title">Ashford Portal</span>
+      <span class="logo-sub">INSTITUTIONAL LMS</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (tab of tabs; track tab.id) {
+        <button
+          class="nav-item"
+          [class.active]="activeTab === tab.id"
+          (click)="setTab(tab.id)"
+          [attr.aria-current]="activeTab === tab.id ? 'page' : null">
+          <span class="material-symbols-outlined nav-icon">{{ tab.icon }}</span>
+          <span class="nav-label">{{ tab.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" aria-hidden="true">{{ officeInitials }}</div>
+      <div class="user-info">
+        <p class="user-name">{{ officeName }}</p>
+        <p class="user-role">Student Affairs</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top header -->
+  <header class="dash-header" role="banner">
+    <div class="header-left">
+      <h2 class="header-title">Dashboard</h2>
+      <div class="header-search">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          class="search-input"
+          type="search"
+          placeholder="Global search..."
+          aria-label="Search dashboard">
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="icon-btn" aria-label="Settings">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="dash-main" role="main">
+    @if (activeTab === 'enrollment') {
+      <app-student-enrollment />
+    }
+    @if (activeTab === 'documents') {
+      <app-document-issuance />
+    }
+    @if (activeTab === 'announcements') {
+      <app-announcements />
+    }
+    @if (activeTab === 'library') {
+      <app-library />
+    }
+    @if (activeTab === 'supplies') {
+      <app-office-supplies />
+    }
+    @if (activeTab === 'schedule') {
+      <app-schedules />
+    }
+    @if (activeTab === 'periods') {
+      <app-sa-exam-periods />
+    }
+  </main>
+
+  <!-- Footer -->
+  <footer class="dash-footer">
+    <div class="footer-brand">
+      <span class="footer-uni">University of Ashford</span>
+      <p class="footer-copy">© 2024 University of Ashford. All rights reserved.</p>
+    </div>
+    <nav class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Accessibility</a>
+      <a href="#">Library</a>
+      <a href="#">IT Support</a>
+    </nav>
+  </footer>
+
+  <!-- Bottom tab bar (mobile only) -->
+  <nav class="bottom-tabs" role="navigation" aria-label="Dashboard tabs">
+    @for (tab of tabs; track tab.id) {
+      <button
+        class="bottom-tab"
+        [class.active]="activeTab === tab.id"
+        (click)="setTab(tab.id)"
+        [attr.aria-label]="tab.label">
+        <span class="material-symbols-outlined">{{ tab.icon }}</span>
+        <span class="bottom-tab-label">{{ tab.label }}</span>
+      </button>
+    }
+  </nav>
+
+</div>

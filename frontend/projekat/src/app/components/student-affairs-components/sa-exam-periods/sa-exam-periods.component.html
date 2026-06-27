@@ -1,0 +1,177 @@
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Exam Periods</h2>
+      <p class="tab-sub">Create and manage exam periods and their individual exam terms</p>
+    </div>
+    <button class="add-btn" (click)="openAddPeriodModal()">
+      <span class="material-symbols-outlined">add</span>
+      New Period
+    </button>
+  </div>
+
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading exam periods…</p></div>
+  } @else if (!periods.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">event_note</span>
+      <h3 class="empty-title">No exam periods yet</h3>
+      <p class="empty-sub">Create an exam period to start scheduling exams.</p>
+    </div>
+  } @else {
+    <div class="periods-list">
+      @for (period of periods; track period.id) {
+        <div class="period-card">
+          <div class="period-header" (click)="toggleExpand(period.id)">
+            <div class="period-info">
+              <span class="material-symbols-outlined period-icon">event_available</span>
+              <div>
+                <div class="period-name">{{ period.name }}</div>
+                <div class="period-dates">
+                  {{ formatDate(period.startDate) }} – {{ formatDate(period.endDate) }}
+                  <span class="term-count">{{ (period.terms?.length ?? period.examPeriodTerms?.length ?? 0) }} terms</span>
+                </div>
+              </div>
+            </div>
+            <div class="period-actions" (click)="$event.stopPropagation()">
+              <button class="add-term-btn" (click)="openAddTermModal(period.id)">
+                <span class="material-symbols-outlined">add</span> Add Term
+              </button>
+              @if (confirmDeleteId === period.id) {
+                <div class="confirm-row">
+                  <button class="btn-confirm-yes" (click)="confirmDeletePeriod(period.id)">Delete</button>
+                  <button class="btn-confirm-no" (click)="cancelDelete()">Cancel</button>
+                </div>
+              } @else {
+                <button class="del-btn" (click)="askDeletePeriod(period.id)" [disabled]="deletingId === period.id">
+                  @if (deletingId === period.id) { <span class="del-spinner"></span> } @else { <span class="material-symbols-outlined">delete</span> }
+                </button>
+              }
+              <span class="chevron material-symbols-outlined" [class.open]="expandedId === period.id">
+                expand_more
+              </span>
+            </div>
+          </div>
+
+          @if (expandedId === period.id) {
+            <div class="terms-wrap">
+              @let termList = period.terms ?? period.examPeriodTerms ?? [];
+              @if (!termList.length) {
+                <p class="no-terms">No exam terms yet. Click "Add Term" to schedule an exam.</p>
+              } @else {
+                <table class="terms-table">
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Exam Date</th>
+                      <th>Registration Start</th>
+                      <th>Registration End</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (term of termList; track term.id) {
+                      <tr>
+                        <td>{{ term.course?.name ?? getCourseName(term.courseId) }}</td>
+                        <td class="mono">{{ formatDate(term.examDate) }}</td>
+                        <td class="mono">{{ formatDate(term.registrationStart) }}</td>
+                        <td class="mono">{{ formatDate(term.registrationEnd) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Add Period Modal -->
+@if (showAddPeriodModal) {
+  <div class="modal-overlay" (click)="closeAddPeriodModal()" role="dialog" aria-modal="true" aria-labelledby="add-period-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="add-period-title">New Exam Period</h3>
+          <p class="modal-sub">Define a period during which exams can be scheduled</p>
+        </div>
+        <button class="modal-close" (click)="closeAddPeriodModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="p-name">Period Name <span class="required">*</span></label>
+          <input id="p-name" class="form-input" type="text" placeholder="e.g. Winter 2025" [(ngModel)]="periodForm.name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-start">Start Date <span class="required">*</span></label>
+            <input id="p-start" class="form-input" type="date" [(ngModel)]="periodForm.startDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-end">End Date <span class="required">*</span></label>
+            <input id="p-end" class="form-input" type="date" [(ngModel)]="periodForm.endDate">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddPeriodModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitPeriod()" [disabled]="submitting || !periodForm.name.trim()">
+          @if (submitting) { <span class="btn-spinner"></span> } Create Period
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add Term Modal -->
+@if (showAddTermModal) {
+  <div class="modal-overlay" (click)="closeAddTermModal()" role="dialog" aria-modal="true" aria-labelledby="add-term-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="add-term-title">Add Exam Term</h3>
+          <p class="modal-sub">Schedule a specific exam within this period</p>
+        </div>
+        <button class="modal-close" (click)="closeAddTermModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="t-course">Course <span class="required">*</span></label>
+          <select id="t-course" class="form-select" [(ngModel)]="termForm.courseId" required>
+            <option [value]="null">— Select course —</option>
+            @for (c of courses; track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="t-date">Exam Date <span class="required">*</span></label>
+          <input id="t-date" class="form-input" type="date" [(ngModel)]="termForm.examDate">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="t-regstart">Registration Start</label>
+            <input id="t-regstart" class="form-input" type="date" [(ngModel)]="termForm.registrationStart">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="t-regend">Registration End</label>
+            <input id="t-regend" class="form-input" type="date" [(ngModel)]="termForm.registrationEnd">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddTermModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitTerm()" [disabled]="submitting || !termForm.courseId || !termForm.examDate">
+          @if (submitting) { <span class="btn-spinner"></span> } Add Term
+        </button>
+      </div>
+    </div>
+  </div>
+}
