@@ -1,45 +1,131 @@
-<div class="content">
-    <h2>My Courses</h2>
-    <p-dataView  #dv [value]="courses">
-        <ng-template  pTemplate="list">
-            <div *ngFor="let p of courses">
-                <div class="predmet">
-                    <h4>{{p.name}}</h4>
-                    <p><span>code:</span> <br> {{p.courseCode}}</p>
-                    <p><span>program:</span> <br> {{p.studyProgram?.name}}</p>
-                    <p><span>ects:</span> <br> {{p.ects}}</p>
-                    <p><span>description:</span> <br> {{p.description}}</p>
-                    <div class="udzbenici"><span>textbooks:</span> <br>
-                        <ul>
-                          <li *ngFor="let materijal of p.teachingMaterials">
-                            <strong>{{materijal.title}}</strong> - Author: {{materijal.authors}}
-                          </li>
-                        </ul>
-                    </div>
-                    <p><span>syllabus:</span> <br> {{p.syllabus}}</p>
-                    <p>
-                        <p-button label="Edit Syllabus" (onClick)="openSyllabusDialog(p)" [raised]="true" severity="primary"/>
-                    </p>
-                </div>
-                <p-divider />
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">My Courses</h2>
+      <p class="tab-sub">Courses you teach this academic year</p>
+    </div>
+    <div class="course-count-chip">
+      <span class="material-symbols-outlined">book</span>
+      {{ courses.length }} course{{ courses.length !== 1 ? 's' : '' }}
+    </div>
+  </div>
+
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading courses…</p></div>
+  } @else if (hasError) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">error_outline</span>
+      <h3 class="empty-title">Failed to load courses</h3>
+      <p class="empty-sub">Unable to retrieve your course list. Please refresh the page.</p>
+    </div>
+  } @else if (!courses.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">book</span>
+      <h3 class="empty-title">No courses assigned</h3>
+      <p class="empty-sub">You have no courses assigned for this term. Contact the Student Affairs Office if this is incorrect.</p>
+    </div>
+  } @else {
+    <div class="course-list">
+      @for (course of courses; track course.id; let i = $index) {
+        <div class="course-card" [class.expanded]="expandedId === course.id">
+          <div class="course-header" (click)="toggle(course.id)" role="button" [attr.aria-expanded]="expandedId === course.id">
+            <div class="course-icon" [style.background]="colorFor(i).bg" [style.color]="colorFor(i).fg">
+              <span class="material-symbols-outlined">menu_book</span>
             </div>
-        </ng-template>
-    </p-dataView>
-    <p-dialog header="Edit Syllabus" [modal]="true" [(visible)]="visible" >
-        <div class="uredjivanje">
-            <textarea
-                rows="5"
-                cols="30"
-                pInputTextarea
-                [style.width]="'500px'"
-                [style.height]="'300px'"
-                [(ngModel)]="syllabus">
-            </textarea>
+            <div class="course-header-text">
+              <div class="course-name">{{ course.name }}</div>
+              <div class="course-meta">
+                <span class="meta-chip">{{ course.courseCode }}</span>
+                @if (course.studyProgram?.name) { <span class="meta-chip">{{ course.studyProgram.name }}</span> }
+                @if (course.ects) { <span class="meta-chip ects">{{ course.ects }} ECTS</span> }
+              </div>
+            </div>
+            <span class="material-symbols-outlined expand-chevron">{{ expandedId === course.id ? 'expand_less' : 'expand_more' }}</span>
+          </div>
+
+          @if (expandedId === course.id) {
+            <div class="course-body">
+              @if (course.description) {
+                <div class="body-section">
+                  <h4 class="section-label">Description</h4>
+                  <p class="section-text">{{ course.description }}</p>
+                </div>
+              }
+
+              @if (course.teachingMaterials?.length) {
+                <div class="body-section">
+                  <h4 class="section-label">Textbooks</h4>
+                  <ul class="textbook-list">
+                    @for (mat of course.teachingMaterials; track mat.id ?? mat.title) {
+                      <li class="textbook-item">
+                        <span class="material-symbols-outlined">auto_stories</span>
+                        <span><strong>{{ mat.title }}</strong> <span class="author">— {{ mat.authors }}</span></span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <div class="body-section syllabus-section">
+                <div class="syllabus-header">
+                  <h4 class="section-label">Syllabus</h4>
+                  <button class="edit-syllabus-btn" (click)="openEditSyllabus(course, $event)">
+                    <span class="material-symbols-outlined">edit</span> Edit
+                  </button>
+                </div>
+                @if (syllabusLines(course.syllabus).length) {
+                  <ol class="syllabus-list">
+                    @for (line of syllabusLines(course.syllabus); track line) {
+                      <li>{{ line }}</li>
+                    }
+                  </ol>
+                } @else {
+                  <p class="no-syllabus">No syllabus added yet. Click Edit to add one.</p>
+                }
+              </div>
+            </div>
+          }
         </div>
-        <div class="uredjivanje">
-            <p-button label="Save Changes" severity="success"  rounded="true" (onClick)="updateSyllabus()" />
-            <p-button label="Cancel" severity="danger" rounded="true" (onClick)="cancelDialog()" />
-        </div>
-    </p-dialog>
-    <p-toast />
+      }
+    </div>
+  }
 </div>
+
+<!-- Edit Syllabus Modal -->
+@if (showSyllabusModal) {
+  <div class="modal-overlay" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="syllabus-modal-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="syllabus-modal-title">Edit Syllabus</h3>
+          @if (editingCourse) { <p class="modal-sub">{{ editingCourse.name }}</p> }
+        </div>
+        <button class="modal-close" (click)="closeModal()" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="syllabus-hint">Enter one topic per line. They will be displayed as a numbered list.</p>
+        <textarea
+          class="syllabus-textarea"
+          rows="12"
+          placeholder="e.g.&#10;Introduction to the subject&#10;Fundamental concepts&#10;Advanced topics&#10;Case studies and applications"
+          [(ngModel)]="syllabusText">
+        </textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button class="btn-submit" (click)="saveSyllabus()" [disabled]="saving">
+          @if (saving) { <span class="btn-spinner"></span> } Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+}

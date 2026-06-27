@@ -1,49 +1,142 @@
-<div class="content">
-    <h2>Grade Entry</h2>
-    <p-dropdown
-    [options]="courses"
-    optionLabel="name"
-    optionValue="id"
-    [(ngModel)]="selectedCourseId"
-    placeholder="Select a course"
-    (onChange)="onCourseChange($event)"
-    />
-    <p-table [value]="examAttempts" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header" let-columns>
-            <tr>
-                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="student">Student <p-sortIcon field="student"></p-sortIcon></th>
-                <th pSortableColumn="student.indexNumber">Index Number <p-sortIcon field="student.indexNumber"></p-sortIcon></th>
-                <th>Actions</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-p>
-            <tr>
-                <td>{{p.id}}</td>
-                <td>{{p.student?.firstName}} {{p.student?.lastName}}</td>
-                <td>{{p.student?.indexNumber}}</td>
-                <td>
-                    <p-button (onClick)="enterGrade(p)" label="Enter Results" />
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-    <p-dialog header="Enter Results" [modal]="true" class="dialog" [(visible)]="visible" >
-        <div class="p-field">
-            <label for="points">Points</label>
-            <input id="points" type="number" pInputText [(ngModel)]="result.points" />
-        </div>
-        <div class="p-field">
-            <label for="grade">Grade</label>
-            <input id="grade" type="number" pInputText [(ngModel)]="result.grade" />
-        </div>
-        <div class="p-field">
-            <label for="note">Note</label>
-            <input id="note" type="text" pInputText [(ngModel)]="result.note" />
-        </div>
-        <p-button label="Submit" (click)="submitGrade()" rounded="true" severity="success"/>
-        <p-button label="Cancel" (click)="cancelDialog()" rounded="true" severity="danger" />
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Grade Entry</h2>
+      <p class="tab-sub">Enter exam results for registered students</p>
+    </div>
+  </div>
 
-    </p-dialog>
-    <p-toast />
+  @if (toast) {
+    <div class="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'" role="alert">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.message }}
+    </div>
+  }
+
+  <!-- Course selector -->
+  <div class="controls-row">
+    <label class="filter-label" for="grade-course">Course:</label>
+    <select id="grade-course" class="course-select" [value]="selectedCourseId ?? ''" (change)="onCourseChange($any($event.target).value)">
+      <option value="">— Select course —</option>
+      @for (c of courses; track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+    @if (examAttempts.length) {
+      <div class="attempts-chip">
+        <span class="material-symbols-outlined">how_to_reg</span>
+        {{ examAttempts.length }} registered
+      </div>
+    }
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading exam registrations…</p></div>
+  } @else if (!selectedCourseId) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">how_to_reg</span>
+      <h3 class="empty-title">Select a course</h3>
+      <p class="empty-sub">Choose a course to see students who have registered for its exam.</p>
+    </div>
+  } @else if (!examAttempts.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">assignment_late</span>
+      <h3 class="empty-title">No registrations</h3>
+      <p class="empty-sub">No students have registered for this course's exam yet.</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student</th>
+            <th>Index Number</th>
+            <th>Points</th>
+            <th>Grade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (attempt of pagedAttempts; track attempt.id; let i = $index) {
+            <tr>
+              <td class="mono">{{ (page - 1) * pageSize + i + 1 }}</td>
+              <td>{{ attempt.student?.firstName }} {{ attempt.student?.lastName }}</td>
+              <td class="mono">{{ attempt.student?.indexNumber ?? '—' }}</td>
+              <td class="mono">{{ attempt.points ?? '—' }}</td>
+              <td>
+                @if (attempt.finalGrade) {
+                  <span class="grade-badge">{{ attempt.finalGrade }}</span>
+                } @else {
+                  <span class="no-grade">—</span>
+                }
+              </td>
+              <td>
+                <button class="edit-btn" (click)="openEdit(attempt)">
+                  <span class="material-symbols-outlined">edit</span> Enter Result
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" [disabled]="page === 1" (click)="page = page - 1">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        @for (p of pageRange(); track p) {
+          <button class="page-btn" [class.active]="p === page" (click)="page = p">{{ p }}</button>
+        }
+        <button class="page-btn" [disabled]="page === totalPages" (click)="page = page + 1">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    }
+  }
 </div>
+
+<!-- Grade Entry Modal -->
+@if (showModal && editingAttempt) {
+  <div class="modal-overlay" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="grade-modal-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="grade-modal-title">Enter Result</h3>
+          @if (editingAttempt.student) {
+            <p class="modal-sub">{{ editingAttempt.student.firstName }} {{ editingAttempt.student.lastName }} · {{ editingAttempt.student.indexNumber }}</p>
+          }
+        </div>
+        <button class="modal-close" (click)="closeModal()" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="g-points">Points <span class="hint">(0 – 100)</span></label>
+          <input id="g-points" class="form-input" type="number" min="0" max="100" [(ngModel)]="result.points">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="g-grade">Grade <span class="hint">(6 – 10)</span></label>
+          <select id="g-grade" class="form-select" [(ngModel)]="result.grade">
+            <option [value]="6">6</option>
+            <option [value]="7">7</option>
+            <option [value]="8">8</option>
+            <option [value]="9">9</option>
+            <option [value]="10">10</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="g-note">Notes <span class="optional">(optional)</span></label>
+          <textarea id="g-note" class="form-textarea" rows="3" placeholder="Additional notes…" [(ngModel)]="result.note"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitGrade()" [disabled]="submitting">
+          @if (submitting) { <span class="btn-spinner"></span> } Submit Grade
+        </button>
+      </div>
+    </div>
+  </div>
+}

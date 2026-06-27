@@ -1,149 +1,116 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
-import { ToastModule } from 'primeng/toast';
-import { Course } from '../../../model/academic/course';
-import { Student } from '../../../model/users/student';
-import { StudentService } from '../../../services/student.service';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../services/teacher.service';
 import { ExamAttemptService } from '../../../services/exam-attempt.service';
-import { ExamAttempt } from '../../../model/exam-attempt';
-import { TableModule } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
-import { FormsModule } from '@angular/forms';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-grade-entry',
   standalone: true,
-  imports: [DropdownModule, ButtonModule, DividerModule, ConfirmDialogModule, ToastModule, TableModule, DialogModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './grade-entry.component.html',
   styleUrl: './grade-entry.component.css',
-  providers: [ConfirmationService, MessageService]
 })
 export class GradeEntryComponent implements OnInit {
-  courses: Course[] = [];
-  students: Student[] = [];
-  grades: number[] | undefined;
+  courses: any[] = [];
+  selectedCourseId: number | null = null;
+  examAttempts: any[] = [];
+  isLoading = false;
 
-  teacherId: number = 0;
-  selectedExamAttempt: any = {};
-  result: any = {
-    points: 0,
-    grade: 0,
-    note: ''
-  };
+  showModal = false;
+  editingAttempt: any = null;
+  submitting = false;
+  toast: { type: 'success' | 'error'; message: string } | null = null;
 
-  visible: boolean = false;
-  selectedCourseId: number | undefined;
-  examAttempts: ExamAttempt[] = [];
+  result = { points: 0, grade: 6, note: '' };
 
-  constructor(
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-    private teacherService: TeacherService,
-    private studentService: StudentService,
-    private examAttemptService: ExamAttemptService
-  ) {}
+  page = 1;
+  pageSize = 10;
+
+  private teacherId: number | null = null;
+
+  constructor(private teacherService: TeacherService, private examAttemptService: ExamAttemptService) {}
 
   ngOnInit(): void {
-    this.grades = [6, 7, 8, 9, 10];
+    const raw = localStorage.getItem('user');
+    if (!raw) return;
+    const id = JSON.parse(raw).id;
+    this.teacherId = id;
+    if (!id) return;
 
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      const id = parsedUser.id;
-      this.teacherId = parsedUser.id;
-      this.getCourses(id);
-      this.getStudents();
-    }
+    this.teacherService.getMyCourses(id).subscribe({
+      next: courses => {
+        this.courses = courses ?? [];
+        if (this.courses.length) {
+          this.selectedCourseId = this.courses[0].id ?? null;
+          this.loadAttempts();
+        }
+      },
+      error: () => {}
+    });
   }
 
-  confirmGrade(event: Event) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Do you want to submit this grade?',
-      header: 'Confirm grade',
-      icon: 'pi pi-exclamation-triangle',
-      acceptIcon: 'none',
-      rejectIcon: 'none',
-      rejectButtonStyleClass: 'p-button-text',
-      accept: () => {
-        this.messageService.add({ severity: 'info', summary: 'Confirmed!', detail: 'Grade submitted successfully.' });
+  onCourseChange(val: string): void {
+    this.selectedCourseId = val ? Number(val) : null;
+    this.loadAttempts();
+  }
+
+  loadAttempts(): void {
+    if (!this.selectedCourseId) { this.examAttempts = []; return; }
+    this.isLoading = true;
+    this.examAttemptService.getRegisteredByCourse(this.selectedCourseId).subscribe({
+      next: data => { this.examAttempts = data ?? []; this.isLoading = false; this.page = 1; },
+      error: () => { this.isLoading = false; }
+    });
+  }
+
+  get pagedAttempts(): any[] {
+    return this.examAttempts.slice((this.page - 1) * this.pageSize, this.page * this.pageSize);
+  }
+
+  get totalPages(): number { return Math.ceil(this.examAttempts.length / this.pageSize); }
+  pageRange(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
+
+  openEdit(attempt: any): void {
+    this.editingAttempt = attempt;
+    this.result = { points: attempt.points ?? 0, grade: attempt.finalGrade ?? 6, note: attempt.note ?? '' };
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.editingAttempt = null;
+    this.result = { points: 0, grade: 6, note: '' };
+  }
+
+  submitGrade(): void {
+    if (!this.editingAttempt?.id) return;
+    if (this.result.points < 0 || this.result.points > 100) {
+      this.showToast('error', 'Points must be between 0 and 100.');
+      return;
+    }
+    if (this.result.grade < 6 || this.result.grade > 10) {
+      this.showToast('error', 'Grade must be between 6 and 10.');
+      return;
+    }
+    this.submitting = true;
+    const updated = { ...this.editingAttempt, finalGrade: this.result.grade, points: this.result.points, note: this.result.note };
+    this.examAttemptService.update(this.editingAttempt.id, updated).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.closeModal();
+        this.showToast('success', 'Grade submitted successfully.');
+        this.loadAttempts();
       },
-      reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Grade submission cancelled.', life: 3000 });
+      error: () => {
+        this.submitting = false;
+        this.showToast('error', 'Failed to submit grade. Please try again.');
       }
     });
   }
 
-  onCourseChange(event: any) {
-    const courseId = event.value;
-    if (courseId) {
-      this.examAttemptService.getRegisteredByCourse(courseId).subscribe(x => {
-        this.examAttempts = x;
-      });
-    }
-  }
-
-  getCourses(id: number) {
-    this.teacherService.getMyCourses(id).subscribe(x => {
-      this.courses = x;
-    });
-  }
-
-  getStudents() {
-    this.studentService.getAll().subscribe(x => {
-      this.students = x;
-    });
-  }
-
-  enterGrade(examAttempt: any) {
-    this.visible = true;
-    this.selectedExamAttempt = examAttempt;
-  }
-
-  submitGrade() {
-    if (this.selectedExamAttempt && this.selectedExamAttempt.id) {
-      const updatedAttempt = {
-        ...this.selectedExamAttempt,
-        finalGrade: this.result.grade,
-        points: this.result.points,
-        note: this.result.note
-      };
-
-      this.examAttemptService.update(updatedAttempt.id, updatedAttempt).subscribe({
-        next: () => {
-          this.getCourses(this.teacherId);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Grade submitted successfully.' });
-          if (this.selectedCourseId) {
-            this.examAttemptService.getRegisteredByCourse(this.selectedCourseId).subscribe(x => {
-              this.examAttempts = x;
-            });
-          }
-          this.cancelDialog();
-        },
-        error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error submitting grade.' });
-          this.cancelDialog();
-        }
-      });
-    } else {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Exam attempt has no defined ID.' });
-      this.cancelDialog();
-    }
-  }
-
-  cancelDialog() {
-    this.visible = false;
-    this.selectedExamAttempt = {};
-    this.result = {
-      points: 0,
-      grade: 0,
-      note: ''
-    };
+  private showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => { this.toast = null; }, 4000);
   }
 }

@@ -1,111 +1,200 @@
-<div class="content">
-    <h2>Student List</h2>
-    <p-dropdown
-        [options]="courses"
-        optionLabel="name"
-        [(ngModel)]="selectedCourse"
-        placeholder="Select a course"
-        (onChange)="onCourseChange($event)"
-    ></p-dropdown>
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">Student List</h2>
+      <p class="tab-sub">Browse and view details for students enrolled in your courses</p>
+    </div>
+  </div>
 
-    <div class="pretraga">
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.firstName" pInputText placeholder="First Name" />
-        </p-inputGroup>
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.lastName" pInputText placeholder="Last Name" />
-        </p-inputGroup>
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.indexNumber" pInputText placeholder="Index Number" />
-        </p-inputGroup>
-        <p-button icon="pi pi-search" (onClick)="searchStudents()" rounded="true" [raised]="true"/>
-        <p-button icon="pi pi-times" (onClick)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
+  <!-- Controls row -->
+  <div class="controls-row">
+    <select class="course-select" [value]="selectedCourseId ?? ''" (change)="onCourseChange($any($event.target).value)">
+      <option value="">— Select course —</option>
+      @for (c of courses; track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+
+    <div class="enrolled-chip">
+      <span class="material-symbols-outlined">group</span>
+      {{ filteredStudents.length }} enrolled
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-row">
+    <input class="search-input" type="text" placeholder="First name" [(ngModel)]="search.firstName">
+    <input class="search-input" type="text" placeholder="Last name" [(ngModel)]="search.lastName">
+    <input class="search-input" type="text" placeholder="Index number" [(ngModel)]="search.indexNumber">
+    <button class="search-btn" (click)="applySearch()">
+      <span class="material-symbols-outlined">search</span> Apply
+    </button>
+    <button class="clear-btn" (click)="clearSearch()">
+      <span class="material-symbols-outlined">close</span> Clear
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading students…</p></div>
+  } @else if (!selectedCourseId) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">group</span>
+      <h3 class="empty-title">Select a course</h3>
+      <p class="empty-sub">Choose a course above to view its enrolled students.</p>
+    </div>
+  } @else if (!filteredStudents.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">person_search</span>
+      <h3 class="empty-title">No students found</h3>
+      <p class="empty-sub">No students match your search criteria. Try clearing the filters.</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Index Number</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of pagedStudents; track s.id; let i = $index) {
+            <tr>
+              <td class="mono">{{ (page - 1) * pageSize + i + 1 }}</td>
+              <td>{{ s.firstName }}</td>
+              <td>{{ s.lastName }}</td>
+              <td class="mono">{{ s.indexNumber }}</td>
+              <td>
+                <button class="details-btn" (click)="openDetails(s)">
+                  <span class="material-symbols-outlined">person</span> View Details
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
-    <div *ngIf="filteredStudents.length === 0" class="poruka">
-        No results found
-    </div>
-
-    <p-table *ngIf="filteredStudents.length > 0"  [value]="filteredStudents" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header" let-columns>
-            <tr>
-                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
-                <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
-                <th pSortableColumn="indexNumber">Index Number <p-sortIcon field="indexNumber"></p-sortIcon></th>
-                <th>Actions</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-s>
-            <tr>
-                <td>{{s.id}}</td>
-                <td>{{s.firstName}}</td>
-                <td>{{s.lastName}}</td>
-                <td>{{s.indexNumber}}</td>
-                <td>
-                    <p-button (onClick)="showStudentDetails(s)" label="Details" />
-                </td>
-                <div *ngIf="studentDetails">
-                    <p-dialog header="Student Details" [modal]="true" class="dialog" [(visible)]="visible" >
-                        <p><span>First Name:</span> {{studentDetails.firstName}}</p>
-                        <p-divider />
-                        <p><span>Last Name:</span> {{studentDetails.lastName}}</p>
-                        <p-divider />
-                        <p><span>Index Number:</span> {{studentDetails.indexNumber}}</p>
-                        <p-divider />
-                        <div *ngIf="studentDetails.enrollments && studentDetails.enrollments.length > 0">
-                            <p *ngFor="let enrollment of studentDetails.enrollments"><span>Enrollment Date:</span>{{ enrollment.enrollmentDate }}</p>
-                        </div>
-                        <p-divider />
-                        <p><span>Average Grade:</span> {{studentDetails.averageGrade}}</p>
-                        <p-divider />
-                        <p><span>ECTS:</span> {{studentDetails.totalEcts}}</p>
-                        <p-divider />
-                        <p><span>Enrollments:</span></p>
-                        <div *ngIf="studentDetails.enrollments && studentDetails.enrollments.length > 0">
-                            <p *ngFor="let enrollment of studentDetails.enrollments">
-                              <strong>Year:</strong> {{ enrollment?.studyYear?.year || 'N/A' }},
-                              <strong>Program:</strong> {{ enrollment?.studyProgram?.name || 'N/A' }},
-                              <strong>Date:</strong> {{ enrollment?.enrollmentDate || 'N/A' }}
-                            </p>
-                          </div>
-                        <p-divider />
-                        <p><span>Passed Exams:</span></p>
-                        <div *ngIf="studentDetails.passedExams && studentDetails.passedExams.length > 0">
-                            <p *ngFor="let exam of studentDetails.passedExams">
-                                {{ exam.course?.name }} - Grade: {{ exam.finalGrade }}, ECTS: {{ exam.ects }}
-                            </p>
-                        </div>
-                        <div *ngIf="studentDetails.passedExams?.length === 0">
-                            <p>No passed exams.</p>
-                        </div>
-                        <p-divider />
-                        <p><span>Failed Attempts: </span></p>
-                        <div *ngIf="studentDetails.failedExams && studentDetails.failedExams.length > 0">
-                            <p *ngFor="let attempt of studentDetails.failedExams">
-                                {{ attempt.course?.name }} - ECTS: {{ attempt.ects }}, Points: {{ attempt.points }}
-                            </p>
-                        </div>
-                        <div *ngIf="studentDetails.failedExams?.length === 0">
-                            <p>No failed attempts.</p>
-                        </div>
-                        <p-divider />
-                        <p><span>Registered Exams:</span></p>
-                        <div *ngIf="studentDetails.registeredExams">
-                            <p *ngFor="let exam of studentDetails.registeredExams">
-                               {{ exam.course?.name }}
-                            </p>
-                        </div>
-                        <p-divider />
-                        <p><span>Thesis: </span></p>
-                        <div *ngIf="studentDetails.thesis">
-                            <p>
-                              <strong>Topic:</strong> {{ studentDetails.thesis?.topic || 'No thesis data available' }}
-                            </p>
-                        </div>
-                    </p-dialog>
-                </div>
-            </tr>
-        </ng-template>
-    </p-table>
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" [disabled]="page === 1" (click)="page = page - 1">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        @for (p of pageRange(); track p) {
+          <button class="page-btn" [class.active]="p === page" (click)="page = p">{{ p }}</button>
+        }
+        <button class="page-btn" [disabled]="page === totalPages" (click)="page = page + 1">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    }
+  }
 </div>
+
+<!-- Student Details Modal -->
+@if (showDetails && selectedStudent) {
+  <div class="modal-overlay" (click)="closeDetails()" role="dialog" aria-modal="true" aria-labelledby="student-modal-title">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="student-avatar">{{ (selectedStudent.firstName?.[0] ?? '') + (selectedStudent.lastName?.[0] ?? '') }}</div>
+        <div>
+          <h3 class="modal-title" id="student-modal-title">{{ selectedStudent.firstName }} {{ selectedStudent.lastName }}</h3>
+          <p class="modal-sub">Index: {{ selectedStudent.indexNumber }}</p>
+        </div>
+        <button class="modal-close" (click)="closeDetails()" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      @if (loadingDetails) {
+        <div class="modal-loading"><div class="spinner"></div><p>Loading student data…</p></div>
+      } @else {
+        <div class="modal-body">
+          <!-- Stats -->
+          <div class="stat-row">
+            <div class="stat-chip"><span class="stat-label">GPA</span><span class="stat-val">{{ avgGrade }}</span></div>
+            <div class="stat-chip"><span class="stat-label">Total ECTS</span><span class="stat-val">{{ totalEcts }}</span></div>
+            <div class="stat-chip"><span class="stat-label">Passed</span><span class="stat-val">{{ studentData?.passedExams?.length ?? 0 }}</span></div>
+            <div class="stat-chip"><span class="stat-label">Failed</span><span class="stat-val">{{ studentData?.failedExams?.length ?? 0 }}</span></div>
+          </div>
+
+          <!-- Enrollments -->
+          <div class="detail-section">
+            <h4 class="section-title">Enrollment History</h4>
+            @if (studentData?.enrollments?.length) {
+              <table class="detail-table">
+                <thead><tr><th>Year</th><th>Program</th><th>Date</th></tr></thead>
+                <tbody>
+                  @for (e of studentData.enrollments; track e.id) {
+                    <tr>
+                      <td>{{ e.studyYear?.year ?? '—' }}</td>
+                      <td>{{ e.studyProgram?.name ?? '—' }}</td>
+                      <td class="mono">{{ e.enrollmentDate ?? '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            } @else {
+              <p class="no-data">No enrollment records.</p>
+            }
+          </div>
+
+          <!-- Passed Exams -->
+          <div class="detail-section">
+            <h4 class="section-title">Passed Exams</h4>
+            @if (studentData?.passedExams?.length) {
+              <table class="detail-table">
+                <thead><tr><th>Course</th><th>Grade</th><th>ECTS</th></tr></thead>
+                <tbody>
+                  @for (e of studentData.passedExams; track e.id) {
+                    <tr>
+                      <td>{{ e.course?.name ?? '—' }}</td>
+                      <td class="mono grade">{{ e.finalGrade }}</td>
+                      <td class="mono">{{ e.ects }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            } @else {
+              <p class="no-data">No passed exams.</p>
+            }
+          </div>
+
+          <!-- Failed Attempts -->
+          <div class="detail-section">
+            <h4 class="section-title">Failed Attempts</h4>
+            @if (studentData?.failedExams?.length) {
+              <table class="detail-table">
+                <thead><tr><th>Course</th><th>Points</th></tr></thead>
+                <tbody>
+                  @for (e of studentData.failedExams; track e.id) {
+                    <tr>
+                      <td>{{ e.course?.name ?? '—' }}</td>
+                      <td class="mono">{{ e.points ?? '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            } @else {
+              <p class="no-data">No failed attempts.</p>
+            }
+          </div>
+
+          <!-- Thesis -->
+          <div class="detail-section">
+            <h4 class="section-title">Thesis</h4>
+            @if (studentData?.thesis?.topic) {
+              <p class="thesis-topic">{{ studentData.thesis.topic }}</p>
+            } @else {
+              <p class="no-data">No thesis on record.</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

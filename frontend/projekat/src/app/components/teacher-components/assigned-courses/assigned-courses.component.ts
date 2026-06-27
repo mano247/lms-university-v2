@@ -1,87 +1,104 @@
-import { ChangeDetectorRef, Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { DataViewModule } from 'primeng/dataview';
-import { NgFor } from '@angular/common';
-import { DividerModule } from 'primeng/divider';
-import { Course } from '../../../model/academic/course';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../services/teacher.service';
-import { CourseService } from '../../../services/course.service';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-assigned-courses',
   standalone: true,
-  imports: [NgFor, DataViewModule, DividerModule, ButtonModule, DialogModule, InputTextareaModule, FormsModule, ToastModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './assigned-courses.component.html',
   styleUrl: './assigned-courses.component.css',
-  providers: [MessageService]
 })
 export class AssignedCoursesComponent implements OnInit {
-  visible: boolean = false;
-  courses: Course[] = [];
-  syllabus: string | undefined;
-  teacherId: any;
-  selectedCourse: any = null;
+  courses: any[] = [];
+  isLoading = true;
+  hasError = false;
+  expandedId: number | null = null;
 
-  constructor(
-    private teacherService: TeacherService,
-    private courseService: CourseService,
-    private messageService: MessageService
-  ) {}
+  showSyllabusModal = false;
+  editingCourse: any = null;
+  syllabusText = '';
+  saving = false;
+  toast: { type: 'success' | 'error'; message: string } | null = null;
+
+  private teacherId: number | null = null;
+
+  readonly cardColors = [
+    { bg: '#e8f0fe', fg: '#1a56db' },
+    { bg: '#fce8e6', fg: '#c5221f' },
+    { bg: '#e6f4ea', fg: '#1e7e34' },
+    { bg: '#fef3e2', fg: '#b45309' },
+  ];
+
+  constructor(private teacherService: TeacherService) {}
 
   ngOnInit(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      const id = parsedUser.id;
-      this.teacherId = parsedUser.id;
-      this.getCourses(id);
-    }
+    const raw = localStorage.getItem('user');
+    if (!raw) { this.isLoading = false; return; }
+    this.teacherId = JSON.parse(raw).id;
+    if (!this.teacherId) { this.isLoading = false; return; }
+    this.load();
   }
 
-  getCourses(id: number) {
-    this.teacherService.getMyCourses(id).subscribe(x => {
-      this.courses = x;
+  load(): void {
+    if (!this.teacherId) return;
+    this.teacherService.getMyCourses(this.teacherId).subscribe({
+      next: data => { this.courses = data ?? []; this.isLoading = false; },
+      error: () => { this.hasError = true; this.isLoading = false; }
     });
   }
 
-  openSyllabusDialog(course: Course) {
-    this.selectedCourse = course;
-    this.syllabus = course.syllabus;
-    this.visible = true;
+  toggle(id: number): void {
+    this.expandedId = this.expandedId === id ? null : id;
   }
 
-  updateSyllabus() {
-    if (this.selectedCourse) {
-      const updatedCourse: Course = {
-        ...this.selectedCourse,
-        syllabus: this.syllabus
-      };
+  colorFor(i: number) { return this.cardColors[i % this.cardColors.length]; }
 
-      if (updatedCourse.id !== undefined) {
-        this.teacherService.updateSyllabus(updatedCourse.id, updatedCourse).subscribe({
-          next: () => {
-            this.visible = false;
-            this.syllabus = undefined;
-            this.getCourses(this.teacherId);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Syllabus updated successfully.' });
-          },
-          error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating syllabus.' });
-            this.syllabus = undefined;
-          }
-        });
+  syllabusLines(syllabus: string | undefined): string[] {
+    if (!syllabus) return [];
+    const trimmed = syllabus.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed.map(String);
+    } catch {}
+    return trimmed.split(/\n+/).map(s => s.replace(/^\s*[\d]+[.)]\s*/, '').trim()).filter(Boolean);
+  }
+
+  openEditSyllabus(course: any, e: Event): void {
+    e.stopPropagation();
+    this.editingCourse = course;
+    this.syllabusText = course.syllabus ?? '';
+    this.showSyllabusModal = true;
+  }
+
+  closeModal(): void {
+    this.showSyllabusModal = false;
+    this.editingCourse = null;
+    this.syllabusText = '';
+  }
+
+  saveSyllabus(): void {
+    if (!this.editingCourse?.id) return;
+    this.saving = true;
+    const updated = { ...this.editingCourse, syllabus: this.syllabusText };
+    this.teacherService.updateSyllabus(this.editingCourse.id, updated).subscribe({
+      next: () => {
+        this.saving = false;
+        this.closeModal();
+        this.showToast('success', 'Syllabus updated successfully.');
+        this.load();
+      },
+      error: () => {
+        this.saving = false;
+        this.showToast('error', 'Failed to update syllabus. Please try again.');
       }
-    }
+    });
   }
 
-  cancelDialog() {
-    this.visible = false;
-    this.syllabus = undefined;
+  private showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    setTimeout(() => { this.toast = null; }, 4000);
   }
 }

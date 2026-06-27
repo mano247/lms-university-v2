@@ -1,0 +1,71 @@
+<div class="tab-wrap">
+  <div class="tab-header">
+    <div>
+      <h2 class="tab-title">My Schedule</h2>
+      <p class="tab-sub">Weekly teaching timetable for the current term</p>
+    </div>
+    <div class="view-toggle" role="group">
+      <button class="toggle-btn" [class.active]="viewMode === 'week'" (click)="setView('week')">
+        <span class="material-symbols-outlined">grid_view</span> Week
+      </button>
+      <button class="toggle-btn" [class.active]="viewMode === 'list'" (click)="setView('list')">
+        <span class="material-symbols-outlined">format_list_bulleted</span> List
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div><p>Loading schedule…</p></div>
+  } @else if (hasError || !schedule.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">calendar_today</span>
+      <h3 class="empty-title">No schedule available</h3>
+      <p class="empty-sub">Your class schedule will appear here once it has been configured by the Student Affairs Office.</p>
+    </div>
+  } @else if (viewMode === 'week') {
+    <div class="week-grid">
+      @for (day of days; track day) {
+        <div class="day-col">
+          <div class="day-label">{{ day }}</div>
+          <div class="day-entries">
+            @for (entry of getEntriesForDay(day); track entry.id) {
+              <div class="schedule-card">
+                <div class="sc-time">
+                  <span class="material-symbols-outlined">schedule</span>
+                  {{ entry.startTime }} – {{ entry.endTime }}
+                </div>
+                <div class="sc-course">{{ entry.courseName }}</div>
+                <div class="sc-meta">
+                  <span class="sc-type">{{ entry.type }}</span>
+                  <span class="sc-room"><span class="material-symbols-outlined">location_on</span>{{ entry.room }}</span>
+                </div>
+                @if (entry.groupName) {
+                  <div class="sc-group">Group: {{ entry.groupName }}</div>
+                }
+              </div>
+            } @empty {
+              <div class="day-empty">—</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="list-view">
+      @for (entry of sortedSchedule; track entry.id) {
+        <div class="list-entry">
+          <div class="le-day">{{ entry.dayOfWeek }}</div>
+          <div class="le-body">
+            <div class="le-time"><span class="material-symbols-outlined">schedule</span>{{ entry.startTime }} – {{ entry.endTime }}</div>
+            <div class="le-course">{{ entry.courseName }}</div>
+            <div class="le-details">
+              <span class="le-type">{{ entry.type }}</span>
+              <span class="le-room"><span class="material-symbols-outlined">location_on</span>{{ entry.room }}</span>
+              @if (entry.groupName) { <span class="le-teacher">Group: {{ entry.groupName }}</span> }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
