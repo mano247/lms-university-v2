@@ -22,7 +22,7 @@ export class GradeEntryComponent implements OnInit {
   submitting = false;
   toast: { type: 'success' | 'error'; message: string } | null = null;
 
-  result = { points: 0, grade: 6, note: '' };
+  result = { points: 0, grade: 5, note: '' };
 
   page = 1;
   pageSize = 10;
@@ -73,7 +73,7 @@ export class GradeEntryComponent implements OnInit {
 
   openEdit(attempt: any): void {
     this.editingAttempt = attempt;
-    this.result = { points: attempt.points ?? 0, grade: attempt.finalGrade ?? 6, note: attempt.note ?? '' };
+    this.result = { points: attempt.points ?? 0, grade: attempt.finalGrade ?? 5, note: attempt.note ?? '' };
     this.showModal = true;
   }
 
@@ -89,8 +89,8 @@ export class GradeEntryComponent implements OnInit {
       this.showToast('error', 'Points must be between 0 and 100.');
       return;
     }
-    if (this.result.grade < 6 || this.result.grade > 10) {
-      this.showToast('error', 'Grade must be between 6 and 10.');
+    if (this.result.grade < 5 || this.result.grade > 10) {
+      this.showToast('error', 'Grade must be between 5 and 10.');
       return;
     }
     this.submitting = true;

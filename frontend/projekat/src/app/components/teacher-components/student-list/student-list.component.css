@@ -1,12 +1,20 @@
 .tab-wrap { padding: 32px 24px 48px; max-width: 1200px; margin: 0 auto; }
-.tab-header { margin-bottom: 24px; }
+.tab-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
 .tab-title { font-family: 'Merriweather', Georgia, serif; font-size: 26px; font-weight: 700; color: var(--color-primary, #002444); margin: 0 0 4px; }
 .tab-sub { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; color: var(--color-secondary, #545f72); margin: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.bc-seg { font-family: 'Inter', system-ui, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-secondary, #545f72); }
+.bc-sep { font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: var(--color-secondary, #545f72); }
+.bc-current { color: var(--color-primary, #002444); }
+.enrolled-widget { flex-shrink: 0; }
+.ew-inner { display: flex; align-items: center; gap: 16px; background: #f4f3f6; border: 1px solid #e4e2e6; border-radius: 12px; padding: 14px 18px; }
+.ew-text { text-align: right; }
+.ew-label { display: block; font-family: 'Inter', system-ui, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-secondary, #545f72); margin-bottom: 2px; }
+.ew-value { display: block; font-family: 'Merriweather', Georgia, serif; font-size: 28px; font-weight: 700; color: var(--color-primary, #002444); line-height: 1; }
+.ew-divider { width: 3px; height: 44px; background: var(--color-primary, #002444); border-radius: 2px; }
 .controls-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
 .course-select { border: 1px solid #cac4d0; border-radius: 8px; padding: 9px 14px; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; color: var(--color-on-surface, #1a1c1e); background: #fff; outline: none; min-width: 240px; max-width: 380px; cursor: pointer; }
 .course-select:focus { border-color: #002444; box-shadow: 0 0 0 3px rgba(0,36,68,0.08); }
-.enrolled-chip { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #e8edf5; border-radius: 20px; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600; color: #002444; }
-.enrolled-chip .material-symbols-outlined { font-size: 17px; }
 .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
 .search-input { border: 1px solid #cac4d0; border-radius: 8px; padding: 9px 14px; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; color: var(--color-on-surface, #1a1c1e); background: #fff; outline: none; flex: 1; min-width: 120px; max-width: 200px; }
 .search-input:focus { border-color: #002444; box-shadow: 0 0 0 3px rgba(0,36,68,0.08); }
@@ -63,4 +71,4 @@
 .grade { font-weight: 700; color: #1e7e34; }
 .no-data { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; color: #8f9099; font-style: italic; margin: 0; }
 .thesis-topic { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; color: var(--color-on-surface, #1a1c1e); line-height: 1.6; margin: 0; }
-@media (max-width: 640px) { .tab-wrap { padding: 20px 16px 40px; } .stat-row { grid-template-columns: repeat(2, 1fr); } .search-row { flex-direction: column; align-items: stretch; } .search-input { max-width: 100%; } .course-select { min-width: 0; width: 100%; max-width: 100%; } .controls-row { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 640px) { .tab-wrap { padding: 20px 16px 40px; } .tab-header { flex-direction: column; align-items: flex-start; } .enrolled-widget { width: 100%; } .ew-inner { flex-direction: row-reverse; justify-content: flex-end; } .ew-text { text-align: left; } .stat-row { grid-template-columns: repeat(2, 1fr); } .search-row { flex-direction: column; align-items: stretch; } .search-input { max-width: 100%; } .course-select { min-width: 0; width: 100%; max-width: 100%; } .controls-row { flex-direction: column; align-items: flex-start; } }

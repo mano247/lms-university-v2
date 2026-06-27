@@ -117,8 +117,9 @@
           <input id="g-points" class="form-input" type="number" min="0" max="100" [(ngModel)]="result.points">
         </div>
         <div class="form-group">
-          <label class="form-label" for="g-grade">Grade <span class="hint">(6 – 10)</span></label>
+          <label class="form-label" for="g-grade">Grade <span class="hint">(5=fail, 6–10=pass)</span></label>
           <select id="g-grade" class="form-select" [(ngModel)]="result.grade">
+            <option [value]="5">5 — Fail</option>
             <option [value]="6">6</option>
             <option [value]="7">7</option>
             <option [value]="8">8</option>

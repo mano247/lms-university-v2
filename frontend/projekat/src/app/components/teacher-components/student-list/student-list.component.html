@@ -1,8 +1,22 @@
 <div class="tab-wrap">
   <div class="tab-header">
     <div>
-      <h2 class="tab-title">Student List</h2>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <span class="bc-seg">Teacher</span>
+        <span class="bc-sep" aria-hidden="true">/</span>
+        <span class="bc-seg bc-current">Student List</span>
+      </nav>
+      <h2 class="tab-title">Class Rosters</h2>
       <p class="tab-sub">Browse and view details for students enrolled in your courses</p>
+    </div>
+    <div class="enrolled-widget">
+      <div class="ew-inner">
+        <div class="ew-text">
+          <span class="ew-label">Enrolled Students</span>
+          <span class="ew-value">{{ allStudents.length }}</span>
+        </div>
+        <div class="ew-divider" aria-hidden="true"></div>
+      </div>
     </div>
   </div>
 
@@ -14,11 +28,6 @@
         <option [value]="c.id">{{ c.name }}</option>
       }
     </select>
-
-    <div class="enrolled-chip">
-      <span class="material-symbols-outlined">group</span>
-      {{ filteredStudents.length }} enrolled
-    </div>
   </div>
 
   <!-- Search -->
