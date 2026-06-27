@@ -15,6 +15,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { GlobalAnnouncementsComponent } from './components/global-announcements/global-announcements.component';
 import { LoginComponent } from './components/login/login.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { EStudentComponent } from './components/eServis/e-student/e-student.component';
@@ -84,5 +85,5 @@ export const routes: Routes = [
     data: { allowedPermissions: ['STUDENT_AFFAIRS_PERMISSION'] },
   },
   { path: 'unauthorized', component: UnauthorizedComponent },
-  { path: '**', redirectTo: '' },
+  { path: '**', component: NotFoundComponent },
 ];

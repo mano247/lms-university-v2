@@ -1,37 +1,57 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RectorateService } from '../../services/rectorate.service';
-import { DividerModule } from 'primeng/divider';
 import { Rectorate } from '../../model/rectorate';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-rectorate',
   standalone: true,
-  imports: [DividerModule],
+  imports: [],
   templateUrl: './rectorate.component.html',
-  styleUrl: './rectorate.component.css'
+  styleUrl: './rectorate.component.css',
 })
 export class RectorateComponent implements OnInit {
-  private rectorateId = 1;
-
   rectorate: Rectorate = {
     name: '',
     contact: '',
     image: '',
     address: '',
     universities: [],
-    rectorName: ''
+    rectorName: '',
   };
+  isLoading = true;
 
   constructor(private rectorateService: RectorateService) {}
 
   ngOnInit(): void {
-    this.getRectorate();
-  }
-
-  getRectorate() {
-    return this.rectorateService.getById(this.rectorateId).subscribe(x => {
-      this.rectorate = x;
+    this.rectorateService.getById(1).subscribe({
+      next: (x) => {
+        this.rectorate = x;
+        this.isLoading = false;
+      },
+      error: () => (this.isLoading = false),
     });
   }
+
+  readonly functions = [
+    {
+      icon: 'map',
+      title: 'Strategic Planning',
+      desc: 'Developing and implementing strategic plans that guide the university toward its long-term objectives and academic vision.',
+    },
+    {
+      icon: 'auto_stories',
+      title: 'Academic Policy',
+      desc: 'Defining academic standards and policy to ensure high-quality education and research across all faculties.',
+    },
+    {
+      icon: 'manage_accounts',
+      title: 'Administrative Management',
+      desc: 'Overseeing administrative operations, the budget, and university resources for efficient functioning of all departments.',
+    },
+    {
+      icon: 'public',
+      title: 'Representation',
+      desc: 'Representing the university at official and international forums, and fostering collaboration with partner institutions.',
+    },
+  ];
 }

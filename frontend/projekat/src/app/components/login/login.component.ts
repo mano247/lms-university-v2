@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -23,7 +23,7 @@ import { AuthService } from '../../services/auth/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -36,6 +36,15 @@ export class LoginComponent {
   isLoading = false;
   showPassword = false;
   errorMessage = '';
+  sessionExpiredMessage = '';
+
+  ngOnInit(): void {
+    const reason = sessionStorage.getItem('logoutReason');
+    if (reason === 'session-expired') {
+      this.sessionExpiredMessage = 'Your session has expired. Please sign in again.';
+      sessionStorage.removeItem('logoutReason');
+    }
+  }
 
   get emailCtrl() { return this.form.get('email')!; }
   get passwordCtrl() { return this.form.get('password')!; }

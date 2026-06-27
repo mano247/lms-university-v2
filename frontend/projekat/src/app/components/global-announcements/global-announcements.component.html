@@ -1,16 +1,56 @@
-<div class="content">
-    <h2>Announcements</h2>
-    <p-dataView  #dv [value]="announcements">
-        <ng-template  pTemplate="list">
-            <div *ngFor="let o of announcements">
-                <div class="gObavestenje">
-                    <h4>{{o.title}}</h4>
-                    <p><span>date: </span> <br> {{formatDate(o.date)}}</p>
-                    <p><span>from:</span><br>  {{formatDate(o.startDate)}}, <br><span>to:</span><br> {{formatDate(o.endDate)}}</p>
-                    <p>{{o.content}}</p>
-                </div>
-                <p-divider class="custom-divider"/>
-            </div>
-        </ng-template>
-    </p-dataView>
+<div class="ann-page">
+
+  <div class="ann-hero">
+    <h1 class="hero-title">Announcements</h1>
+    <p class="hero-sub">Stay up to date with the latest news and updates from the University of Ashford</p>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-bar">
+    @for (f of filters; track f.value) {
+      <button
+        class="filter-btn"
+        [class.active]="activeFilter === f.value"
+        (click)="setFilter(f.value)">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading announcements…</p>
+    </div>
+  } @else if (filtered.length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon">campaign</span>
+      <h3 class="empty-title">No announcements</h3>
+      <p class="empty-sub">There are no announcements in this category yet.</p>
+    </div>
+  } @else {
+    <div class="ann-list">
+      @for (ann of filtered; track ann.id) {
+        <article class="ann-card">
+          <div class="ann-type-bar">
+            <span class="type-badge" [class.type-global]="announcementType(ann) === 'Global'" [class.type-course]="announcementType(ann) === 'Course'">
+              <span class="material-symbols-outlined">{{ announcementType(ann) === 'Global' ? 'public' : 'menu_book' }}</span>
+              {{ announcementType(ann) }}
+            </span>
+            <span class="ann-date">{{ formatDate(ann.startDate) }}</span>
+          </div>
+          <h3 class="ann-title">{{ ann.title }}</h3>
+          <p class="ann-content">{{ ann.content }}</p>
+          @if (ann.endDate) {
+            <p class="ann-validity">
+              <span class="material-symbols-outlined">event</span>
+              Valid until {{ formatDate(ann.endDate) }}
+            </p>
+          }
+        </article>
+      }
+    </div>
+  }
+
 </div>

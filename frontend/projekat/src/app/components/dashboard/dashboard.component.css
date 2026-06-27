@@ -1,59 +1,223 @@
-.content{
-    height: 100%;
+:host { display: block; }
 
-    margin: 0 5%; 
-    padding: 30px;
-    border-radius: 30px;
-
-
-    display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 30px; 
-
-    box-sizing: border-box;
+.role-page {
+  min-height: calc(100vh - 64px - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px 48px;
+  background: #faf9fc;
 }
 
-.content h2 {
-    margin-top: 3%; 
-    text-align: center; 
+/* Welcome */
+.welcome-section {
+  text-align: center;
+  margin-bottom: 48px;
 }
 
-.kartice{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    align-items: center;
-    justify-content: center;
-
-    box-sizing: border-box;
-
-    padding-bottom: 40px;
+.welcome-heading {
+  font-family: 'Merriweather', Georgia, serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #002444;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
 }
 
-
-p-card{
-    width: 360px;
-    min-height: 400px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    text-align: center;
-
-    box-sizing: border-box;
-    border-radius: 10px; 
-    overflow: hidden;
-
-    border: 1.5px solid rgb(150, 80, 216);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.welcome-sub {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  color: #545f72;
+  margin: 0;
+  max-width: 480px;
 }
 
+/* Portal grid */
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 880px;
+  margin-bottom: 48px;
+}
 
-img {
-    width: 360px;
-    height: 150px;
-    object-fit: fill; 
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 15px;
+/* Portal card */
+.portal-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e4e2e6;
+  border-radius: 16px;
+  padding: 40px;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  outline: none;
+}
+
+.portal-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 36, 68, 0.12);
+}
+
+.portal-card:focus-visible {
+  outline: 2px solid #002444;
+  outline-offset: 3px;
+}
+
+.card-accent {
+  border-color: rgba(255, 221, 177, 0.6);
+}
+
+.card-accent:hover {
+  box-shadow: 0 20px 40px rgba(255, 221, 177, 0.3);
+}
+
+.card-disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.card-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Icon */
+.card-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.card-icon-wrap .material-symbols-outlined { font-size: 30px; }
+
+.card-icon-neutral {
+  background: rgba(0, 36, 68, 0.1);
+  color: #002444;
+}
+
+.card-icon-accent {
+  background: #002444;
+  color: #ffddb1;
+}
+
+.portal-card:hover .card-icon-neutral {
+  background: #002444;
+  color: #fff;
+}
+
+/* Card body */
+.card-body { flex: 1; margin-bottom: 28px; }
+
+.card-title {
+  font-family: 'Merriweather', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #002444;
+  margin: 0 0 12px;
+}
+
+.card-desc {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #545f72;
+  margin: 0;
+}
+
+/* Buttons */
+.card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 48px;
+  border-radius: 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: none;
+  pointer-events: none;
+}
+
+.card-btn .material-symbols-outlined { font-size: 18px; }
+
+.card-btn-outlined {
+  background: #fff;
+  border: 1.5px solid #002444;
+  color: #002444;
+}
+
+.portal-card:hover .card-btn-outlined {
+  background: #002444;
+  color: #fff;
+}
+
+.card-btn-primary {
+  background: #002444;
+  color: #ffddb1;
+}
+
+.portal-card:hover .card-btn-primary {
+  background: #1a3a5c;
+}
+
+.card-btn:disabled {
+  background: #e4e2e6;
+  color: #8f9099;
+  border-color: transparent;
+  cursor: not-allowed;
+}
+
+/* Page footer actions */
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.page-action-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #8f9099;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+  padding: 0;
+}
+
+.page-action-link:hover { color: #002444; }
+.page-action-link .material-symbols-outlined { font-size: 18px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .role-page { padding: 48px 20px 40px; }
+  .welcome-heading { font-size: 28px; }
+  .portal-grid { grid-template-columns: 1fr; max-width: 480px; }
+  .portal-card { padding: 28px 24px; }
+}
+
+@media (max-width: 480px) {
+  .welcome-heading { font-size: 24px; }
+  .card-title { font-size: 18px; }
 }

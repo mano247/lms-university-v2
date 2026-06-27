@@ -1,18 +1,94 @@
-<div class="content">
-    <h2>Contact</h2>
+<div class="contact-page">
 
-    <h3>Email &amp; Phone</h3>
-    <p>For all information, questions, or assistance, feel free to reach us through the following channels:</p>
-    <p class="podaci">{{universityContact}}</p>
+  <!-- Hero -->
+  <section class="contact-hero">
+    <h1 class="hero-title">Get in Touch</h1>
+    <p class="hero-sub">We're here to help. Reach out to us through any of the channels below or send us a message directly.</p>
+  </section>
 
-    <p-divider />
+  <!-- Info + Form -->
+  <div class="contact-layout">
 
-    <h3>In Person</h3>
-    <p>Visit us at:</p>
-    <p class="podaci">{{universityAddress}}</p>
-    <div class="map-container">
+    <!-- Left: info blocks -->
+    <aside class="contact-info">
+      <div class="info-block">
+        <div class="info-icon-wrap">
+          <span class="material-symbols-outlined">call</span>
+        </div>
+        <div>
+          <p class="info-label">Phone &amp; Email</p>
+          <p class="info-value">{{ universityContact || 'Loading…' }}</p>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-icon-wrap">
+          <span class="material-symbols-outlined">location_on</span>
+        </div>
+        <div>
+          <p class="info-label">Address</p>
+          <p class="info-value">{{ universityAddress || 'Loading…' }}</p>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-icon-wrap">
+          <span class="material-symbols-outlined">schedule</span>
+        </div>
+        <div>
+          <p class="info-label">Office Hours</p>
+          <p class="info-value">Monday – Friday, 9:00 – 17:00</p>
+        </div>
+      </div>
+
+      <!-- Map placeholder -->
+      <div class="map-wrap">
         <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs" >
+          title="University location"
+          loading="lazy"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.083970150712!2d19.83505659248146!3d45.25239800730134!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475b10613de93455%3A0xb6f7d683724fe28!2z0J3QvtCy0Lgg0KHQsNC0!5e0!3m2!1ssr!2srs!4v1723223074868!5m2!1ssr!2srs"
+          allowfullscreen>
         </iframe>
+      </div>
+    </aside>
+
+    <!-- Right: contact form -->
+    <section class="contact-form-wrap">
+      <h2 class="form-title">Send a Message</h2>
+      <form class="contact-form" (ngSubmit)="submitForm()">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="cf-name">Full Name</label>
+            <input id="cf-name" type="text" placeholder="Your name" [(ngModel)]="contactForm.name" name="name" />
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Email Address</label>
+            <input id="cf-email" type="email" placeholder="your@email.com" [(ngModel)]="contactForm.email" name="email" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="cf-subject">Subject</label>
+          <input id="cf-subject" type="text" placeholder="How can we help?" [(ngModel)]="contactForm.subject" name="subject" />
+        </div>
+        <div class="form-field">
+          <label for="cf-message">Message</label>
+          <textarea id="cf-message" rows="5" placeholder="Write your message here…" [(ngModel)]="contactForm.message" name="message"></textarea>
+        </div>
+        <button type="submit" class="btn-submit">
+          <span class="material-symbols-outlined">send</span>
+          Send Message
+        </button>
+      </form>
+    </section>
+
+  </div>
+
+  <!-- Toast -->
+  @if (toast) {
+    <div class="toast" [class.toast-error]="toast.type === 'error'">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.msg }}
     </div>
+  }
+
 </div>

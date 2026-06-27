@@ -2,19 +2,16 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-unauthorized',
+  selector: 'app-not-found',
   standalone: true,
   imports: [RouterModule],
   template: `
-    <div class="ua-page">
-      <div class="ua-content">
-        <div class="ua-icon-wrap">
-          <span class="material-symbols-outlined">lock</span>
-        </div>
-        <div class="ua-code">403</div>
-        <h1 class="ua-title">Access Denied</h1>
-        <p class="ua-desc">You don't have permission to view this page. If you believe this is an error, please contact your administrator.</p>
-        <div class="ua-actions">
+    <div class="nf-page">
+      <div class="nf-content">
+        <div class="nf-code">404</div>
+        <h1 class="nf-title">Page Not Found</h1>
+        <p class="nf-desc">The page you're looking for doesn't exist or has been moved.</p>
+        <div class="nf-actions">
           <a routerLink="/" class="btn-primary">
             <span class="material-symbols-outlined">home</span>
             Back to Home
@@ -30,7 +27,7 @@ import { RouterModule } from '@angular/router';
   styles: [`
     :host { display: block; }
 
-    .ua-page {
+    .nf-page {
       min-height: calc(100vh - 64px);
       display: flex;
       align-items: center;
@@ -39,52 +36,38 @@ import { RouterModule } from '@angular/router';
       padding: 24px;
     }
 
-    .ua-content {
+    .nf-content {
       text-align: center;
       max-width: 480px;
     }
 
-    .ua-icon-wrap {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #fef2f2;
-      border: 2px solid #fecaca;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-    }
-
-    .ua-icon-wrap .material-symbols-outlined { font-size: 36px; color: #dc2626; }
-
-    .ua-code {
+    .nf-code {
       font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: 80px;
+      font-size: 120px;
       font-weight: 700;
       line-height: 1;
       color: #e4e2e6;
-      margin-bottom: 16px;
-      letter-spacing: -2px;
+      margin-bottom: 24px;
+      letter-spacing: -4px;
     }
 
-    .ua-title {
+    .nf-title {
       font-family: 'Merriweather', Georgia, serif;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 700;
       color: #002444;
       margin: 0 0 12px;
     }
 
-    .ua-desc {
+    .nf-desc {
       font-family: 'Inter', system-ui, sans-serif;
-      font-size: 14px;
+      font-size: 15px;
       color: #545f72;
       margin: 0 0 32px;
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
-    .ua-actions {
+    .nf-actions {
       display: flex;
       gap: 12px;
       justify-content: center;
@@ -132,10 +115,10 @@ import { RouterModule } from '@angular/router';
     .btn-outlined .material-symbols-outlined { font-size: 18px; }
 
     @media (max-width: 480px) {
-      .ua-code { font-size: 60px; }
-      .ua-title { font-size: 20px; }
-      .ua-actions { flex-direction: column; align-items: center; }
+      .nf-code { font-size: 80px; }
+      .nf-title { font-size: 22px; }
+      .nf-actions { flex-direction: column; align-items: center; }
     }
   `],
 })
-export class UnauthorizedComponent {}
+export class NotFoundComponent {}

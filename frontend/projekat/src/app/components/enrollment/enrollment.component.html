@@ -1,38 +1,115 @@
-<div class="content">
-    <h2>Enrollment</h2>
-    <div>
-        <p>Welcome to the enrollment page for {{universityName}}!</p>
-        <p>If you are considering continuing your education or wish to become part of our academic community, here you will find all the information you need for a successful enrollment.</p>
+<div class="enroll-page">
+
+  <!-- Hero -->
+  <section class="enroll-hero">
+    <h1 class="hero-title">Enrollment</h1>
+    <p class="hero-sub">Join our academic community at {{ universityName }} — here is everything you need for a successful application.</p>
+    <a routerLink="/register" class="hero-cta">
+      <span class="material-symbols-outlined">how_to_reg</span>
+      Create Your Account
+    </a>
+  </section>
+
+  <!-- Steps -->
+  <section class="enroll-section">
+    <h2 class="section-title">Steps to Enroll</h2>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3 class="step-heading">Explore Study Programs</h3>
+          <p class="step-desc">Familiarize yourself with our <a routerLink="/faculties" class="text-link">faculties and study programs</a>. We offer a wide range of undergraduate and graduate programs across multiple disciplines.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3 class="step-heading">Create an Account</h3>
+          <p class="step-desc"><a routerLink="/register" class="text-link">Register on our portal</a> to track your application status and receive updates by email throughout the enrollment process.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3 class="step-heading">Submit Application</h3>
+          <p class="step-desc">Complete the application form with your personal information, educational qualifications, and preferred study program. Ensure all fields are accurate before submission.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3 class="step-heading">Prepare Documentation</h3>
+          <p class="step-desc">Gather required documents including academic transcripts, diplomas, identification, and any additional references or certificates required by your chosen faculty.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h3 class="step-heading">Attend Interview</h3>
+          <p class="step-desc">Shortlisted candidates will be invited to an interview with the admissions committee. This is an opportunity to present your qualifications and learn more about the program.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h3 class="step-heading">Receive Your Decision</h3>
+          <p class="step-desc">All candidates will be notified of enrollment decisions. Successful applicants will receive guidance on next steps and class start information.</p>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <p-divider />
+  <div class="section-divider"></div>
 
-    <h3>Steps to Enroll</h3>
-    <div class="poravnanje-levo">
-        <p><b>Information Session</b>: We recommend familiarizing yourself with our faculties and study programs. You can find details <a routerLink="/faculties">here</a>.</p>
-
-        <p><b>Application</b>: To apply, complete the application form available on our website. The application includes basic personal information, your educational qualifications, and your study program preferences.</p>
-
-        <p><b>Registration:</b> Before applying, make sure to register <a routerLink="/register">here</a>. Registration allows you to track your application status and receive all relevant updates by email.</p>
-
-        <p><b>Documentation</b>: Attach required documents such as transcripts, diplomas, and references. Review the list of required documents to ensure you have submitted everything needed.</p>
-
-        <p><b>Interview</b>: After reviewing applications, candidates who meet the criteria will be invited to an interview. The interview is an opportunity to meet members of our admissions committee and further present your qualifications.</p>
-
-        <p><b>Enrollment Decision</b>: After interviews are completed, all candidates will be notified of results and the enrollment decision. We will provide guidance on next steps and information about the start of classes.</p>
+  <!-- Tuition -->
+  <section class="enroll-section">
+    <h2 class="section-title">Tuition &amp; Financial Aid</h2>
+    <div class="info-card-grid">
+      <div class="info-card">
+        <span class="material-symbols-outlined info-card-icon">payments</span>
+        <h3 class="info-card-title">Tuition Fees</h3>
+        <p class="info-card-desc">Competitive tuition fees with transparent pricing. Detailed costs are published on each faculty page before the enrollment period opens.</p>
+        <a routerLink="/faculties" class="text-link">Browse faculties</a>
+      </div>
+      <div class="info-card">
+        <span class="material-symbols-outlined info-card-icon">school</span>
+        <h3 class="info-card-title">Scholarships</h3>
+        <p class="info-card-desc">Merit-based and need-based scholarships are available to qualifying students. Applications open at the start of each academic year.</p>
+      </div>
+      <div class="info-card">
+        <span class="material-symbols-outlined info-card-icon">account_balance</span>
+        <h3 class="info-card-title">Financial Aid</h3>
+        <p class="info-card-desc">Various funding programs and payment plans are available. Contact the student affairs office to discuss options that suit your situation.</p>
+      </div>
     </div>
+  </section>
 
-    <p-divider />
+  <div class="section-divider"></div>
 
-    <h3>Tuition & Financial Aid</h3>
-    <p>At {{universityName}} we offer various financial aid and scholarship options. Details about tuition costs, funding opportunities, and scholarships can be found on individual faculty pages <a routerLink="/faculties">here</a>.</p>
-
-    <p-divider />
-
-    <h3>Contact</h3>
-    <div>
-        <p>If you have additional questions or need assistance, feel free to reach out to our enrollment team. Contact us at <span class="podaci">{{universityContact}}</span>, or in person at <span class="podaci">{{universityAddress}}</span>.</p>
-
-        <p>We look forward to your interest in {{universityName}} and hope you will become part of our vibrant academic community!</p>
+  <!-- Contact CTA -->
+  <section class="enroll-cta">
+    <div class="cta-icon-wrap">
+      <span class="material-symbols-outlined">support_agent</span>
     </div>
+    <h2 class="cta-title">Have Questions?</h2>
+    <p class="cta-desc">Our enrollment team is ready to help. Reach us at
+      @if (universityContact) {
+        <strong>{{ universityContact }}</strong>
+      }
+      @if (universityAddress) {
+        , or visit us in person at <strong>{{ universityAddress }}</strong>
+      }.
+    </p>
+    <div class="cta-actions">
+      <a routerLink="/contact" class="btn-primary">
+        <span class="material-symbols-outlined">mail</span>
+        Contact Us
+      </a>
+      <a routerLink="/faculties" class="btn-outlined">
+        <span class="material-symbols-outlined">domain</span>
+        Browse Faculties
+      </a>
+    </div>
+  </section>
+
 </div>

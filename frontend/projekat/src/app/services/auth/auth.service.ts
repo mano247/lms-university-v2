@@ -29,17 +29,19 @@ interface LoginResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private _token: string | null = null;
+  private _logoutTimer: ReturnType<typeof setTimeout> | null = null;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
+    // Restore user profile for UI continuity, but _token stays null.
+    // The first API call after a page refresh will return 401 and the
+    // interceptor will call logout() → redirect to /login.
     const stored = localStorage.getItem('currentUser');
     if (stored) {
       try {
         this.currentUserSubject.next(JSON.parse(stored));
-        // _token is null after a page refresh — API calls will get 401
-        // and the interceptor will redirect to /login
       } catch {
         localStorage.removeItem('currentUser');
       }
@@ -60,6 +62,7 @@ export class AuthService {
           };
           this.currentUserSubject.next(user);
           localStorage.setItem('currentUser', JSON.stringify(user));
+          this.scheduleTokenExpiry(response.accessToken);
         }),
       );
   }
@@ -74,11 +77,18 @@ export class AuthService {
     return this.http.post(`${environment.apiUrl}/api/auth/signup`, data);
   }
 
-  logout(): void {
+  logout(reason?: 'session-expired'): void {
+    if (this._logoutTimer !== null) {
+      clearTimeout(this._logoutTimer);
+      this._logoutTimer = null;
+    }
     this._token = null;
     this.currentUserSubject.next(null);
     localStorage.removeItem('currentUser');
     localStorage.removeItem('selectedTabIndex');
+    if (reason === 'session-expired') {
+      sessionStorage.setItem('logoutReason', 'session-expired');
+    }
     this.router.navigate(['/login']);
   }
 
@@ -90,6 +100,12 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  /** True only when BOTH user profile and in-memory token are present. */
+  isSessionActive(): boolean {
+    return this.currentUserSubject.value !== null && this._token !== null;
+  }
+
+  /** Legacy alias — kept for components that only need to check profile presence. */
   isLoggedIn(): boolean {
     return this.currentUserSubject.value !== null;
   }
@@ -100,5 +116,35 @@ export class AuthService {
 
   hasAnyPermission(permissions: string[]): boolean {
     return permissions.some(p => this.hasPermission(p));
+  }
+
+  // ─── JWT helpers ────────────────────────────────────────────────────────────
+
+  private parseJwtPayload(token: string): { exp?: number } | null {
+    try {
+      const payloadB64 = token.split('.')[1];
+      // base64url → standard base64 → JSON
+      const decoded = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded) as { exp?: number };
+    } catch {
+      return null;
+    }
+  }
+
+  private scheduleTokenExpiry(token: string): void {
+    const payload = this.parseJwtPayload(token);
+    if (!payload?.exp) return;
+
+    const msUntilExpiry = payload.exp * 1000 - Date.now();
+
+    if (msUntilExpiry <= 0) {
+      // Token already expired on arrival — log out immediately.
+      this.logout('session-expired');
+      return;
+    }
+
+    this._logoutTimer = setTimeout(() => {
+      this.logout('session-expired');
+    }, msUntilExpiry);
   }
 }

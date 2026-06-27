@@ -1,50 +1,140 @@
-<div class="content">
-    <h3>My Profile</h3>
+<div class="profile-page">
 
-    <h4>Full Name</h4>
-    <p>{{ currentUser?.firstName || 'First name not set' }}</p>
-    <p>{{ currentUser?.lastName || 'Last name not set' }}</p>
+  @if (toast) {
+    <div class="toast" [class.toast-error]="toast.type === 'error'">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.msg }}
+    </div>
+  }
 
-    <p-divider />
+  <div class="profile-container">
 
-    <h4>Email</h4>
-    <p>{{currentUser?.email}}</p>
+    <!-- Profile header -->
+    <div class="profile-header-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-meta">
+        <h1 class="profile-name">{{ profile?.firstName }} {{ profile?.lastName }}</h1>
+        <p class="profile-email">{{ profile?.email }}</p>
+        <span class="role-badge">{{ roleLabel }}</span>
+      </div>
+      <div class="profile-actions">
+        <button class="btn-outlined" (click)="openEdit()">
+          <span class="material-symbols-outlined">edit</span> Edit Profile
+        </button>
+        <button class="btn-ghost" (click)="logout()">
+          <span class="material-symbols-outlined">logout</span> Sign Out
+        </button>
+      </div>
+    </div>
 
-    <p-divider />
+    <!-- Profile info -->
+    @if (profile && !editMode) {
+      <div class="section-card">
+        <h2 class="section-title">Personal Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <p class="info-label">First Name</p>
+            <p class="info-value">{{ profile.firstName || '—' }}</p>
+          </div>
+          <div class="info-item">
+            <p class="info-label">Last Name</p>
+            <p class="info-value">{{ profile.lastName || '—' }}</p>
+          </div>
+          <div class="info-item">
+            <p class="info-label">Username</p>
+            <p class="info-value mono">{{ profile.username || '—' }}</p>
+          </div>
+          <div class="info-item">
+            <p class="info-label">Email</p>
+            <p class="info-value">{{ profile.email || '—' }}</p>
+          </div>
+          <div class="info-item">
+            <p class="info-label">Phone</p>
+            <p class="info-value">{{ profile.phone || profile.phoneNumber || '—' }}</p>
+          </div>
+          <div class="info-item">
+            <p class="info-label">Role</p>
+            <p class="info-value">{{ roleLabel }}</p>
+          </div>
+        </div>
+      </div>
+    }
 
-    <h4>Username</h4>
-    <p>{{currentUser?.username}}</p>
+    <!-- Edit form -->
+    @if (editMode) {
+      <div class="section-card">
+        <h2 class="section-title">Edit Profile</h2>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>First Name</label>
+            <input type="text" [(ngModel)]="editForm.firstName" placeholder="First name">
+          </div>
+          <div class="form-field">
+            <label>Last Name</label>
+            <input type="text" [(ngModel)]="editForm.lastName" placeholder="Last name">
+          </div>
+          <div class="form-field">
+            <label>Username</label>
+            <input type="text" [(ngModel)]="editForm.username" placeholder="Username">
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="editForm.email" placeholder="email@university.edu">
+          </div>
+          <div class="form-field">
+            <label>Phone</label>
+            <input type="text" [(ngModel)]="editForm.phone" placeholder="+1 555 000 0000">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" (click)="cancelEdit()">Cancel</button>
+          <button class="btn-primary" (click)="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+    }
 
+    <!-- Change password -->
+    <div class="section-card">
+      <div class="section-head-row">
+        <h2 class="section-title">Security</h2>
+        @if (!changingPassword) {
+          <button class="btn-outlined" (click)="changingPassword = true">Change Password</button>
+        }
+      </div>
 
-    <p-button label="Edit Profile" (onClick)="openEditDialog()" [rounded]="true" [raised]="true"/>
+      @if (!changingPassword) {
+        <p class="section-desc">Your password was last changed when your account was created. Keep it secure and never share it with anyone.</p>
+      } @else {
+        <div class="form-grid">
+          <div class="form-field form-field-full">
+            <label>Current Password</label>
+            <input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Current password">
+          </div>
+          <div class="form-field">
+            <label>New Password</label>
+            <input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="New password">
+          </div>
+          <div class="form-field">
+            <label>Confirm Password</label>
+            <input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" (click)="changingPassword = false">Cancel</button>
+          <button class="btn-primary" (click)="savePassword()">Update Password</button>
+        </div>
+      }
+    </div>
 
-    <p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [draggable]="false">
-        <form [formGroup]="profileForm" (ngSubmit)="saveChanges()">
-            <div class="form-group">
-                <label for="firstName">First Name:</label>
-                <input pInputText id="firstName" formControlName="firstName" />
-            </div>
-            <div class="form-group">
-                <label for="lastName">Last Name:</label>
-                <input pInputText id="lastName" formControlName="lastName"/>
-            </div>
-            <div class="form-group">
-                <label for="email" class="font-semibold w-6rem">Email:</label>
-                <input pInputText id="email" type="email" formControlName="email" />
-            </div>
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input pInputText id="username" formControlName="username"/>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input pInputText id="password" type="password" formControlName="password" />
-            </div>
-            <div>
-                <p-button label="Save" [rounded]="true" [raised]="true" severity="success" type="submit"/>
-                <p-button label="Cancel" [rounded]="true" [raised]="true" severity="danger" (onClick)="visible = false" />
-            </div>
-        </form>
-    </p-dialog>
+    <!-- Quick nav -->
+    <div class="quick-nav">
+      <a routerLink="/menu" class="quick-link">
+        <span class="material-symbols-outlined">apps</span> My Dashboard
+      </a>
+      <a routerLink="/all-announcements" class="quick-link">
+        <span class="material-symbols-outlined">campaign</span> Announcements
+      </a>
+    </div>
+
+  </div>
 </div>
-<p-toast />

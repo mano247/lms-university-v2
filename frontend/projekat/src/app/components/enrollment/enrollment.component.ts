@@ -1,29 +1,28 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { DividerModule } from 'primeng/divider';
-import { UniversityService } from '../../services/university.service';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { UniversityService } from '../../services/university.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-enrollment',
   standalone: true,
-  imports: [DividerModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './enrollment.component.html',
-  styleUrl: './enrollment.component.css'
+  styleUrl: './enrollment.component.css',
 })
 export class EnrollmentComponent implements OnInit {
-  private universityId = 1;
-  universityContact: string | undefined;
-  universityName: string | undefined;
-  universityAddress: string | undefined;
+  universityContact = '';
+  universityName = 'University of Ashford';
+  universityAddress = '';
 
   constructor(private universityService: UniversityService) {}
 
   ngOnInit(): void {
-    this.universityService.getById(this.universityId).subscribe(x => {
-      this.universityContact = x.contact;
-      this.universityName = x.name;
-      this.universityAddress = x.address;
+    this.universityService.getById(1).subscribe({
+      next: (x) => {
+        this.universityContact = x.contact ?? '';
+        this.universityName = x.name ?? 'University of Ashford';
+        this.universityAddress = x.address ?? '';
+      },
     });
   }
 }

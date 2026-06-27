@@ -10,6 +10,12 @@
       <p class="login-subtitle">University of Ashford Student Portal</p>
     </div>
 
+    <!-- Session expired notice -->
+    <div class="session-expired-notice" *ngIf="sessionExpiredMessage">
+      <span class="material-symbols-outlined">schedule</span>
+      {{ sessionExpiredMessage }}
+    </div>
+
     <!-- Form -->
     <form [formGroup]="form" (ngSubmit)="signIn()" class="login-form" novalidate>
 

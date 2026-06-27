@@ -1,40 +1,64 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { DataViewModule } from 'primeng/dataview';
-import { NgFor } from '@angular/common';
-import { DividerModule } from 'primeng/divider';
-import { GlobalNotification } from '../../model/global-announcement';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { GlobalNotificationsService } from '../../services/global-announcements.service';
 
+type FilterType = 'all' | 'global' | 'course';
+
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-global-announcements',
   standalone: true,
-  imports: [NgFor, DataViewModule, DividerModule],
+  imports: [FormsModule],
   templateUrl: './global-announcements.component.html',
   styleUrl: './global-announcements.component.css',
-  providers: [DatePipe]
 })
 export class GlobalAnnouncementsComponent implements OnInit {
-  announcements: GlobalNotification[] = [];
+  announcements: any[] = [];
+  filtered: any[] = [];
+  activeFilter: FilterType = 'all';
+  isLoading = true;
 
-  constructor(
-    private globalNotificationsService: GlobalNotificationsService,
-    private datePipe: DatePipe
-  ) {}
+  readonly filters: { value: FilterType; label: string }[] = [
+    { value: 'all',    label: 'All' },
+    { value: 'global', label: 'Global' },
+    { value: 'course', label: 'Course' },
+  ];
+
+  constructor(private globalNotificationsService: GlobalNotificationsService) {}
 
   ngOnInit(): void {
-    this.getAnnouncements();
-  }
-
-  getAnnouncements() {
-    this.globalNotificationsService.getAll().subscribe(x => {
-      this.announcements = x;
+    this.globalNotificationsService.getAll().subscribe({
+      next: (data) => {
+        this.announcements = data;
+        this.applyFilter();
+        this.isLoading = false;
+      },
+      error: () => (this.isLoading = false),
     });
   }
 
-  formatDate(date: Date): string {
-    const formatted = this.datePipe.transform(date, 'HH:mm, d. MMM yyyy.');
-    return formatted ?? '';
+  setFilter(f: FilterType): void {
+    this.activeFilter = f;
+    this.applyFilter();
+  }
+
+  private applyFilter(): void {
+    if (this.activeFilter === 'all') {
+      this.filtered = this.announcements;
+    } else if (this.activeFilter === 'global') {
+      this.filtered = this.announcements.filter(a => !a.course && !a.courseId);
+    } else {
+      this.filtered = this.announcements.filter(a => a.course || a.courseId);
+    }
+  }
+
+  formatDate(d: any): string {
+    if (!d) return '—';
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  announcementType(a: any): string {
+    return a.course || a.courseId ? 'Course' : 'Global';
   }
 }

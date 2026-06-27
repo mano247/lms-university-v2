@@ -176,6 +176,26 @@
   padding-left: 2px;
 }
 
+/* ─── Session expired notice ────────────────────────────────────────────────── */
+
+.session-expired-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 10px var(--space-sm);
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.session-expired-notice .material-symbols-outlined {
+  font-size: 18px !important;
+  flex-shrink: 0;
+}
+
 /* ─── API error ─────────────────────────────────────────────────────────────── */
 
 .login-error {
