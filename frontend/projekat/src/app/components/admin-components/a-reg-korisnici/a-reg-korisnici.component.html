@@ -1,93 +1,122 @@
-<div class="content">
-    <h2>Registered Users</h2>
-    <div class="dugme">
-        <p-button label="Add" severity="success" (onClick)="openAddUserDialog()" />
+<div class="page">
+
+  @if (toast) {
+    <div class="toast" [class.toast-error]="toast.type === 'error'">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.msg }}
     </div>
-    <div class="pretraga">
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.username" pInputText placeholder="username" />
-        </p-inputGroup>
-        <p-inputGroup>
-            <input type="text" [(ngModel)]="search.email" pInputText placeholder="email" />
-        </p-inputGroup>
-        <p-button icon="pi pi-search" (click)="searchUsers()" rounded="true" [raised]="true" />
-        <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
+  }
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Registered Users</h2>
+      <p class="page-sub">{{ userCount }} total users registered in the system</p>
     </div>
-    <p-table [value]="filteredUsers" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header" let-columns>
-            <tr>
-                <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="username">username <p-sortIcon field="username"></p-sortIcon></th>
-                <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                <th>options</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-k>
-            <tr>
-                <td>{{k.id}}</td>
-                <td>{{k.username}}</td>
-                <td>{{k.email}}</td>
-                <td>
-                    <p-button (onClick)="openTypeDialog(k)" severity="contrast" label="Change type" />
-                    <p-button (onClick)="removeUser(k.id, $event)" label="Remove" severity="danger"/>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+  </div>
 
-    <p-dialog header="Add User" [(visible)]="addUserDialog" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="firstName">First name</label>
-                <input id="firstName" type="text" pInputText [(ngModel)]="newUser.firstName" />
-            </div>
-            <div class="p-field">
-                <label for="lastName">Last name</label>
-                <input id="lastName" type="text" pInputText [(ngModel)]="newUser.lastName" />
-            </div>
-            <div class="p-field">
-                <label for="username">Username</label>
-                <input id="username" type="text" pInputText [(ngModel)]="newUser.username" />
-            </div>
-            <div class="p-field">
-                <label for="email">Email</label>
-                <input id="email" type="email" pInputText [(ngModel)]="newUser.email" />
-            </div>
-            <div class="p-field">
-                <label for="password">Password</label>
-                <input id="password" type="password" pInputText [(ngModel)]="newUser.password" />
-            </div>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <input class="search-input" type="text" placeholder="Search by username..." [(ngModel)]="searchUsername" (ngModelChange)="applyFilter()">
+      <input class="search-input" type="text" placeholder="Search by email..." [(ngModel)]="searchEmail" (ngModelChange)="applyFilter()">
+      @if (searchUsername || searchEmail) {
+        <button class="btn-ghost" (click)="clearSearch()">Clear</button>
+      }
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of filtered; track user.id) {
+          <tr [class.row-confirm]="deleteId === user.id">
+            @if (deleteId === user.id) {
+              <td colspan="5">
+                <div class="confirm-row">
+                  <span>Delete <strong>{{ user.firstName }} {{ user.lastName }}</strong>?</span>
+                  <button class="btn-danger-sm" (click)="doDelete()">Yes, delete</button>
+                  <button class="btn-ghost-sm" (click)="cancelDelete()">Cancel</button>
+                </div>
+              </td>
+            } @else {
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar">{{ (user.firstName?.[0] ?? '') + (user.lastName?.[0] ?? '') }}</div>
+                  <div>
+                    <p class="user-name">{{ user.firstName }} {{ user.lastName }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td><span class="code-badge">{{ user.username ?? '—' }}</span></td>
+              <td>
+                <span class="role-badge" [class]="roleBadgeClass(user)">{{ roleLabel(user) }}</span>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="icon-action-btn" (click)="openRoleModal(user)" title="Change role">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                  </button>
+                  <button class="icon-action-btn del" (click)="confirmDelete(user.id)" title="Delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            }
+          </tr>
+        }
+        @if (filtered.length === 0) {
+          <tr><td colspan="5" class="empty-row">No users found.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Change Role Modal -->
+  @if (showRoleModal && userForRoleChange) {
+    <div class="modal-overlay" (click)="closeRoleModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Change Role</h3>
+          <button class="icon-btn" (click)="closeRoleModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="addUser()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAddUserDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
-
-    <p-dialog header="Change user type" [(visible)]="typeDialog" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div>
-                <p-dropdown [options]="types" [(ngModel)]="selectedType" optionLabel="label" placeholder="Select type"></p-dropdown>
-            </div>
-            <div>
-                <p><strong>First name: </strong> {{userForTypeChange.firstName}}</p>
-            </div>
-            <div>
-                <p><strong>Last name: </strong> {{userForTypeChange.lastName}}</p>
-            </div>
-            <div>
-                <p><strong>Email: </strong> {{userForTypeChange.email}}</p>
-            </div>
-            <div>
-                <p><strong>Current permission: </strong> {{userForTypeChange.tipZaIzmenu}}</p>
-            </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            Update role for <strong>{{ userForRoleChange.firstName }} {{ userForRoleChange.lastName }}</strong>
+          </p>
+          <div class="role-options">
+            @for (r of roles; track r.value) {
+              <label class="role-option" [class.selected]="selectedRole === r.value">
+                <input type="radio" name="role" [value]="r.value" [(ngModel)]="selectedRole">
+                <span class="material-symbols-outlined">
+                  {{ r.value === 'STUDENT_PERMISSION' ? 'school' :
+                     r.value === 'TEACHER_PERMISSION' ? 'person_book' :
+                     r.value === 'STUDENT_AFFAIRS_PERMISSION' ? 'admin_panel_settings' :
+                     'shield_person' }}
+                </span>
+                {{ r.label }}
+              </label>
+            }
+          </div>
         </div>
-        <p-footer>
-            <p-button label="Change" rounded="true" severity="success" icon="pi pi-check" (click)="changeType()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="cancelTypeDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
+        <div class="modal-footer">
+          <button class="btn-ghost" (click)="closeRoleModal()">Cancel</button>
+          <button class="btn-primary" (click)="saveRole()">Save Role</button>
+        </div>
+      </div>
+    </div>
+  }
 
-    <p-toast />
-    <p-confirmPopup />
 </div>

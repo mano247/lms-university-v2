@@ -1,73 +1,61 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { UniversityService } from '../../../services/university.service';
-import { University } from '../../../model/academic/university';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { UniversityService } from '../../../services/university.service';
 import { RectorateService } from '../../../services/rectorate.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-a-organizacija',
   standalone: true,
-  imports: [ButtonModule, DialogModule, FormsModule, CalendarModule, ToastModule],
+  imports: [FormsModule],
   templateUrl: './a-organizacija.component.html',
   styleUrl: './a-organizacija.component.css',
-  providers: [MessageService]
 })
 export class AOrganizacijaComponent implements OnInit {
-  university: University | undefined;
-  rectorate: any;
-  universityForEdit: any = {};
-  visible: boolean = false;
+  university: any = null;
+  rectorate: any = null;
+
+  showEditModal = false;
+  form: any = {};
+
+  toast: { msg: string; type: 'success' | 'error' } | null = null;
 
   constructor(
     private universityService: UniversityService,
-    private messageService: MessageService,
-    private rectorateService: RectorateService
+    private rectorateService: RectorateService,
   ) {}
 
   ngOnInit(): void {
-    this.getUniversity();
+    this.universityService.getById(1).subscribe(x => (this.university = x));
+    this.rectorateService.getById(1).subscribe(x => (this.rectorate = x));
   }
 
-  getUniversity() {
-    this.universityService.getById(1).subscribe(x => {
-      this.university = x;
-    });
+  openEdit() {
+    this.form = { ...this.university };
+    this.showEditModal = true;
   }
 
-  getRectorate() {
-    this.rectorateService.getById(1).subscribe(x => {
-      this.rectorate = x;
-    });
+  closeModal() {
+    this.showEditModal = false;
+    this.form = {};
   }
 
-  openEditDialog() {
-    this.visible = true;
-    this.universityForEdit = { ...this.university };
-  }
-
-  saveChanges() {
-    const universityData = { ...this.universityForEdit, rectorate: this.universityForEdit.rectorate.id };
-    this.universityService.update(this.universityForEdit.id, universityData).subscribe({
+  save() {
+    const payload = { ...this.form };
+    if (payload.rectorate && typeof payload.rectorate === 'object') {
+      payload.rectorate = payload.rectorate.id;
+    }
+    this.universityService.update(this.form.id, payload).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'University data updated successfully.' });
-        this.visible = false;
-        this.getUniversity();
-        this.universityForEdit = {};
+        this.universityService.getById(1).subscribe(x => (this.university = x));
+        this.closeModal();
+        this.showToast('University data updated.', 'success');
       },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating university data.' });
-      }
+      error: () => this.showToast('Error saving changes.', 'error'),
     });
   }
 
-  cancelDialog() {
-    this.visible = false;
-    this.universityForEdit = {};
+  showToast(msg: string, type: 'success' | 'error') {
+    this.toast = { msg, type };
+    setTimeout(() => (this.toast = null), 4000);
   }
 }

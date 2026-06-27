@@ -1,166 +1,112 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { StudyProgramService } from '../../../services/study-program.service';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { StudyProgram } from '../../../model/academic/study-program';
-import { DropdownModule } from 'primeng/dropdown';
-import { Faculty } from '../../../model/academic/faculty';
+import { StudyProgramService } from '../../../services/study-program.service';
 import { FacultyService } from '../../../services/faculty.service';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { TeacherService } from '../../../services/teacher.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-a-studijski-programi',
   standalone: true,
-  imports: [TableModule, ButtonModule, InputGroupModule, FormsModule, DialogModule, ToastModule, DropdownModule, ConfirmPopupModule],
+  imports: [FormsModule],
   templateUrl: './a-studijski-programi.component.html',
   styleUrl: './a-studijski-programi.component.css',
-  providers: [MessageService, ConfirmationService]
 })
 export class AStudijskiProgramiComponent implements OnInit {
-  studyPrograms: any[] = [];
-  filteredStudyPrograms: any[] = [];
-  faculties: Faculty[] = [];
+  programs: any[] = [];
+  filtered: any[] = [];
+  faculties: any[] = [];
+  teachers: any[] = [];
 
-  visible: boolean = false;
-  addProgramDialog: boolean = false;
+  searchName = '';
+  searchFaculty = '';
 
-  newProgram: any = {};
+  showModal = false;
+  isEdit = false;
+  form: any = {};
+  deleteId: number | null = null;
 
-  search = {
-    name: '',
-    code: '',
-    faculty: '',
-    director: ''
-  };
-
-  selectedProgram: any;
-  programForEdit: any = {
-    name: '',
-    director: '',
-    programCode: ''
-  };
+  toast: { msg: string; type: 'success' | 'error' } | null = null;
 
   constructor(
     private studyProgramService: StudyProgramService,
-    private messageService: MessageService,
     private facultyService: FacultyService,
-    private confirmationService: ConfirmationService
+    private teacherService: TeacherService,
   ) {}
 
   ngOnInit(): void {
-    this.getStudyPrograms();
-    this.getFaculties();
+    this.loadPrograms();
+    this.facultyService.getAll().subscribe(x => (this.faculties = x));
+    this.teacherService.getAll().subscribe(x => (this.teachers = x));
   }
 
-  getStudyPrograms() {
+  loadPrograms() {
     this.studyProgramService.getAll().subscribe(x => {
-      this.studyPrograms = x;
-      this.filteredStudyPrograms = this.studyPrograms;
+      this.programs = x;
+      this.applyFilter();
     });
   }
 
-  getFaculties() {
-    this.facultyService.getAll().subscribe(x => {
-      this.faculties = x;
-    });
-  }
-
-  openEditDialog(program: StudyProgram) {
-    this.visible = true;
-    this.selectedProgram = { ...program };
-    this.programForEdit = this.selectedProgram;
-  }
-
-  searchPrograms() {
-    this.filteredStudyPrograms = this.studyPrograms.filter(s =>
-      (this.search.name ? s.name.toLowerCase().includes(this.search.name.toLowerCase()) : true) &&
-      (this.search.code ? s.programCode.toLowerCase().includes(this.search.code.toLowerCase()) : true) &&
-      (this.search.faculty ? s.faculty.toLowerCase().includes(this.search.faculty.toLowerCase()) : true) &&
-      (this.search.director ? s.programDirector.toLowerCase().includes(this.search.director.toLowerCase()) : true)
+  applyFilter() {
+    const nm = this.searchName.toLowerCase();
+    const fc = this.searchFaculty.toLowerCase();
+    this.filtered = this.programs.filter(p =>
+      (!nm || (p.name ?? '').toLowerCase().includes(nm)) &&
+      (!fc || (p.faculty?.name ?? p.faculty ?? '').toLowerCase().includes(fc))
     );
   }
 
   clearSearch() {
-    this.search = { name: '', code: '', faculty: '', director: '' };
-    this.filteredStudyPrograms = this.studyPrograms;
+    this.searchName = '';
+    this.searchFaculty = '';
+    this.applyFilter();
   }
 
-  saveChanges() {
-    if (this.selectedProgram) {
-      const updatedProgram = {
-        ...this.selectedProgram,
-        name: this.programForEdit.name,
-        programCode: this.programForEdit.programCode,
-        programDirector: this.programForEdit.director
-      };
-
-      this.studyProgramService.update(updatedProgram.id, updatedProgram).subscribe({
-        next: () => {
-          this.getStudyPrograms();
-          this.cancelDialog();
-          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Study program updated successfully.' });
-        },
-        error: () => {
-          this.cancelDialog();
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating.' });
-        }
-      });
-    }
+  openAdd() {
+    this.form = {};
+    this.isEdit = false;
+    this.showModal = true;
   }
 
-  cancelDialog() {
-    this.visible = false;
+  openEdit(program: any) {
+    this.form = { ...program };
+    this.isEdit = true;
+    this.showModal = true;
   }
 
-  openAddDialog() {
-    this.addProgramDialog = true;
+  closeModal() {
+    this.showModal = false;
+    this.form = {};
   }
 
-  addProgram() {
-    this.studyProgramService.create(this.newProgram).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Study program added successfully.' });
-        this.newProgram = {};
-        this.getStudyPrograms();
-        this.closeAddDialog();
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding the program.' });
-      }
+  save() {
+    const op = this.isEdit
+      ? this.studyProgramService.update(this.form.id, this.form)
+      : this.studyProgramService.create(this.form);
+    op.subscribe({
+      next: () => { this.loadPrograms(); this.closeModal(); this.showToast('Study program saved.', 'success'); },
+      error: () => this.showToast('Error saving study program.', 'error'),
     });
   }
 
-  closeAddDialog() {
-    this.addProgramDialog = false;
-    this.newProgram = {};
-  }
+  confirmDelete(id: number) { this.deleteId = id; }
+  cancelDelete() { this.deleteId = null; }
 
-  removeProgram(id: number, event: Event) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Are you sure you want to remove this study program?',
-      icon: 'pi pi-info-circle',
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      accept: () => {
-        this.studyProgramService.delete(id).subscribe({
-          next: () => {
-            this.getStudyPrograms();
-            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'Study program removed successfully.' });
-          },
-          error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing.' });
-          }
-        });
-      },
-      reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
-      }
+  doDelete() {
+    if (this.deleteId === null) return;
+    const id = this.deleteId;
+    this.deleteId = null;
+    this.studyProgramService.delete(id).subscribe({
+      next: () => { this.loadPrograms(); this.showToast('Deleted.', 'success'); },
+      error: () => this.showToast('Error deleting.', 'error'),
     });
   }
+
+  showToast(msg: string, type: 'success' | 'error') {
+    this.toast = { msg, type };
+    setTimeout(() => (this.toast = null), 4000);
+  }
+
+  teacherLabel(t: any) { return `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim(); }
+
+  get programCount() { return this.programs.length; }
 }

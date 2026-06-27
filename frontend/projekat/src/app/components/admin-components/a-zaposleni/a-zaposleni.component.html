@@ -1,198 +1,131 @@
-<div class="content">
-    <h2>Employees</h2>
-    <p-dropdown
-        [options]="employeeTypes"
-        [(ngModel)]="selectedCategory"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Select category" />
-    <div *ngIf="selectedCategory === 'teachers'">
-        <div class="pretraga">
-            <p-inputGroup class="prvi_input">
-                <input type="text" [(ngModel)]="teacherSearch.firstName" pInputText placeholder="first name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="teacherSearch.lastName" pInputText placeholder="last name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="teacherSearch.email" pInputText placeholder="email" />
-            </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="searchTeachers()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
-        </div>
-        <p-table [value]="filteredTeachers">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="firstName">first name <p-sortIcon field="firstName"></p-sortIcon></th>
-                    <th pSortableColumn="lastName">last name <p-sortIcon field="lastName"></p-sortIcon></th>
-                    <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>options</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-n let-rowIndex="rowIndex">
-                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                    <td>{{ n.id }}</td>
-                    <td>{{ n.firstName }}</td>
-                    <td>{{ n.lastName }}</td>
-                    <td>{{ n.email }}</td>
-                    <td>
-                        <p-button label="Edit" (onClick)="openEditTeacherDialog(n)" />
-                        <p-button label="Remove" (onClick)="removeTeacher(n.id, $event)" severity="danger"/>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+<div class="page">
+
+  @if (toast) {
+    <div class="toast" [class.toast-error]="toast.type === 'error'">
+      <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ toast.msg }}
     </div>
-    <div *ngIf="selectedCategory === 'officeStaff'">
-        <div class="pretraga">
-            <p-inputGroup class="prvi_input">
-                <input type="text" [(ngModel)]="officeSearch.firstName" pInputText placeholder="first name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="officeSearch.lastName" pInputText placeholder="last name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="officeSearch.email" pInputText placeholder="email" />
-            </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="searchOfficeStaff()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
-        </div>
-        <p-table [value]="filteredOfficeStaff">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="firstName">first name <p-sortIcon field="firstName"></p-sortIcon></th>
-                    <th pSortableColumn="lastName">last name <p-sortIcon field="lastName"></p-sortIcon></th>
-                    <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>options</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-s let-rowIndex="rowIndex">
-                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                    <td>{{ s.id }}</td>
-                    <td>{{ s.firstName }}</td>
-                    <td>{{ s.lastName }}</td>
-                    <td>{{ s.email }}</td>
-                    <td>
-                        <p-button label="Edit" (onClick)="openEditOfficeDialog(s)" />
-                        <p-button label="Remove" (onClick)="removeOfficeStaff(s.id, $event)" severity="danger" />
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+  }
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Employees</h2>
+      <p class="page-sub">{{ totalCount }} {{ categoryLabel }} in the system</p>
     </div>
-    <div *ngIf="selectedCategory === 'administrators'">
-        <div class="pretraga">
-            <p-inputGroup class="prvi_input">
-                <input type="text" [(ngModel)]="adminSearch.firstName" pInputText placeholder="first name" />
-            </p-inputGroup>
-            <p-inputGroup>
-                <input type="text" [(ngModel)]="adminSearch.lastName" pInputText placeholder="last name" />
-            </p-inputGroup>
-            <p-button icon="pi pi-search" (click)="searchAdministrators()" rounded="true" [raised]="true" />
-            <p-button icon="pi pi-times" (click)="clearSearch()" rounded="true" [raised]="true" severity="danger" />
-        </div>
-        <p-table [value]="filteredAdministrators">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="id">id <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="firstName">first name <p-sortIcon field="firstName"></p-sortIcon></th>
-                    <th pSortableColumn="lastName">last name <p-sortIcon field="lastName"></p-sortIcon></th>
-                    <th pSortableColumn="email">email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th>options</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-a let-rowIndex="rowIndex">
-                <tr [ngClass]="{'table-row-even': rowIndex % 2 === 0, 'table-row-odd': rowIndex % 2 !== 0}">
-                    <td>{{ a.id }}</td>
-                    <td>{{ a.firstName }}</td>
-                    <td>{{ a.lastName }}</td>
-                    <td>{{ a.email }}</td>
-                    <td>
-                        <p-button label="Edit" (onClick)="openEditAdminDialog(a)" />
-                        <p-button label="Remove" (onClick)="removeAdmin(a.id, $event)" severity="danger" />
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <select class="select-dropdown" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()">
+        @for (cat of categories; track cat.value) {
+          <option [value]="cat.value">{{ cat.label }}</option>
+        }
+      </select>
+      <input class="search-input" type="text" placeholder="First name..." [(ngModel)]="searchFirst" (ngModelChange)="applyFilter()">
+      <input class="search-input" type="text" placeholder="Last name..." [(ngModel)]="searchLast" (ngModelChange)="applyFilter()">
+      <input class="search-input" type="text" placeholder="Email..." [(ngModel)]="searchEmail" (ngModelChange)="applyFilter()">
+      @if (searchFirst || searchLast || searchEmail) {
+        <button class="btn-ghost" (click)="clearSearch()">Clear</button>
+      }
     </div>
+  </div>
 
-    <p-dialog header="Edit Teacher" [(visible)]="editTeacherVisible" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="tFirstName">First name</label>
-                <input id="tFirstName" type="text" pInputText [(ngModel)]="selectedTeacher.firstName" />
-            </div>
-            <div class="p-field">
-                <label for="tLastName">Last name</label>
-                <input id="tLastName" type="text" pInputText [(ngModel)]="selectedTeacher.lastName" />
-            </div>
-            <div class="p-field">
-                <label for="tUsername">Username</label>
-                <input id="tUsername" type="text" pInputText [(ngModel)]="selectedTeacher.username" />
-            </div>
-            <div class="p-field">
-                <label for="tEmail">Email</label>
-                <input id="tEmail" type="email" pInputText [(ngModel)]="selectedTeacher.email" />
-            </div>
+  <!-- Table -->
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Title</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (emp of filtered; track emp.id) {
+          <tr [class.row-confirm]="deleteId === emp.id">
+            @if (deleteId === emp.id) {
+              <td colspan="5">
+                <div class="confirm-row">
+                  <span>Delete <strong>{{ emp.firstName }} {{ emp.lastName }}</strong>?</span>
+                  <button class="btn-danger-sm" (click)="doDelete()">Yes, delete</button>
+                  <button class="btn-ghost-sm" (click)="cancelDelete()">Cancel</button>
+                </div>
+              </td>
+            } @else {
+              <td>
+                <div class="emp-cell">
+                  <div class="emp-avatar">{{ initials(emp) }}</div>
+                  <div>
+                    <p class="emp-name">{{ emp.firstName }} {{ emp.lastName }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ emp.email }}</td>
+              <td>{{ emp.phone ?? emp.phoneNumber ?? '—' }}</td>
+              <td>{{ emp.title ?? emp.position ?? emp.teacherType ?? '—' }}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="icon-action-btn" (click)="openEdit(emp)" title="Edit">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button class="icon-action-btn del" (click)="confirmDelete(emp.id)" title="Delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            }
+          </tr>
+        }
+        @if (filtered.length === 0) {
+          <tr><td colspan="5" class="empty-row">No employees found.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Edit Modal -->
+  @if (showModal) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Edit Employee</h3>
+          <button class="icon-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateTeacher()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeTeacherDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
-
-    <p-dialog header="Edit Office Staff" [(visible)]="editOfficeVisible" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="oFirstName">First name</label>
-                <input id="oFirstName" type="text" pInputText [(ngModel)]="selectedOffice.firstName" />
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label>First Name</label>
+              <input type="text" [(ngModel)]="editItem.firstName" placeholder="First name">
             </div>
-            <div class="p-field">
-                <label for="oLastName">Last name</label>
-                <input id="oLastName" type="text" pInputText [(ngModel)]="selectedOffice.lastName" />
+            <div class="form-field">
+              <label>Last Name</label>
+              <input type="text" [(ngModel)]="editItem.lastName" placeholder="Last name">
             </div>
-            <div class="p-field">
-                <label for="oUsername">Username</label>
-                <input id="oUsername" type="text" pInputText [(ngModel)]="selectedOffice.username" />
-            </div>
-            <div class="p-field">
-                <label for="oEmail">Email</label>
-                <input id="oEmail" type="email" pInputText [(ngModel)]="selectedOffice.email" />
-            </div>
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="editItem.email" placeholder="email@university.edu">
+          </div>
+          <div class="form-field">
+            <label>Phone</label>
+            <input type="text" [(ngModel)]="editItem.phone" placeholder="+1 555 000 0000">
+          </div>
+          <div class="form-field">
+            <label>Title / Position</label>
+            <input type="text" [(ngModel)]="editItem.title" placeholder="e.g. Associate Professor">
+          </div>
         </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateOfficeStaff()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeOfficeDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
-
-    <p-dialog header="Edit Administrator" [(visible)]="editAdminVisible" modal="modal" [closable]="true">
-        <div class="p-fluid">
-            <div class="p-field">
-                <label for="aFirstName">First name</label>
-                <input id="aFirstName" type="text" pInputText [(ngModel)]="selectedAdmin.firstName" />
-            </div>
-            <div class="p-field">
-                <label for="aLastName">Last name</label>
-                <input id="aLastName" type="text" pInputText [(ngModel)]="selectedAdmin.lastName" />
-            </div>
-            <div class="p-field">
-                <label for="aUsername">Username</label>
-                <input id="aUsername" type="text" pInputText [(ngModel)]="selectedAdmin.username" />
-            </div>
-            <div class="p-field">
-                <label for="aEmail">Email</label>
-                <input id="aEmail" type="email" pInputText [(ngModel)]="selectedAdmin.email" />
-            </div>
+        <div class="modal-footer">
+          <button class="btn-ghost" (click)="closeModal()">Cancel</button>
+          <button class="btn-primary" (click)="save()">Save Changes</button>
         </div>
-        <p-footer>
-            <p-button label="Save" rounded="true" severity="success" icon="pi pi-check" (click)="updateAdmin()" />
-            <p-button label="Cancel" rounded="true" severity="danger" icon="pi pi-times" (click)="closeAdminDialog()" class="p-button-secondary" />
-        </p-footer>
-    </p-dialog>
+      </div>
+    </div>
+  }
 
-    <p-toast />
-    <p-confirmPopup />
 </div>

@@ -1,17 +1,105 @@
-<p-tabView [activeIndex]="selectedTabIndex" (onChange)="onTabChange($event)">
-    <p-tabPanel header="Registry">
-        <app-sifarnik></app-sifarnik>
-    </p-tabPanel>
-    <p-tabPanel header="Registered Users">
-        <app-a-reg-korisnici></app-a-reg-korisnici>
-    </p-tabPanel>
-    <p-tabPanel header="Study Programs">
-        <app-a-studijski-programi></app-a-studijski-programi>
-    </p-tabPanel>
-    <p-tabPanel header="Organization">
-        <app-a-organizacija></app-a-organizacija>
-    </p-tabPanel>
-    <p-tabPanel header="Employees">
-        <app-a-zaposleni></app-a-zaposleni>
-    </p-tabPanel>
-</p-tabView>
+<div class="admin-wrap">
+
+  <!-- Fixed Header -->
+  <header class="admin-header" role="banner">
+    <div class="header-inner">
+      <div class="header-brand">
+        <span class="brand-name">University of Ashford</span>
+        <div class="brand-divider" aria-hidden="true"></div>
+        <h1 class="brand-title">Dashboard</h1>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" aria-label="Search">
+          <span class="material-symbols-outlined">search</span>
+        </button>
+        <button class="icon-btn" aria-label="Notifications">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="icon-btn" aria-label="Settings">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+        <div class="user-chip">
+          <div class="user-avatar">{{ adminInitials }}</div>
+          <div class="user-text">
+            <p class="user-name">{{ adminName }}</p>
+            <p class="user-role">System Master</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Fixed Horizontal Tab Nav -->
+  <nav class="tab-nav" role="navigation" aria-label="Admin sections">
+    <div class="tab-nav-inner">
+      @for (tab of tabs; track tab.id) {
+        <button
+          class="tab-nav-btn"
+          [class.active]="activeTab === tab.id"
+          (click)="setTab(tab.id)"
+          [attr.aria-current]="activeTab === tab.id ? 'page' : null">
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="admin-main" role="main">
+    <div class="admin-content">
+      @if (activeTab === 'registry') {
+        <app-sifarnik />
+      }
+      @if (activeTab === 'users') {
+        <app-a-reg-korisnici />
+      }
+      @if (activeTab === 'programs') {
+        <app-a-studijski-programi />
+      }
+      @if (activeTab === 'org') {
+        <app-a-organizacija />
+      }
+      @if (activeTab === 'employees') {
+        <app-a-zaposleni />
+      }
+      @if (activeTab === 'periods') {
+        <app-sa-exam-periods />
+      }
+      @if (activeTab === 'schedule') {
+        <app-schedules />
+      }
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="admin-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-uni">University of Ashford</span>
+        <p class="footer-copy">© 2024 University of Ashford. All rights reserved.</p>
+      </div>
+      <nav class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Accessibility</a>
+        <a href="#">Library</a>
+        <a href="#">IT Support</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Bottom tabs (mobile) -->
+  <nav class="mobile-tabs" role="navigation" aria-label="Admin tabs">
+    @for (tab of tabs; track tab.id) {
+      <button
+        class="mobile-tab"
+        [class.active]="activeTab === tab.id"
+        (click)="setTab(tab.id)"
+        [attr.aria-label]="tab.label">
+        <span class="material-symbols-outlined">{{ tab.icon }}</span>
+        <span class="mobile-tab-label">{{ tab.label }}</span>
+      </button>
+    }
+  </nav>
+
+</div>

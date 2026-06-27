@@ -1,143 +1,123 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { RegisteredUserService } from '../../../services/registered-user.service';
-import { TableModule } from 'primeng/table';
-import { InputGroupModule } from 'primeng/inputgroup';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { RegisteredUser } from '../../../model/users/registered-user';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogModule } from 'primeng/dialog';
-import { NgIf } from '@angular/common';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { DropdownModule } from 'primeng/dropdown';
+import { RegisteredUserService } from '../../../services/registered-user.service';
 import { AdministratorService } from '../../../services/administrator.service';
 
 @Component({
-  schemas: [NO_ERRORS_SCHEMA],
   selector: 'app-a-reg-korisnici',
   standalone: true,
-  imports: [TableModule, InputGroupModule, FormsModule, ButtonModule, ToastModule, DialogModule, NgIf, ConfirmPopupModule, DropdownModule],
+  imports: [FormsModule],
   templateUrl: './a-reg-korisnici.component.html',
   styleUrl: './a-reg-korisnici.component.css',
-  providers: [ConfirmationService, MessageService]
 })
 export class ARegKorisniciComponent implements OnInit {
   users: any[] = [];
-  filteredUsers: any[] = [];
-  selectedUser: any;
+  filtered: any[] = [];
 
-  addUserDialog: boolean = false;
-  visible: boolean = false;
-  typeDialog: boolean = false;
+  searchUsername = '';
+  searchEmail = '';
 
-  userForTypeChange: any = {};
-  selectedType: any;
+  showRoleModal = false;
+  userForRoleChange: any = null;
+  selectedRole = '';
 
-  types = [
-    { label: 'Student', value: 'STUDENT_PERMISSION' },
-    { label: 'Teacher', value: 'TEACHER_PERMISSION' },
-    { label: 'Student Affairs', value: 'STUDENT_AFFAIRS_PERMISSION' },
-    { label: 'Administrator', value: 'ADMINISTRATOR_PERMISSION' }
+  deleteId: number | null = null;
+  toast: { msg: string; type: 'success' | 'error' } | null = null;
+
+  readonly roles = [
+    { label: 'Student',          value: 'STUDENT_PERMISSION' },
+    { label: 'Teacher',          value: 'TEACHER_PERMISSION' },
+    { label: 'Student Affairs',  value: 'STUDENT_AFFAIRS_PERMISSION' },
+    { label: 'Administrator',    value: 'ADMINISTRATOR_PERMISSION' },
   ];
-
-  newUser: any = {};
-
-  search = {
-    username: '',
-    email: ''
-  };
 
   constructor(
     private registeredUserService: RegisteredUserService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-    private adminService: AdministratorService
+    private adminService: AdministratorService,
   ) {}
 
   ngOnInit(): void {
-    this.getUsers();
+    this.loadUsers();
   }
 
-  getUsers() {
+  loadUsers() {
     this.registeredUserService.getAll().subscribe(x => {
       this.users = x;
-      this.filteredUsers = this.users;
+      this.applyFilter();
     });
   }
 
-  searchUsers() {
-    this.filteredUsers = this.users.filter(u =>
-      (this.search.username ? (u.username || '').toLowerCase().includes(this.search.username.toLowerCase()) : true) &&
-      (this.search.email ? (u.email || '').toLowerCase().includes(this.search.email.toLowerCase()) : true)
+  applyFilter() {
+    const un = this.searchUsername.toLowerCase();
+    const em = this.searchEmail.toLowerCase();
+    this.filtered = this.users.filter(u =>
+      (!un || (u.username ?? u.email ?? '').toLowerCase().includes(un)) &&
+      (!em || (u.email ?? '').toLowerCase().includes(em))
     );
   }
 
   clearSearch() {
-    this.search = { username: '', email: '' };
-    this.filteredUsers = this.users;
+    this.searchUsername = '';
+    this.searchEmail = '';
+    this.applyFilter();
   }
 
-  removeUser(id: number, event: Event) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Are you sure you want to remove this user?',
-      icon: 'pi pi-info-circle',
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      accept: () => {
-        this.registeredUserService.delete(id).subscribe({
-          next: () => {
-            this.getUsers();
-            this.messageService.add({ severity: 'info', summary: 'Removed', detail: 'User removed successfully.' });
-          },
-          error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while removing the user.' });
-          }
-        });
-      },
-      reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Cancelled', detail: 'Removal cancelled.', life: 3000 });
-      }
-    });
+  openRoleModal(user: any) {
+    this.userForRoleChange = user;
+    this.selectedRole = user.userType ?? user.permission ?? '';
+    this.showRoleModal = true;
   }
 
-  openTypeDialog(user: any) {
-    this.typeDialog = true;
-    this.userForTypeChange = user;
+  closeRoleModal() {
+    this.showRoleModal = false;
+    this.userForRoleChange = null;
+    this.selectedRole = '';
   }
 
-  changeType() {
-    this.adminService.assignStatus(this.selectedType.value, this.userForTypeChange).subscribe(() => {
-      this.getUsers();
-      this.cancelTypeDialog();
-    });
-  }
-
-  cancelTypeDialog() {
-    this.typeDialog = false;
-    this.userForTypeChange = {};
-  }
-
-  closeAddUserDialog() {
-    this.addUserDialog = false;
-  }
-
-  openAddUserDialog() {
-    this.addUserDialog = true;
-  }
-
-  addUser() {
-    this.registeredUserService.create(this.newUser).subscribe({
+  saveRole() {
+    if (!this.selectedRole || !this.userForRoleChange) return;
+    this.adminService.assignStatus(this.selectedRole, this.userForRoleChange).subscribe({
       next: () => {
-        this.getUsers();
-        this.closeAddUserDialog();
-        this.newUser = {};
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'New user added successfully.' });
+        this.loadUsers();
+        this.closeRoleModal();
+        this.showToast('Role updated successfully.', 'success');
       },
-      error: () => {
-        this.closeAddUserDialog();
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while adding the user.' });
-      }
+      error: () => this.showToast('Error updating role.', 'error'),
     });
   }
+
+  confirmDelete(id: number) { this.deleteId = id; }
+  cancelDelete() { this.deleteId = null; }
+
+  doDelete() {
+    if (this.deleteId === null) return;
+    const id = this.deleteId;
+    this.deleteId = null;
+    this.registeredUserService.delete(id).subscribe({
+      next: () => { this.loadUsers(); this.showToast('User deleted.', 'success'); },
+      error: () => this.showToast('Error deleting user.', 'error'),
+    });
+  }
+
+  showToast(msg: string, type: 'success' | 'error') {
+    this.toast = { msg, type };
+    setTimeout(() => (this.toast = null), 4000);
+  }
+
+  roleBadgeClass(user: any): string {
+    const p = user.userType ?? user.permission ?? '';
+    if (p.includes('STUDENT_AFFAIRS')) return 'role-office';
+    if (p.includes('TEACHER')) return 'role-teacher';
+    if (p.includes('ADMINISTRATOR')) return 'role-admin';
+    if (p.includes('STUDENT')) return 'role-student';
+    return 'role-default';
+  }
+
+  roleLabel(user: any): string {
+    const p = user.userType ?? user.permission ?? '';
+    const found = this.roles.find(r => r.value === p);
+    return found ? found.label : p || 'Unknown';
+  }
+
+  get userCount() { return this.users.length; }
 }
