@@ -1,103 +1,102 @@
-<div class="admin-wrap">
+<div class="dashboard-wrap">
 
-  <!-- Fixed Header -->
-  <header class="admin-header" role="banner">
-    <div class="header-inner">
-      <div class="header-brand">
-        <span class="brand-name">University of Ashford</span>
-        <div class="brand-divider" aria-hidden="true"></div>
-        <h1 class="brand-title">Dashboard</h1>
-      </div>
-      <div class="header-actions">
-        <button class="icon-btn" aria-label="Search">
-          <span class="material-symbols-outlined">search</span>
-        </button>
-        <button class="icon-btn" aria-label="Notifications">
-          <span class="material-symbols-outlined">notifications</span>
-        </button>
-        <button class="icon-btn" aria-label="Settings">
-          <span class="material-symbols-outlined">settings</span>
-        </button>
-        <div class="user-chip">
-          <div class="user-avatar">{{ adminInitials }}</div>
-          <div class="user-text">
-            <p class="user-name">{{ adminName }}</p>
-            <p class="user-role">System Master</p>
-          </div>
-        </div>
-      </div>
+  <!-- Sidebar (desktop) -->
+  <aside class="sidebar" role="complementary" aria-label="Dashboard navigation">
+    <div class="sidebar-logo">
+      <span class="logo-title">Ashford Portal</span>
+      <span class="logo-sub">INSTITUTIONAL LMS</span>
     </div>
-  </header>
 
-  <!-- Fixed Horizontal Tab Nav -->
-  <nav class="tab-nav" role="navigation" aria-label="Admin sections">
-    <div class="tab-nav-inner">
+    <nav class="sidebar-nav">
       @for (tab of tabs; track tab.id) {
         <button
-          class="tab-nav-btn"
+          class="nav-item"
           [class.active]="activeTab === tab.id"
           (click)="setTab(tab.id)"
           [attr.aria-current]="activeTab === tab.id ? 'page' : null">
-          {{ tab.label }}
+          <span class="material-symbols-outlined nav-icon">{{ tab.icon }}</span>
+          <span class="nav-label">{{ tab.label }}</span>
         </button>
       }
-    </div>
-  </nav>
+    </nav>
 
-  <!-- Main Content -->
-  <main class="admin-main" role="main">
-    <div class="admin-content">
-      @if (activeTab === 'registry') {
-        <app-sifarnik />
-      }
-      @if (activeTab === 'users') {
-        <app-a-reg-korisnici />
-      }
-      @if (activeTab === 'programs') {
-        <app-a-studijski-programi />
-      }
-      @if (activeTab === 'org') {
-        <app-a-organizacija />
-      }
-      @if (activeTab === 'employees') {
-        <app-a-zaposleni />
-      }
-      @if (activeTab === 'periods') {
-        <app-sa-exam-periods />
-      }
-      @if (activeTab === 'schedule') {
-        <app-schedules />
-      }
+    <div class="sidebar-user">
+      <div class="user-avatar" aria-hidden="true">{{ adminInitials }}</div>
+      <div class="user-info">
+        <p class="user-name">{{ adminName }}</p>
+        <p class="user-role">System Master</p>
+      </div>
     </div>
+  </aside>
+
+  <!-- Top header -->
+  <header class="dash-header" role="banner">
+    <div class="header-search">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        class="search-input"
+        type="search"
+        placeholder="Search users, programs, or settings..."
+        aria-label="Search dashboard">
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="icon-btn" aria-label="Settings">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+      <span class="header-divider" aria-hidden="true"></span>
+      <button class="portal-btn">Admin Portal</button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="dash-main" role="main">
+    @if (activeTab === 'registry') {
+      <app-sifarnik />
+    }
+    @if (activeTab === 'users') {
+      <app-a-reg-korisnici />
+    }
+    @if (activeTab === 'programs') {
+      <app-a-studijski-programi />
+    }
+    @if (activeTab === 'org') {
+      <app-a-organizacija />
+    }
+    @if (activeTab === 'employees') {
+      <app-a-zaposleni />
+    }
+    @if (activeTab === 'periods') {
+      <app-sa-exam-periods />
+    }
+    @if (activeTab === 'schedule') {
+      <app-schedules />
+    }
   </main>
 
   <!-- Footer -->
-  <footer class="admin-footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <span class="footer-uni">University of Ashford</span>
-        <p class="footer-copy">© 2024 University of Ashford. All rights reserved.</p>
-      </div>
-      <nav class="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Accessibility</a>
-        <a href="#">Library</a>
-        <a href="#">IT Support</a>
-      </nav>
-    </div>
+  <footer class="dash-footer">
+    <p class="footer-copy">© 2024 University of Ashford. All rights reserved.</p>
+    <nav class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Library</a>
+      <a href="#">IT Support</a>
+    </nav>
   </footer>
 
-  <!-- Bottom tabs (mobile) -->
-  <nav class="mobile-tabs" role="navigation" aria-label="Admin tabs">
+  <!-- Bottom tab bar (mobile only) -->
+  <nav class="bottom-tabs" role="navigation" aria-label="Admin tabs">
     @for (tab of tabs; track tab.id) {
       <button
-        class="mobile-tab"
+        class="bottom-tab"
         [class.active]="activeTab === tab.id"
         (click)="setTab(tab.id)"
         [attr.aria-label]="tab.label">
         <span class="material-symbols-outlined">{{ tab.icon }}</span>
-        <span class="mobile-tab-label">{{ tab.label }}</span>
+        <span class="bottom-tab-label">{{ tab.label }}</span>
       </button>
     }
   </nav>
