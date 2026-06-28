@@ -1,4 +1,4 @@
-import { environment } from '../../environments/environment';
+﻿import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Rectorate } from '../model/rectorate';
 import { HttpClient } from '@angular/common/http';
@@ -10,22 +10,22 @@ export class RectorateService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<Rectorate[]>('http://localhost:8080/api/rectorates');
+    return this.http.get<Rectorate[]>(`${environment.apiUrl}/api/rectorates`);
   }
 
   getById(id: number) {
-    return this.http.get<Rectorate>(`http://localhost:8080/api/rectorates/${id}`);
+    return this.http.get<Rectorate>(`${environment.apiUrl}/api/rectorates/${id}`);
   }
 
   delete(id: number) {
-    return this.http.delete<Rectorate>(`http://localhost:8080/api/rectorates/${id}`);
+    return this.http.delete<Rectorate>(`${environment.apiUrl}/api/rectorates/${id}`);
   }
 
   update(id: number, rectorate: Rectorate) {
-    return this.http.put<Rectorate>(`http://localhost:8080/api/rectorates/${id}`, rectorate);
+    return this.http.put<Rectorate>(`${environment.apiUrl}/api/rectorates/${id}`, rectorate);
   }
 
   create(rectorate: Rectorate) {
-    return this.http.post<Rectorate>('http://localhost:8080/api/rectorates', rectorate);
+    return this.http.post<Rectorate>(`${environment.apiUrl}/api/rectorates`, rectorate);
   }
 }

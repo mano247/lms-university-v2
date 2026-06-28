@@ -38,7 +38,7 @@ export class TeacherAnnouncementsComponent implements OnInit {
   constructor(private teacherService: TeacherService, private notificationService: NotificationService) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     const id = JSON.parse(raw).id;
     if (!id) { this.isLoading = false; return; }

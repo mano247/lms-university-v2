@@ -1,4 +1,4 @@
-import { environment } from '../../environments/environment';
+﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Teacher } from '../model/users/teacher';
@@ -12,38 +12,38 @@ export class TeacherService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<Teacher[]>('http://localhost:8080/api/teachers');
+    return this.http.get<Teacher[]>(`${environment.apiUrl}/api/teachers`);
   }
 
   getById(id: number) {
-    return this.http.get<Teacher>(`http://localhost:8080/api/teachers/${id}`);
+    return this.http.get<Teacher>(`${environment.apiUrl}/api/teachers/${id}`);
   }
 
   delete(id: number) {
-    return this.http.delete<Teacher>(`http://localhost:8080/api/teachers/${id}`);
+    return this.http.delete<Teacher>(`${environment.apiUrl}/api/teachers/${id}`);
   }
 
   update(id: number, teacher: Teacher) {
-    return this.http.put<Teacher>(`http://localhost:8080/api/teachers/${id}`, teacher);
+    return this.http.put<Teacher>(`${environment.apiUrl}/api/teachers/${id}`, teacher);
   }
 
   create(teacher: Teacher) {
-    return this.http.post<Teacher>('http://localhost:8080/api/teachers', teacher);
+    return this.http.post<Teacher>(`${environment.apiUrl}/api/teachers`, teacher);
   }
 
   getMyCourses(id: number) {
-    return this.http.get<any>(`http://localhost:8080/api/teachers/${id}/my-courses`);
+    return this.http.get<any>(`${environment.apiUrl}/api/teachers/${id}/my-courses`);
   }
 
   updateSyllabus(id: number, course: Course) {
-    return this.http.put<any>(`http://localhost:8080/api/courses/${id}/syllabus`, course);
+    return this.http.put<any>(`${environment.apiUrl}/api/courses/${id}/syllabus`, course);
   }
 
   getCourseNotifications(id: number) {
-    return this.http.get<Notification[]>(`http://localhost:8080/api/course-announcements/${id}`);
+    return this.http.get<Notification[]>(`${environment.apiUrl}/api/course-announcements/${id}`);
   }
 
   getStudentInfo(id: number) {
-    return this.http.get<any>(`http://localhost:8080/api/students/${id}`);
+    return this.http.get<any>(`${environment.apiUrl}/api/students/${id}`);
   }
 }

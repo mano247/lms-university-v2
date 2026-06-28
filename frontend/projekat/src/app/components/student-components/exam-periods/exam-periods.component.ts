@@ -1,3 +1,4 @@
+﻿import { environment } from '../../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -37,7 +38,7 @@ export class ExamPeriodsComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<ExamPeriod[]>('http://localhost:8080/api/exam-periods/open').subscribe({
+    this.http.get<ExamPeriod[]>(`${environment.apiUrl}/api/exam-periods/open`).subscribe({
       next: data => { this.periods = data ?? []; this.isLoading = false; },
       error: () => { this.hasError = true; this.isLoading = false; },
     });

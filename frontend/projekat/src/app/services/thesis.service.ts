@@ -1,4 +1,4 @@
-import { environment } from '../../environments/environment';
+﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
@@ -9,6 +9,6 @@ export class ThesisService {
   constructor(private http: HttpClient) { }
 
   findByStudent(id: number) {
-    return this.http.get<any>(`http://localhost:8080/api/final-thesis/by-student/${id}`);
+    return this.http.get<any>(`${environment.apiUrl}/api/final-thesis/by-student/${id}`);
   }
 }

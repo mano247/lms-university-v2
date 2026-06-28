@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../../services/auth/auth.service';
 import { AssignedCoursesComponent } from '../../teacher-components/assigned-courses/assigned-courses.component';
 import { TeacherAnnouncementsComponent } from '../../teacher-components/teacher-announcements/teacher-announcements.component';
 import { StudentListComponent } from '../../teacher-components/student-list/student-list.component';
@@ -34,16 +35,16 @@ export class EProfesorComponent implements OnInit {
     { id: 'periods',       label: 'Exam Periods',  icon: 'event_note' },
   ];
 
+  constructor(private authService: AuthService) {}
+
   ngOnInit(): void {
     const saved = localStorage.getItem('teacherDashboardTab');
     if (saved) this.activeTab = saved;
 
-    const raw = localStorage.getItem('user');
-    if (raw) {
-      const u = JSON.parse(raw);
-      const parts: string[] = [u.firstName, u.lastName].filter(Boolean);
-      this.teacherName = parts.join(' ') || u.email || 'Teacher';
-      this.teacherInitials = parts.map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'TC';
+    const u = this.authService.getCurrentUser();
+    if (u) {
+      this.teacherName = u.username || u.email || 'Teacher';
+      this.teacherInitials = (u.username || u.email || 'TC').substring(0, 2).toUpperCase();
     }
   }
 

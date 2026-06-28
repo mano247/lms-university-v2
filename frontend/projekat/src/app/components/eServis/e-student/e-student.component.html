@@ -54,7 +54,7 @@
   <!-- Main content -->
   <main class="dash-main" role="main">
     @if (activeTab === 'courses') {
-      <app-my-courses />
+      <app-my-courses (tabChange)="setTab($event)" />
     }
     @if (activeTab === 'announcements') {
       <app-course-announcements />

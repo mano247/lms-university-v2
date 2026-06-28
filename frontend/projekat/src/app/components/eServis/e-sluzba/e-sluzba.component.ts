@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../../services/auth/auth.service';
 import { StudentEnrollmentComponent } from '../../student-affairs-components/student-enrollment/student-enrollment.component';
 import { DocumentIssuanceComponent } from '../../student-affairs-components/document-issuance/document-issuance.component';
 import { AnnouncementsComponent } from '../../announcements/announcements.component';
@@ -37,16 +38,16 @@ export class ESluzbaComponent implements OnInit {
     { id: 'periods',       label: 'Exam Periods',     icon: 'event_note' },
   ];
 
+  constructor(private authService: AuthService) {}
+
   ngOnInit(): void {
     const saved = localStorage.getItem('saDashboardTab');
     if (saved) this.activeTab = saved;
 
-    const raw = localStorage.getItem('user');
-    if (raw) {
-      const u = JSON.parse(raw);
-      const parts: string[] = [u.firstName, u.lastName].filter(Boolean);
-      this.officeName = parts.join(' ') || u.email || 'Student Affairs';
-      this.officeInitials = parts.map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'SA';
+    const u = this.authService.getCurrentUser();
+    if (u) {
+      this.officeName = u.username || u.email || 'Student Affairs';
+      this.officeInitials = (u.username || u.email || 'SA').substring(0, 2).toUpperCase();
     }
   }
 

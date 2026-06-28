@@ -1,3 +1,4 @@
+﻿import { environment } from '../../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,7 +28,7 @@ export class DocumentIssuanceComponent implements OnInit {
   downloadingId: string | null = null;
   toast: { type: 'success' | 'error'; message: string } | null = null;
 
-  private readonly base = 'http://localhost:8080';
+  private readonly base = `${environment.apiUrl}`;
 
   constructor(
     private http: HttpClient,

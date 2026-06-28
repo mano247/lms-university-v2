@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../../services/auth/auth.service';
 import { SifarnikComponent } from '../../admin-components/sifarnik/sifarnik.component';
 import { ARegKorisniciComponent } from '../../admin-components/a-reg-korisnici/a-reg-korisnici.component';
 import { AStudijskiProgramiComponent } from '../../admin-components/a-studijski-programi/a-studijski-programi.component';
@@ -37,16 +38,16 @@ export class EAdminComponent implements OnInit {
     { id: 'schedule',  label: 'Class Schedule',     icon: 'calendar_month' },
   ];
 
+  constructor(private authService: AuthService) {}
+
   ngOnInit(): void {
     const saved = localStorage.getItem('adminDashboardTab');
     if (saved) this.activeTab = saved;
 
-    const raw = localStorage.getItem('user');
-    if (raw) {
-      const u = JSON.parse(raw);
-      const parts: string[] = [u.firstName, u.lastName].filter(Boolean);
-      this.adminName = parts.join(' ') || u.email || 'Admin';
-      this.adminInitials = parts.map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'AD';
+    const u = this.authService.getCurrentUser();
+    if (u) {
+      this.adminName = u.username || u.email || 'Admin';
+      this.adminInitials = (u.username || u.email || 'AD').substring(0, 2).toUpperCase();
     }
   }
 

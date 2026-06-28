@@ -1,3 +1,4 @@
+﻿import { environment } from '../../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -31,12 +32,12 @@ export class ClassScheduleComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     const studentId = JSON.parse(raw).id;
     if (!studentId) { this.isLoading = false; return; }
 
-    this.http.get<ScheduleEntry[]>(`http://localhost:8080/api/schedule/student/${studentId}`).subscribe({
+    this.http.get<ScheduleEntry[]>(`${environment.apiUrl}/api/schedule/student/${studentId}`).subscribe({
       next: data => { this.schedule = data ?? []; this.isLoading = false; },
       error: () => { this.hasError = true; this.isLoading = false; },
     });

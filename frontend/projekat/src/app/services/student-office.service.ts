@@ -16,15 +16,15 @@ export class StudentOfficeService {
   }
 
   getById(id: number){
-    return this.http.get<StudentOffice>(`http://localhost:8080/api/studentskaofficeStaff/${id}`);
+    return this.http.get<StudentOffice>(`${environment.apiUrl}/api/studentskaofficeStaff/${id}`);
   }
 
   delete(id: number){
-    return this.http.delete<StudentOffice>(`http://localhost:8080/api/studentskaofficeStaff/${id}`);
+    return this.http.delete<StudentOffice>(`${environment.apiUrl}/api/studentskaofficeStaff/${id}`);
   }
 
   update(id: number, StudentOffice: StudentOffice){
-    return this.http.put<StudentOffice>(`http://localhost:8080/api/studentskaofficeStaff/${id}`, StudentOffice);
+    return this.http.put<StudentOffice>(`${environment.apiUrl}/api/studentskaofficeStaff/${id}`, StudentOffice);
   }
 
   create(StudentOffice: StudentOffice){

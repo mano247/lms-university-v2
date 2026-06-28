@@ -1,3 +1,4 @@
+﻿import { environment } from '../../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -57,7 +58,7 @@ export class TeacherExamPeriodsComponent implements OnInit {
   constructor(private http: HttpClient, private teacherService: TeacherService) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     this.teacherId = JSON.parse(raw).id;
     if (!this.teacherId) { this.isLoading = false; return; }
@@ -67,7 +68,7 @@ export class TeacherExamPeriodsComponent implements OnInit {
       error: () => {}
     });
 
-    this.http.get<ExamPeriod[]>(`http://localhost:8080/api/exam-periods?teacherId=${this.teacherId}`).subscribe({
+    this.http.get<ExamPeriod[]>(`${environment.apiUrl}/api/exam-periods?teacherId=${this.teacherId}`).subscribe({
       next: data => { this.periods = data ?? []; this.isLoading = false; },
       error: () => { this.hasError = true; this.isLoading = false; }
     });
@@ -104,7 +105,7 @@ export class TeacherExamPeriodsComponent implements OnInit {
     if (!this.addingToPeriod) return;
     this.submitting = true;
     const payload = { ...this.newTerm, examPeriodId: this.addingToPeriod.id };
-    this.http.post('http://localhost:8080/api/exam-period-terms', payload).subscribe({
+    this.http.post(`${environment.apiUrl}/api/exam-period-terms`, payload).subscribe({
       next: () => {
         this.submitting = false;
         this.closeModal();
@@ -120,7 +121,7 @@ export class TeacherExamPeriodsComponent implements OnInit {
 
   private reload(): void {
     if (!this.teacherId) return;
-    this.http.get<ExamPeriod[]>(`http://localhost:8080/api/exam-periods?teacherId=${this.teacherId}`).subscribe({
+    this.http.get<ExamPeriod[]>(`${environment.apiUrl}/api/exam-periods?teacherId=${this.teacherId}`).subscribe({
       next: data => { this.periods = data ?? []; },
       error: () => {}
     });

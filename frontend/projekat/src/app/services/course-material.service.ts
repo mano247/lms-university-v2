@@ -15,15 +15,15 @@ export class CourseMaterialService {
   }
 
   getById(id: number){
-    return this.http.get<CourseMaterial>(`http://localhost:8080/api/nastavniMaterijal/${id}`);
+    return this.http.get<CourseMaterial>(`${environment.apiUrl}/api/nastavniMaterijal/${id}`);
   }
 
   delete(id: number){
-    return this.http.delete<CourseMaterial>(`http://localhost:8080/api/nastavniMaterijal/${id}`);
+    return this.http.delete<CourseMaterial>(`${environment.apiUrl}/api/nastavniMaterijal/${id}`);
   }
 
   update(id: number, CourseMaterial: CourseMaterial){
-    return this.http.put<CourseMaterial>(`http://localhost:8080/api/nastavniMaterijal/${id}`, CourseMaterial);
+    return this.http.put<CourseMaterial>(`${environment.apiUrl}/api/nastavniMaterijal/${id}`, CourseMaterial);
   }
 
   create(CourseMaterial: CourseMaterial){

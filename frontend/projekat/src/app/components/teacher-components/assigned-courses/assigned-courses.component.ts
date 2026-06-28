@@ -34,7 +34,7 @@ export class AssignedCoursesComponent implements OnInit {
   constructor(private teacherService: TeacherService) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     this.teacherId = JSON.parse(raw).id;
     if (!this.teacherId) { this.isLoading = false; return; }

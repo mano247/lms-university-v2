@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Course } from '../../../model/academic/course';
 import { StudentService } from '../../../services/student.service';
@@ -11,6 +11,8 @@ import { StudentService } from '../../../services/student.service';
   styleUrl: './my-courses.component.css',
 })
 export class MyCoursesComponent implements OnInit {
+  @Output() tabChange = new EventEmitter<string>();
+
   courses: Course[] = [];
   passedExams: any[] = [];
   isLoading = true;
@@ -31,11 +33,10 @@ export class MyCoursesComponent implements OnInit {
   constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     const u = JSON.parse(raw);
-    const parts: string[] = [u.firstName, u.lastName].filter(Boolean);
-    this.studentName = parts.join(' ') || u.email || 'Student';
+    this.studentName = u.username || u.email || 'Student';
     const id: number = u.id;
     if (!id) { this.isLoading = false; return; }
 

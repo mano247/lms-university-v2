@@ -1,3 +1,4 @@
+﻿import { environment } from '../../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -35,7 +36,7 @@ export class SaExamPeriodsComponent implements OnInit {
     registrationEnd: ''
   };
 
-  private readonly base = 'http://localhost:8080';
+  private readonly base = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient, private courseService: CourseService) {}
 

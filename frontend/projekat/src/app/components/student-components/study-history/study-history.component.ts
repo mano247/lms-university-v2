@@ -23,7 +23,7 @@ export class StudyHistoryComponent implements OnInit {
   constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     const id: number = JSON.parse(raw).id;
     if (!id) { this.isLoading = false; return; }

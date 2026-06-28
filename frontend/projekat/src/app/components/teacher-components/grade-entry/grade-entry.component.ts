@@ -32,7 +32,7 @@ export class GradeEntryComponent implements OnInit {
   constructor(private teacherService: TeacherService, private examAttemptService: ExamAttemptService) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) return;
     const id = JSON.parse(raw).id;
     this.teacherId = id;

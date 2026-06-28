@@ -1,4 +1,4 @@
-import { environment } from '../../environments/environment';
+﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ExamAttempt } from '../model/exam-attempt';
@@ -10,30 +10,30 @@ export class ExamAttemptService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<ExamAttempt[]>('http://localhost:8080/api/examAttempts');
+    return this.http.get<ExamAttempt[]>(`${environment.apiUrl}/api/examAttempts`);
   }
 
   getById(id: number) {
-    return this.http.get<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`);
+    return this.http.get<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/${id}`);
   }
 
   delete(id: number) {
-    return this.http.delete<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`);
+    return this.http.delete<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/${id}`);
   }
 
   update(id: number, examAttempt: ExamAttempt) {
-    return this.http.put<ExamAttempt>(`http://localhost:8080/api/examAttempts/${id}`, examAttempt);
+    return this.http.put<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/${id}`, examAttempt);
   }
 
   create(examAttempt: ExamAttempt) {
-    return this.http.post<ExamAttempt>('http://localhost:8080/api/examAttempts/register', examAttempt);
+    return this.http.post<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/register`, examAttempt);
   }
 
   getRegisteredByStudent(id: number) {
-    return this.http.get<any[]>(`http://localhost:8080/api/examAttempts/registered/${id}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/examAttempts/registered/${id}`);
   }
 
   getRegisteredByCourse(id: number) {
-    return this.http.get<any[]>(`http://localhost:8080/api/examAttempts/registered-by-course/${id}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/examAttempts/registered-by-course/${id}`);
   }
 }

@@ -9,6 +9,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
   const token = authService.getToken();
+  const wasSessionActive = authService.isSessionActive();
 
   const authReq = token && req.url.includes('/api/')
     ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
@@ -16,9 +17,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
-        authService.logout();
-      } else if (error.status === 403) {
+      if (error.status === 401 && wasSessionActive) {
+        authService.logout('session-expired');
+      } else if (error.status === 403 && wasSessionActive) {
         router.navigate(['/unauthorized']);
       }
       return throwError(() => error);

@@ -87,7 +87,7 @@
     <div class="widget-schedule">
       <div class="widget-header">
         <h5 class="widget-title">Daily Schedule</h5>
-        <a class="widget-link" href="#">View Full Calendar</a>
+        <button class="widget-link" (click)="tabChange.emit('schedule')">View Full Calendar</button>
       </div>
       <p class="widget-empty-msg">
         <span class="material-symbols-outlined">calendar_today</span>
@@ -98,7 +98,7 @@
     <div class="widget-note">
       <h5 class="note-title">Important Note</h5>
       <p class="note-body">Check the <strong>Exam Periods</strong> tab to see if exam registration is currently open for upcoming sessions.</p>
-      <button class="note-btn">View Exam Periods</button>
+      <button class="note-btn" (click)="tabChange.emit('periods')">View Exam Periods</button>
     </div>
   </div>
 

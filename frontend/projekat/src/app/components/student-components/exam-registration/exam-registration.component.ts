@@ -32,7 +32,7 @@ export class ExamRegistrationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('currentUser');
     if (!raw) { this.isLoading = false; return; }
     this.studentId = JSON.parse(raw).id;
     if (!this.studentId) { this.isLoading = false; return; }
