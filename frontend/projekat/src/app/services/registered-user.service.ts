@@ -1,6 +1,7 @@
 ﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { RegisteredUser } from '../model/users/registered-user';
 
 @Injectable({
@@ -10,7 +11,9 @@ export class RegisteredUserService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<RegisteredUser[]>(`${environment.apiUrl}/api/registered-users`);
+    return this.http.get<any>(`${environment.apiUrl}/api/registered-users?size=10000`).pipe(
+      map((r: any): RegisteredUser[] => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getById(id: number) {

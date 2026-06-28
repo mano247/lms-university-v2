@@ -1,6 +1,7 @@
 ﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { StudentOffice } from '../model/users/student-affairs';
 import { CourseMaterial } from '../model/academic/teaching-material';
 
@@ -11,7 +12,9 @@ export class StudentOfficeService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<StudentOffice[]>(`${environment.apiUrl}/api/student-affairs-office`);
+    return this.http.get<any>(`${environment.apiUrl}/api/student-affairs-office?size=10000`).pipe(
+      map((r: any): StudentOffice[] => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getById(id: number) {
@@ -31,7 +34,9 @@ export class StudentOfficeService {
   }
 
   getUsers() {
-    return this.http.get<any[]>(`${environment.apiUrl}/api/registered-users`);
+    return this.http.get<any>(`${environment.apiUrl}/api/registered-users?size=10000`).pipe(
+      map((r: any) => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getTextbooks() {

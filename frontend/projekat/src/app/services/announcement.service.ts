@@ -1,6 +1,7 @@
 ﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { Notification } from '../model/announcement';
 
 @Injectable({
@@ -10,7 +11,9 @@ export class NotificationService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<Notification[]>(`${environment.apiUrl}/api/course-announcements`);
+    return this.http.get<any>(`${environment.apiUrl}/api/course-announcements?size=10000`).pipe(
+      map((r: any): Notification[] => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getById(id: number) {

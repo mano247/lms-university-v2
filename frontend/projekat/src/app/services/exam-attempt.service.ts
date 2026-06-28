@@ -1,6 +1,7 @@
 ﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { ExamAttempt } from '../model/exam-attempt';
 
 @Injectable({
@@ -10,7 +11,9 @@ export class ExamAttemptService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<ExamAttempt[]>(`${environment.apiUrl}/api/examAttempts`);
+    return this.http.get<any>(`${environment.apiUrl}/api/examAttempts?size=10000`).pipe(
+      map((r: any): ExamAttempt[] => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getById(id: number) {

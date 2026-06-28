@@ -1,6 +1,7 @@
 ﻿import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { OfficeMaterial } from '../model/office-material';
 
 @Injectable({
@@ -10,7 +11,9 @@ export class OfficeMaterialService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<OfficeMaterial[]>(`${environment.apiUrl}/api/office-supplies`);
+    return this.http.get<any>(`${environment.apiUrl}/api/office-supplies?size=10000`).pipe(
+      map((r: any): OfficeMaterial[] => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getById(id: number) {

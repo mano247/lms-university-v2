@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Administrator } from '../model/users/administrator';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,9 @@ export class AdministratorService {
   constructor(private http: HttpClient) { }
 
   getAll() {
-    return this.http.get<Administrator[]>(`${environment.apiUrl}/api/administrators`);
+    return this.http.get<any>(`${environment.apiUrl}/api/administrators?size=10000`).pipe(
+      map((r: any): Administrator[] => Array.isArray(r) ? r : (r?.content ?? []))
+    );
   }
 
   getById(id: number) {

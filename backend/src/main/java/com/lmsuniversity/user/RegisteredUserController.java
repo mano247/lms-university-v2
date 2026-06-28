@@ -39,7 +39,7 @@ public class RegisteredUserController {
 	private StudentAffairsOfficeMapper studentAffairsOfficeMapper;
 
 
-	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION')")
+	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION')")
 	@RequestMapping(path = "", method = RequestMethod.GET)
 	public ResponseEntity<Page<RegisteredUserDto>> getAll(Pageable pageable) {
 		Page<RegisteredUserDto> response = service.findAll(pageable).map(mapper::toListDto);
