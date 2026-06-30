@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+﻿import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { AssignedCoursesComponent } from '../../teacher-components/assigned-courses/assigned-courses.component';
 import { TeacherAnnouncementsComponent } from '../../teacher-components/teacher-announcements/teacher-announcements.component';
@@ -8,7 +9,7 @@ import { TeacherScheduleComponent } from '../../teacher-components/teacher-sched
 import { TeacherExamPeriodsComponent } from '../../teacher-components/teacher-exam-periods/teacher-exam-periods.component';
 
 @Component({
-  selector: 'app-e-profesor',
+  selector: 'app-e-teacher',
   standalone: true,
   imports: [
     AssignedCoursesComponent,
@@ -18,10 +19,10 @@ import { TeacherExamPeriodsComponent } from '../../teacher-components/teacher-ex
     TeacherScheduleComponent,
     TeacherExamPeriodsComponent,
   ],
-  templateUrl: './e-profesor.component.html',
-  styleUrl: './e-profesor.component.css',
+  templateUrl: './e-teacher.component.html',
+  styleUrl: './e-teacher.component.css',
 })
-export class EProfesorComponent implements OnInit {
+export class ETeacherComponent implements OnInit {
   activeTab = 'courses';
   teacherName = '';
   teacherInitials = 'TC';
@@ -40,7 +41,7 @@ export class EProfesorComponent implements OnInit {
     { id: 'periods',       label: 'Exam Periods',  icon: 'event_note' },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     const saved = localStorage.getItem('teacherDashboardTab');
@@ -67,7 +68,11 @@ export class EProfesorComponent implements OnInit {
     this.headerSearch = (event.target as HTMLInputElement).value;
   }
 
+  goToProfile(): void { this.router.navigate(['/my-profile']); this.profileMenuOpen = false; }
+  goToAnnouncements(): void { this.router.navigate(['/announcements']); this.profileMenuOpen = false; }
+
   logout(): void {
     this.authService.logout();
   }
 }
+

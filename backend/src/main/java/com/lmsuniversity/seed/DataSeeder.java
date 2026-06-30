@@ -78,7 +78,7 @@ public class DataSeeder implements CommandLineRunner {
 	private static final Faker FAKER = SeedSupport.FAKER;
 
 	private static final LocalDate COURSE_START = LocalDate.of(2025, 9, 1);
-	private static final LocalDate COURSE_END = LocalDate.of(2026, 6, 15);
+	private static final LocalDate COURSE_END = LocalDate.of(2027, 6, 15);
 	private static final LocalDate PAST_PERIOD_START = LocalDate.of(2026, 1, 10);
 	private static final LocalDate PAST_PERIOD_END = LocalDate.of(2026, 1, 30);
 	private static final LocalDateTime PAST_TERM_1 = LocalDateTime.of(2026, 1, 15, 10, 0);

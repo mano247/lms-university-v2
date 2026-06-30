@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RegisteredUserService } from '../../../services/registered-user.service';
 import { AdministratorService } from '../../../services/administrator.service';
 
 @Component({
-  selector: 'app-a-reg-korisnici',
+  selector: 'app-a-registered-users',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './a-reg-korisnici.component.html',
-  styleUrl: './a-reg-korisnici.component.css',
+  templateUrl: './a-registered-users.component.html',
+  styleUrl: './a-registered-users.component.css',
 })
-export class ARegKorisniciComponent implements OnInit {
+export class ARegisteredUsersComponent implements OnInit {
   users: any[] = [];
   filtered: any[] = [];
 
@@ -129,3 +129,4 @@ export class ARegKorisniciComponent implements OnInit {
 
   get userCount() { return this.users.length; }
 }
+

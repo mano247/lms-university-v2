@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UniversityService } from '../../../services/university.service';
 import { RectorateService } from '../../../services/rectorate.service';
 
 @Component({
-  selector: 'app-a-organizacija',
+  selector: 'app-a-organization',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './a-organizacija.component.html',
-  styleUrl: './a-organizacija.component.css',
+  templateUrl: './a-organization.component.html',
+  styleUrl: './a-organization.component.css',
 })
-export class AOrganizacijaComponent implements OnInit {
+export class AOrganizationComponent implements OnInit {
   university: any = null;
   rectorate: any = null;
 
@@ -59,3 +59,4 @@ export class AOrganizacijaComponent implements OnInit {
     setTimeout(() => (this.toast = null), 4000);
   }
 }
+

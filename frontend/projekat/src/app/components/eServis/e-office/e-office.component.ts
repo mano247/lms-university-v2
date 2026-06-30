@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+﻿import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { StudentEnrollmentComponent } from '../../student-affairs-components/student-enrollment/student-enrollment.component';
 import { DocumentIssuanceComponent } from '../../student-affairs-components/document-issuance/document-issuance.component';
@@ -9,7 +10,7 @@ import { SchedulesComponent } from '../../student-affairs-components/schedules/s
 import { SaExamPeriodsComponent } from '../../student-affairs-components/sa-exam-periods/sa-exam-periods.component';
 
 @Component({
-  selector: 'app-e-sluzba',
+  selector: 'app-e-office',
   standalone: true,
   imports: [
     StudentEnrollmentComponent,
@@ -20,10 +21,10 @@ import { SaExamPeriodsComponent } from '../../student-affairs-components/sa-exam
     SchedulesComponent,
     SaExamPeriodsComponent,
   ],
-  templateUrl: './e-sluzba.component.html',
-  styleUrl: './e-sluzba.component.css',
+  templateUrl: './e-office.component.html',
+  styleUrl: './e-office.component.css',
 })
-export class ESluzbaComponent implements OnInit {
+export class EOfficeComponent implements OnInit {
   activeTab = 'enrollment';
   officeName = '';
   officeInitials = 'SA';
@@ -43,7 +44,7 @@ export class ESluzbaComponent implements OnInit {
     { id: 'periods',       label: 'Exam Periods',     icon: 'event_note' },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     const saved = localStorage.getItem('saDashboardTab');
@@ -70,7 +71,11 @@ export class ESluzbaComponent implements OnInit {
     this.headerSearch = (event.target as HTMLInputElement).value;
   }
 
+  goToProfile(): void { this.router.navigate(['/my-profile']); this.profileMenuOpen = false; }
+  goToAnnouncements(): void { this.router.navigate(['/announcements']); this.profileMenuOpen = false; }
+
   logout(): void {
     this.authService.logout();
   }
 }
+

@@ -69,7 +69,7 @@
 
 .reg-content {
   flex: 1;
-  padding: var(--space-md) var(--space-xl);
+  padding: var(--space-md);
   min-width: 0;
 }
 
@@ -105,6 +105,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-sm);
+}
+
+.field-row > .field-group {
+  min-width: 0;
 }
 
 /* ─── Custom field ──────────────────────────────────────────────────────────── */

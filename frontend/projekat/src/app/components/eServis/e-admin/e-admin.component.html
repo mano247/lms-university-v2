@@ -51,6 +51,15 @@
             <div class="dropdown-name">{{ adminName }}</div>
             <div class="dropdown-role">Administrator</div>
             <hr class="dropdown-divider">
+            <button class="dropdown-item" (click)="goToProfile()" role="menuitem">
+              <span class="material-symbols-outlined">person</span>
+              My Profile
+            </button>
+            <button class="dropdown-item" (click)="goToAnnouncements()" role="menuitem">
+              <span class="material-symbols-outlined">notifications</span>
+              Announcements
+            </button>
+            <hr class="dropdown-divider">
             <button class="dropdown-item" (click)="logout()" role="menuitem">
               <span class="material-symbols-outlined">logout</span>
               Sign out
@@ -64,19 +73,19 @@
   <!-- Main content -->
   <main class="dash-main" role="main">
     @if (activeTab === 'registry') {
-      <app-sifarnik />
+      <app-a-registry />
     }
     @if (activeTab === 'users') {
-      <app-a-reg-korisnici />
+      <app-a-registered-users />
     }
     @if (activeTab === 'programs') {
-      <app-a-studijski-programi />
+      <app-a-study-programs />
     }
     @if (activeTab === 'org') {
-      <app-a-organizacija />
+      <app-a-organization />
     }
     @if (activeTab === 'employees') {
-      <app-a-zaposleni />
+      <app-a-employees />
     }
     @if (activeTab === 'periods') {
       <app-sa-exam-periods />

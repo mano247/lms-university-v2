@@ -54,6 +54,15 @@
             <div class="dropdown-name">{{ teacherName }}</div>
             <div class="dropdown-role">Lecturer</div>
             <hr class="dropdown-divider">
+            <button class="dropdown-item" (click)="goToProfile()" role="menuitem">
+              <span class="material-symbols-outlined">person</span>
+              My Profile
+            </button>
+            <button class="dropdown-item" (click)="goToAnnouncements()" role="menuitem">
+              <span class="material-symbols-outlined">notifications</span>
+              Announcements
+            </button>
+            <hr class="dropdown-divider">
             <button class="dropdown-item" (click)="logout()" role="menuitem">
               <span class="material-symbols-outlined">logout</span>
               Sign out

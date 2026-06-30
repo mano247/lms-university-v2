@@ -45,9 +45,19 @@ export class StudentEnrollmentComponent implements OnInit {
   userSearch = { username: '', email: '' };
   studentSearch = { firstName: '', lastName: '', indexNumber: '', email: '' };
 
+  usersPage = 1;
+  studentsPage = 1;
+  readonly pageSize = 20;
+
   toast: { type: 'success' | 'error'; message: string } | null = null;
   isLoading = false;
   submitting = false;
+
+  get pagedUsers() { return this.filteredUsers.slice((this.usersPage - 1) * this.pageSize, this.usersPage * this.pageSize); }
+  get usersPages() { return Math.max(1, Math.ceil(this.filteredUsers.length / this.pageSize)); }
+
+  get pagedStudents() { return this.filteredStudents.slice((this.studentsPage - 1) * this.pageSize, this.studentsPage * this.pageSize); }
+  get studentsPages() { return Math.max(1, Math.ceil(this.filteredStudents.length / this.pageSize)); }
 
   studyYears = [
     { id: 1, label: '1st Year' },
@@ -115,11 +125,13 @@ export class StudentEnrollmentComponent implements OnInit {
         ? (u.email || '').toLowerCase().includes(this.userSearch.email.toLowerCase())
         : true)
     );
+    this.usersPage = 1;
   }
 
   clearUserSearch(): void {
     this.userSearch = { username: '', email: '' };
     this.filteredUsers = [...this.users];
+    this.usersPage = 1;
   }
 
   // ── Existing Students search ──────────────────────────────────
@@ -139,11 +151,13 @@ export class StudentEnrollmentComponent implements OnInit {
         ? (s.email || '').toLowerCase().includes(this.studentSearch.email.toLowerCase())
         : true)
     );
+    this.studentsPage = 1;
   }
 
   clearStudentSearch(): void {
     this.studentSearch = { firstName: '', lastName: '', indexNumber: '', email: '' };
     this.filteredStudents = [...this.students];
+    this.studentsPage = 1;
   }
 
   // ── Enroll Modal (new users) ──────────────────────────────────

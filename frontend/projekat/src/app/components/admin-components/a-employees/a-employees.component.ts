@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../services/teacher.service';
 import { StudentOfficeService } from '../../../services/student-affairs.service';
 import { AdministratorService } from '../../../services/administrator.service';
 
 @Component({
-  selector: 'app-a-zaposleni',
+  selector: 'app-a-employees',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './a-zaposleni.component.html',
-  styleUrl: './a-zaposleni.component.css',
+  templateUrl: './a-employees.component.html',
+  styleUrl: './a-employees.component.css',
 })
-export class AZaposleniComponent implements OnInit {
+export class AEmployeesComponent implements OnInit {
   teachers: any[] = [];
   officeStaff: any[] = [];
   administrators: any[] = [];
@@ -154,3 +154,4 @@ export class AZaposleniComponent implements OnInit {
     return ((e.firstName?.[0] ?? '') + (e.lastName?.[0] ?? '')).toUpperCase();
   }
 }
+

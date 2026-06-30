@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StudyProgramService } from '../../../services/study-program.service';
 import { FacultyService } from '../../../services/faculty.service';
 import { TeacherService } from '../../../services/teacher.service';
 
 @Component({
-  selector: 'app-a-studijski-programi',
+  selector: 'app-a-study-programs',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './a-studijski-programi.component.html',
-  styleUrl: './a-studijski-programi.component.css',
+  templateUrl: './a-study-programs.component.html',
+  styleUrl: './a-study-programs.component.css',
 })
-export class AStudijskiProgramiComponent implements OnInit {
+export class AStudyProgramsComponent implements OnInit {
   programs: any[] = [];
   filtered: any[] = [];
   faculties: any[] = [];
@@ -118,3 +118,4 @@ export class AStudijskiProgramiComponent implements OnInit {
 
   get programCount() { return this.programs.length; }
 }
+

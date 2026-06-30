@@ -28,8 +28,8 @@ export class ExamAttemptService {
     return this.http.put<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/${id}`, examAttempt);
   }
 
-  create(examAttempt: ExamAttempt) {
-    return this.http.post<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/register`, examAttempt);
+  create(payload: { courseId: number; startTime?: Date; endTime?: Date; note?: string }) {
+    return this.http.post<ExamAttempt>(`${environment.apiUrl}/api/examAttempts/register`, payload);
   }
 
   getRegisteredByStudent(id: number) {

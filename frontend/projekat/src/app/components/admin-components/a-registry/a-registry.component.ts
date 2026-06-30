@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FacultyService } from '../../../services/faculty.service';
 import { StudyProgramService } from '../../../services/study-program.service';
@@ -7,13 +7,13 @@ import { UniversityService } from '../../../services/university.service';
 import { TeacherService } from '../../../services/teacher.service';
 
 @Component({
-  selector: 'app-sifarnik',
+  selector: 'app-a-registry',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './sifarnik.component.html',
-  styleUrl: './sifarnik.component.css',
+  templateUrl: './a-registry.component.html',
+  styleUrl: './a-registry.component.css',
 })
-export class SifarnikComponent implements OnInit {
+export class ARegistryComponent implements OnInit {
   faculties: any[] = [];
   studyPrograms: any[] = [];
   courses: any[] = [];
@@ -167,3 +167,4 @@ export class SifarnikComponent implements OnInit {
 
   teacherLabel(t: any) { return `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim(); }
 }
+

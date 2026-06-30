@@ -1,10 +1,11 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
-import { SifarnikComponent } from '../../admin-components/sifarnik/sifarnik.component';
-import { ARegKorisniciComponent } from '../../admin-components/a-reg-korisnici/a-reg-korisnici.component';
-import { AStudijskiProgramiComponent } from '../../admin-components/a-studijski-programi/a-studijski-programi.component';
-import { AOrganizacijaComponent } from '../../admin-components/a-organizacija/a-organizacija.component';
-import { AZaposleniComponent } from '../../admin-components/a-zaposleni/a-zaposleni.component';
+import { ARegistryComponent } from '../../admin-components/a-registry/a-registry.component';
+import { ARegisteredUsersComponent } from '../../admin-components/a-registered-users/a-registered-users.component';
+import { AStudyProgramsComponent } from '../../admin-components/a-study-programs/a-study-programs.component';
+import { AOrganizationComponent } from '../../admin-components/a-organization/a-organization.component';
+import { AEmployeesComponent } from '../../admin-components/a-employees/a-employees.component';
 import { SaExamPeriodsComponent } from '../../student-affairs-components/sa-exam-periods/sa-exam-periods.component';
 import { SchedulesComponent } from '../../student-affairs-components/schedules/schedules.component';
 
@@ -12,11 +13,11 @@ import { SchedulesComponent } from '../../student-affairs-components/schedules/s
   selector: 'app-e-admin',
   standalone: true,
   imports: [
-    SifarnikComponent,
-    ARegKorisniciComponent,
-    AStudijskiProgramiComponent,
-    AOrganizacijaComponent,
-    AZaposleniComponent,
+    ARegistryComponent,
+    ARegisteredUsersComponent,
+    AStudyProgramsComponent,
+    AOrganizationComponent,
+    AEmployeesComponent,
     SaExamPeriodsComponent,
     SchedulesComponent,
   ],
@@ -43,7 +44,7 @@ export class EAdminComponent implements OnInit {
     { id: 'schedule',  label: 'Class Schedule',     icon: 'calendar_month' },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     const saved = localStorage.getItem('adminDashboardTab');
@@ -69,6 +70,9 @@ export class EAdminComponent implements OnInit {
   onHeaderSearch(event: Event): void {
     this.headerSearch = (event.target as HTMLInputElement).value;
   }
+
+  goToProfile(): void { this.router.navigate(['/my-profile']); this.profileMenuOpen = false; }
+  goToAnnouncements(): void { this.router.navigate(['/announcements']); this.profileMenuOpen = false; }
 
   logout(): void {
     this.authService.logout();

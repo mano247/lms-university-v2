@@ -40,10 +40,6 @@
           </div>
         </div>
         <div class="hero-actions">
-          <button class="btn-download" type="button">
-            <span class="material-symbols-outlined">download</span>
-            Download Curriculum
-          </button>
           <a [routerLink]="['/enrollment']" class="btn-apply">Apply Now</a>
         </div>
       </div>
@@ -130,7 +126,7 @@
                 } @empty {
                   <tr>
                     <td colspan="4" class="no-courses">
-                      No courses found for Year {{ selectedYear }}.
+                      Curriculum for Year {{ selectedYear }} is not yet published.
                     </td>
                   </tr>
                 }
@@ -143,10 +139,6 @@
               Showing {{ getCoursesForYear(selectedYear).length }} course{{ getCoursesForYear(selectedYear).length !== 1 ? 's' : '' }}
               @if (availableYears.length > 1) { for Year {{ selectedYear }} }
             </p>
-            <a href="#" class="view-electives">
-              View Electives
-              <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
           </div>
         </section>
       </div>

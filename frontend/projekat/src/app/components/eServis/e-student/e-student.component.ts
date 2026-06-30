@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MyCoursesComponent } from '../../student-components/my-courses/my-courses.component';
 import { CourseAnnouncementsComponent } from '../../student-components/course-announcements/course-announcements.component';
 import { StudyHistoryComponent } from '../../student-components/study-history/study-history.component';
@@ -40,7 +41,7 @@ export class EStudentComponent implements OnInit {
     { id: 'periods',       label: 'Exam Periods',       icon: 'event_repeat' },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     const saved = localStorage.getItem('studentDashboardTab');
@@ -66,6 +67,9 @@ export class EStudentComponent implements OnInit {
   onHeaderSearch(event: Event): void {
     this.headerSearch = (event.target as HTMLInputElement).value;
   }
+
+  goToProfile(): void { this.router.navigate(['/my-profile']); this.profileMenuOpen = false; }
+  goToAnnouncements(): void { this.router.navigate(['/announcements']); this.profileMenuOpen = false; }
 
   logout(): void {
     this.authService.logout();

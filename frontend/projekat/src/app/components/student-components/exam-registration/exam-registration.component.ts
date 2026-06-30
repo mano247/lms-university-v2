@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Course } from '../../../model/academic/course';
-import { Student } from '../../../model/users/student';
-import { ExamAttempt } from '../../../model/exam-attempt';
 import { StudentService } from '../../../services/student.service';
 import { ExamAttemptService } from '../../../services/exam-attempt.service';
 
@@ -16,7 +14,6 @@ import { ExamAttemptService } from '../../../services/exam-attempt.service';
 export class ExamRegistrationComponent implements OnInit {
   availableCourses: Course[] = [];
   registeredExams: any[] = [];
-  student: Student | undefined;
   studentId: number | undefined;
   isLoading = true;
   registeringId: number | null = null;
@@ -37,11 +34,10 @@ export class ExamRegistrationComponent implements OnInit {
     this.studentId = JSON.parse(raw).id;
     if (!this.studentId) { this.isLoading = false; return; }
 
-    let pending = 3;
+    let pending = 2;
     const done = () => { if (--pending === 0) this.isLoading = false; };
 
     this.studentService.getAvailableExams(this.studentId).subscribe({ next: x => { this.availableCourses = x ?? []; done(); }, error: () => done() });
-    this.studentService.getById(this.studentId).subscribe({ next: s => { this.student = s; done(); }, error: () => done() });
     this.examAttemptService.getRegisteredByStudent(this.studentId).subscribe({ next: x => { this.registeredExams = x ?? []; done(); }, error: () => done() });
   }
 
@@ -56,12 +52,11 @@ export class ExamRegistrationComponent implements OnInit {
   }
 
   register(course: Course): void {
-    if (!this.student || this.registeringId !== null) return;
+    if (!this.studentId || this.registeringId !== null) return;
 
     this.registeringId = course.id ?? null;
-    const attempt: ExamAttempt = { course, student: this.student, teacher: course.teacher };
 
-    this.examAttemptService.create(attempt).subscribe({
+    this.examAttemptService.create({ courseId: course.id! }).subscribe({
       next: () => {
         this.registeringId = null;
         this.showToast('success', `Successfully registered for ${course.name}.`);

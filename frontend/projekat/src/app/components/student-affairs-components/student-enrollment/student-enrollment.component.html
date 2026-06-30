@@ -52,9 +52,9 @@
             </tr>
           </thead>
           <tbody>
-            @for (u of filteredUsers; track u.id; let i = $index) {
+            @for (u of pagedUsers; track u.id; let i = $index) {
               <tr>
-                <td class="mono">{{ i + 1 }}</td>
+                <td class="mono">{{ (usersPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ u.username }}</td>
                 <td>{{ u.email }}</td>
                 <td>
@@ -67,6 +67,17 @@
           </tbody>
         </table>
       </div>
+      @if (usersPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" (click)="usersPage = usersPage - 1" [disabled]="usersPage === 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ usersPage }} / {{ usersPages }}</span>
+          <button class="page-btn" (click)="usersPage = usersPage + 1" [disabled]="usersPage === usersPages">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
     }
   }
 
@@ -106,9 +117,9 @@
             </tr>
           </thead>
           <tbody>
-            @for (s of filteredStudents; track s.id; let i = $index) {
+            @for (s of pagedStudents; track s.id; let i = $index) {
               <tr>
-                <td class="mono">{{ i + 1 }}</td>
+                <td class="mono">{{ (studentsPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ s.firstName }}</td>
                 <td>{{ s.lastName }}</td>
                 <td class="mono">{{ s.indexNumber ?? '—' }}</td>
@@ -123,6 +134,17 @@
           </tbody>
         </table>
       </div>
+      @if (studentsPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" (click)="studentsPage = studentsPage - 1" [disabled]="studentsPage === 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="page-info">{{ studentsPage }} / {{ studentsPages }}</span>
+          <button class="page-btn" (click)="studentsPage = studentsPage + 1" [disabled]="studentsPage === studentsPages">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
     }
   }
 </div>

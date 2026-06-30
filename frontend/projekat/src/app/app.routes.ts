@@ -80,13 +80,13 @@ export const routes: Routes = [
   },
   {
     path: 'eTeacher',
-    loadComponent: () => import('./components/eServis/e-profesor/e-profesor.component').then(m => m.EProfesorComponent),
+    loadComponent: () => import('./components/eServis/e-teacher/e-teacher.component').then(m => m.ETeacherComponent),
     canActivate: [authGuard, roleGuard],
     data: { allowedPermissions: ['TEACHER_PERMISSION'] },
   },
   {
     path: 'eOffice',
-    loadComponent: () => import('./components/eServis/e-sluzba/e-sluzba.component').then(m => m.ESluzbaComponent),
+    loadComponent: () => import('./components/eServis/e-office/e-office.component').then(m => m.EOfficeComponent),
     canActivate: [authGuard, roleGuard],
     data: { allowedPermissions: ['STUDENT_AFFAIRS_PERMISSION'] },
   },

@@ -61,7 +61,7 @@ export class SchedulesComponent implements OnInit {
 
   slotsByDay(day: string): any[] {
     return this.schedule
-      .filter(s => s.day === day || s.dayOfWeek === day)
+      .filter(s => (s.day || s.dayOfWeek || '').toLowerCase() === day.toLowerCase())
       .sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? ''));
   }
 
@@ -76,7 +76,7 @@ export class SchedulesComponent implements OnInit {
 
   hasOverlap(day: string, startTime: string, endTime: string, classroom: string, excludeId?: number): boolean {
     return this.schedule
-      .filter(s => (s.day === day || s.dayOfWeek === day) && s.classroom === classroom && s.id !== excludeId)
+      .filter(s => (s.day || s.dayOfWeek || '').toLowerCase() === day.toLowerCase() && s.classroom === classroom && s.id !== excludeId)
       .some(s => {
         const sStart = s.startTime ?? '';
         const sEnd = s.endTime ?? '';
