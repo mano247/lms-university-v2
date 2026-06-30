@@ -37,7 +37,7 @@ export class ClassScheduleComponent implements OnInit {
     const studentId = JSON.parse(raw).id;
     if (!studentId) { this.isLoading = false; return; }
 
-    this.http.get<ScheduleEntry[]>(`${environment.apiUrl}/api/schedule/student/${studentId}`).subscribe({
+    this.http.get<ScheduleEntry[]>(`${environment.apiUrl}/api/class-schedules/student/${studentId}`).subscribe({
       next: data => { this.schedule = data ?? []; this.isLoading = false; },
       error: () => { this.hasError = true; this.isLoading = false; },
     });

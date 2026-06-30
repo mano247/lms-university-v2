@@ -63,6 +63,23 @@ public class ExamPeriodController {
 		return new ResponseEntity<ExamPeriodDto>(dto, HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAnyAuthority('TEACHER_PERMISSION')")
+	@RequestMapping(path = "/my", method = RequestMethod.GET)
+	public ResponseEntity<Page<ExamPeriodDto>> getMyTeacherPeriods(Pageable pageable, Authentication authentication) {
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		Page<ExamPeriodDto> periods = service.findForTeacher(userDetails.getId(), pageable).map(mapper::toDto);
+		periods.forEach(service::populateRegisteredCounts);
+		return new ResponseEntity<Page<ExamPeriodDto>>(periods, HttpStatus.OK);
+	}
+
+	@PreAuthorize("hasAnyAuthority('STUDENT_PERMISSION')")
+	@RequestMapping(path = "/open", method = RequestMethod.GET)
+	public ResponseEntity<Page<ExamPeriodDto>> getOpenForStudent(Pageable pageable, Authentication authentication) {
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		Page<ExamPeriodDto> periods = service.findOpenForStudent(userDetails.getId(), pageable).map(mapper::toDto);
+		return new ResponseEntity<Page<ExamPeriodDto>>(periods, HttpStatus.OK);
+	}
+
 	@PreAuthorize("hasAnyAuthority('ADMINISTRATOR_PERMISSION', 'STUDENT_AFFAIRS_PERMISSION', 'TEACHER_PERMISSION', 'STUDENT_PERMISSION')")
 	@RequestMapping(path = "/by-course/{courseId}", method = RequestMethod.GET)
 	public ResponseEntity<Page<ExamPeriodDto>> getByCourse(@PathVariable("courseId") Long courseId, Pageable pageable, Authentication authentication) {

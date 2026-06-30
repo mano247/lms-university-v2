@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth.service';
 import { StudentEnrollmentComponent } from '../../student-affairs-components/student-enrollment/student-enrollment.component';
 import { DocumentIssuanceComponent } from '../../student-affairs-components/document-issuance/document-issuance.component';
@@ -27,6 +27,11 @@ export class ESluzbaComponent implements OnInit {
   activeTab = 'enrollment';
   officeName = '';
   officeInitials = 'SA';
+  profileMenuOpen = false;
+  headerSearch = '';
+
+  @HostListener('document:click')
+  closeProfileMenu() { this.profileMenuOpen = false; }
 
   readonly tabs = [
     { id: 'enrollment',    label: 'Enrollment',       icon: 'how_to_reg' },
@@ -54,5 +59,18 @@ export class ESluzbaComponent implements OnInit {
   setTab(tab: string): void {
     this.activeTab = tab;
     localStorage.setItem('saDashboardTab', tab);
+  }
+
+  toggleProfileMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.profileMenuOpen = !this.profileMenuOpen;
+  }
+
+  onHeaderSearch(event: Event): void {
+    this.headerSearch = (event.target as HTMLInputElement).value;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

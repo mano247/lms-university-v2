@@ -37,17 +37,27 @@
         class="search-input"
         type="search"
         placeholder="Search users, programs, or settings..."
-        aria-label="Search dashboard">
+        aria-label="Search dashboard"
+        [value]="headerSearch"
+        (input)="onHeaderSearch($event)">
     </div>
     <div class="header-actions">
-      <button class="icon-btn" aria-label="Notifications">
-        <span class="material-symbols-outlined">notifications</span>
-      </button>
-      <button class="icon-btn" aria-label="Settings">
-        <span class="material-symbols-outlined">settings</span>
-      </button>
-      <span class="header-divider" aria-hidden="true"></span>
-      <button class="portal-btn">Admin Portal</button>
+      <div class="header-profile">
+        <button class="header-avatar-btn" (click)="toggleProfileMenu($event)" [attr.aria-expanded]="profileMenuOpen" aria-label="Profile menu">
+          {{ adminInitials }}
+        </button>
+        @if (profileMenuOpen) {
+          <div class="profile-dropdown" role="menu">
+            <div class="dropdown-name">{{ adminName }}</div>
+            <div class="dropdown-role">Administrator</div>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item" (click)="logout()" role="menuitem">
+              <span class="material-symbols-outlined">logout</span>
+              Sign out
+            </button>
+          </div>
+        }
+      </div>
     </div>
   </header>
 

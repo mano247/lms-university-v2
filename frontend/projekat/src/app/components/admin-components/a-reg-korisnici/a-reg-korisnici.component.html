@@ -38,7 +38,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of filtered; track user.id) {
+        @for (user of pagedItems; track user.id) {
           <tr [class.row-confirm]="deleteId === user.id">
             @if (deleteId === user.id) {
               <td colspan="5">
@@ -81,6 +81,18 @@
       </tbody>
     </table>
   </div>
+
+  @if (totalPages > 1) {
+    <div class="pagination">
+      <button class="page-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="page-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+  }
 
   <!-- Change Role Modal -->
   @if (showRoleModal && userForRoleChange) {

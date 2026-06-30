@@ -47,8 +47,8 @@ export class SaExamPeriodsComponent implements OnInit {
 
   loadPeriods(): void {
     this.isLoading = true;
-    this.http.get<any[]>(`${this.base}/api/exam-periods`).subscribe({
-      next: (data) => { this.periods = data ?? []; this.isLoading = false; },
+    this.http.get<any>(`${this.base}/api/exam-periods?size=100`).subscribe({
+      next: (data) => { this.periods = (data as any)?.content ?? data ?? []; this.isLoading = false; },
       error: () => { this.showToast('error', 'Failed to load exam periods.'); this.isLoading = false; }
     });
   }
@@ -126,13 +126,12 @@ export class SaExamPeriodsComponent implements OnInit {
     }
     this.submitting = true;
     const payload = {
-      examPeriod: { id: this.addingTermToPeriodId },
       course: { id: this.termForm.courseId },
       examDate: this.termForm.examDate,
       registrationStart: this.termForm.registrationStart || null,
       registrationEnd: this.termForm.registrationEnd || null
     };
-    this.http.post(`${this.base}/api/exam-period-terms`, payload).subscribe({
+    this.http.post(`${this.base}/api/exam-periods/${this.addingTermToPeriodId}/terms`, payload).subscribe({
       next: () => {
         this.submitting = false;
         this.showToast('success', 'Exam term added.');

@@ -89,9 +89,9 @@ public class TeacherController {
 
 			if(id.equals(userId)) {
 				Optional<Teacher> p = service.findOne(id);
-				Set<Course> courses = p.get().getCourses();
 
 				if(p.isPresent()) {
+					Set<Course> courses = p.get().getCourses();
 					Set<TeacherCourseDto> teacherCourses = courses.stream().map(pr -> TeacherCourseDto.builder()
 							.id(pr.getId())
 							.courseCode(pr.getCourseCode())

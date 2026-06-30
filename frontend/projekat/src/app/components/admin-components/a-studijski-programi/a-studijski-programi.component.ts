@@ -17,6 +17,9 @@ export class AStudijskiProgramiComponent implements OnInit {
   faculties: any[] = [];
   teachers: any[] = [];
 
+  pageSize = 15;
+  currentPage = 0;
+
   searchName = '';
   searchFaculty = '';
 
@@ -53,7 +56,12 @@ export class AStudijskiProgramiComponent implements OnInit {
       (!nm || (p.name ?? '').toLowerCase().includes(nm)) &&
       (!fc || (p.faculty?.name ?? p.faculty ?? '').toLowerCase().includes(fc))
     );
+    this.currentPage = 0;
   }
+
+  get totalPages() { return Math.ceil(this.filtered.length / this.pageSize); }
+  get pagedItems() { return this.filtered.slice(this.currentPage * this.pageSize, (this.currentPage + 1) * this.pageSize); }
+  goToPage(p: number) { if (p >= 0 && p < this.totalPages) this.currentPage = p; }
 
   clearSearch() {
     this.searchName = '';

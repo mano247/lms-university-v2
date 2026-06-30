@@ -116,6 +116,14 @@ public class ExamPeriodService {
 		return true;
 	}
 
+	public Page<ExamPeriod> findForTeacher(Long teacherId, Pageable pageable) {
+		return repository.findByCourse_Teacher_Id(teacherId, pageable);
+	}
+
+	public Page<ExamPeriod> findOpenForStudent(Long studentId, Pageable pageable) {
+		return repository.findOpenByStudentId(studentId, LocalDate.now(), pageable);
+	}
+
 	boolean canManageCourse(Course course, Long requestingUserId, boolean isAdmin, boolean isStudentAffairs) {
 		if (isAdmin) {
 			return true;

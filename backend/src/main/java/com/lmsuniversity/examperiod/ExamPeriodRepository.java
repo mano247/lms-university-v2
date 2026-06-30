@@ -39,4 +39,13 @@ public interface ExamPeriodRepository extends JpaRepository<ExamPeriod, Long> {
 
 	boolean existsByCourseId(Long courseId);
 
+	@EntityGraph(attributePaths = {"course.teacher", "course.studyProgram.faculty.university",
+			"course.teachingMaterials", "createdBy", "terms"})
+	Page<ExamPeriod> findByCourse_Teacher_Id(Long teacherId, Pageable pageable);
+
+	@EntityGraph(attributePaths = {"course.teacher", "course.studyProgram.faculty.university",
+			"course.teachingMaterials", "createdBy", "terms"})
+	@Query("SELECT ep FROM ExamPeriod ep JOIN ep.course.students s WHERE s.id = :studentId AND :today BETWEEN ep.startDate AND ep.endDate")
+	Page<ExamPeriod> findOpenByStudentId(@Param("studentId") Long studentId, @Param("today") LocalDate today, Pageable pageable);
+
 }

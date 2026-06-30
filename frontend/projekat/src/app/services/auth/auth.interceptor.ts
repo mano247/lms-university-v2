@@ -20,6 +20,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401 && wasSessionActive) {
         authService.logout('session-expired');
       } else if (error.status === 403 && wasSessionActive) {
+        ['studentDashboardTab', 'teacherDashboardTab', 'saDashboardTab', 'adminDashboardTab']
+          .forEach(k => localStorage.removeItem(k));
         router.navigate(['/unauthorized']);
       }
       return throwError(() => error);

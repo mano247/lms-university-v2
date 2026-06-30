@@ -14,6 +14,9 @@ export class ARegKorisniciComponent implements OnInit {
   users: any[] = [];
   filtered: any[] = [];
 
+  pageSize = 15;
+  currentPage = 0;
+
   searchUsername = '';
   searchEmail = '';
 
@@ -54,7 +57,12 @@ export class ARegKorisniciComponent implements OnInit {
       (!un || (u.username ?? u.email ?? '').toLowerCase().includes(un)) &&
       (!em || (u.email ?? '').toLowerCase().includes(em))
     );
+    this.currentPage = 0;
   }
+
+  get totalPages() { return Math.ceil(this.filtered.length / this.pageSize); }
+  get pagedItems() { return this.filtered.slice(this.currentPage * this.pageSize, (this.currentPage + 1) * this.pageSize); }
+  goToPage(p: number) { if (p >= 0 && p < this.totalPages) this.currentPage = p; }
 
   clearSearch() {
     this.searchUsername = '';

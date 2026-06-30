@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth.service';
 import { SifarnikComponent } from '../../admin-components/sifarnik/sifarnik.component';
 import { ARegKorisniciComponent } from '../../admin-components/a-reg-korisnici/a-reg-korisnici.component';
@@ -27,6 +27,11 @@ export class EAdminComponent implements OnInit {
   activeTab = 'registry';
   adminName = '';
   adminInitials = 'AD';
+  profileMenuOpen = false;
+  headerSearch = '';
+
+  @HostListener('document:click')
+  closeProfileMenu() { this.profileMenuOpen = false; }
 
   readonly tabs = [
     { id: 'registry',  label: 'Registry',          icon: 'domain' },
@@ -54,5 +59,18 @@ export class EAdminComponent implements OnInit {
   setTab(tab: string): void {
     this.activeTab = tab;
     localStorage.setItem('adminDashboardTab', tab);
+  }
+
+  toggleProfileMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.profileMenuOpen = !this.profileMenuOpen;
+  }
+
+  onHeaderSearch(event: Event): void {
+    this.headerSearch = (event.target as HTMLInputElement).value;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

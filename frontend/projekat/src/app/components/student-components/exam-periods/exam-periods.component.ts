@@ -38,8 +38,8 @@ export class ExamPeriodsComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<ExamPeriod[]>(`${environment.apiUrl}/api/exam-periods/open`).subscribe({
-      next: data => { this.periods = data ?? []; this.isLoading = false; },
+    this.http.get<any>(`${environment.apiUrl}/api/exam-periods/open`).subscribe({
+      next: data => { this.periods = (data as any)?.content ?? data ?? []; this.isLoading = false; },
       error: () => { this.hasError = true; this.isLoading = false; },
     });
   }

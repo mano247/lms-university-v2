@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MyCoursesComponent } from '../../student-components/my-courses/my-courses.component';
 import { CourseAnnouncementsComponent } from '../../student-components/course-announcements/course-announcements.component';
 import { StudyHistoryComponent } from '../../student-components/study-history/study-history.component';
@@ -25,6 +25,11 @@ export class EStudentComponent implements OnInit {
   activeTab = 'courses';
   studentName = '';
   studentInitials = 'ST';
+  profileMenuOpen = false;
+  headerSearch = '';
+
+  @HostListener('document:click')
+  closeProfileMenu() { this.profileMenuOpen = false; }
 
   readonly tabs = [
     { id: 'courses',       label: 'My Courses',        icon: 'school' },
@@ -51,5 +56,18 @@ export class EStudentComponent implements OnInit {
   setTab(tab: string): void {
     this.activeTab = tab;
     localStorage.setItem('studentDashboardTab', tab);
+  }
+
+  toggleProfileMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.profileMenuOpen = !this.profileMenuOpen;
+  }
+
+  onHeaderSearch(event: Event): void {
+    this.headerSearch = (event.target as HTMLInputElement).value;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

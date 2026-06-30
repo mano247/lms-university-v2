@@ -53,8 +53,8 @@ export class SchedulesComponent implements OnInit {
 
   loadSchedule(): void {
     this.isLoading = true;
-    this.http.get<any[]>(`${this.base}/api/schedules`).subscribe({
-      next: (data) => { this.schedule = data ?? []; this.isLoading = false; },
+    this.http.get<any>(`${this.base}/api/class-schedules?size=1000`).subscribe({
+      next: (data) => { this.schedule = (data as any)?.content ?? data ?? []; this.isLoading = false; },
       error: () => { this.showToast('error', 'Failed to load schedule.'); this.isLoading = false; }
     });
   }
@@ -107,7 +107,7 @@ export class SchedulesComponent implements OnInit {
       course: this.form.courseId ? { id: this.form.courseId } : null,
       teacher: this.form.teacherId ? { id: this.form.teacherId } : null
     };
-    this.http.post(`${this.base}/api/schedules`, payload).subscribe({
+    this.http.post(`${this.base}/api/class-schedules`, payload).subscribe({
       next: () => {
         this.submitting = false;
         this.showToast('success', 'Class slot added successfully.');
@@ -129,7 +129,7 @@ export class SchedulesComponent implements OnInit {
   confirmDelete(id: number): void {
     this.deletingId = id;
     this.confirmDeleteId = null;
-    this.http.delete(`${this.base}/api/schedules/${id}`).subscribe({
+    this.http.delete(`${this.base}/api/class-schedules/${id}`).subscribe({
       next: () => {
         this.deletingId = null;
         this.schedule = this.schedule.filter(s => s.id !== id);

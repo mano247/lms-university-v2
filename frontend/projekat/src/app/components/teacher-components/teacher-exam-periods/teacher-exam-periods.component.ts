@@ -68,8 +68,8 @@ export class TeacherExamPeriodsComponent implements OnInit {
       error: () => {}
     });
 
-    this.http.get<ExamPeriod[]>(`${environment.apiUrl}/api/exam-periods?teacherId=${this.teacherId}`).subscribe({
-      next: data => { this.periods = data ?? []; this.isLoading = false; },
+    this.http.get<any>(`${environment.apiUrl}/api/exam-periods/my?size=100`).subscribe({
+      next: data => { this.periods = (data as any)?.content ?? data ?? []; this.isLoading = false; },
       error: () => { this.hasError = true; this.isLoading = false; }
     });
   }
@@ -104,8 +104,8 @@ export class TeacherExamPeriodsComponent implements OnInit {
   submitTerm(): void {
     if (!this.addingToPeriod) return;
     this.submitting = true;
-    const payload = { ...this.newTerm, examPeriodId: this.addingToPeriod.id };
-    this.http.post(`${environment.apiUrl}/api/exam-period-terms`, payload).subscribe({
+    const payload = { ...this.newTerm };
+    this.http.post(`${environment.apiUrl}/api/exam-periods/${this.addingToPeriod.id}/terms`, payload).subscribe({
       next: () => {
         this.submitting = false;
         this.closeModal();
@@ -121,8 +121,8 @@ export class TeacherExamPeriodsComponent implements OnInit {
 
   private reload(): void {
     if (!this.teacherId) return;
-    this.http.get<ExamPeriod[]>(`${environment.apiUrl}/api/exam-periods?teacherId=${this.teacherId}`).subscribe({
-      next: data => { this.periods = data ?? []; },
+    this.http.get<any>(`${environment.apiUrl}/api/exam-periods/my?size=100`).subscribe({
+      next: data => { this.periods = (data as any)?.content ?? data ?? []; },
       error: () => {}
     });
   }

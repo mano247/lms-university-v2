@@ -9,12 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.lmsuniversity.security.services.UserDetailsImpl;
 
 @Controller
 @RequestMapping(path = "/api/enrollments")
@@ -66,9 +69,17 @@ public class StudentYearEnrollmentController {
 		return new ResponseEntity<StudentYearEnrollmentDto>(HttpStatus.NOT_FOUND);
 	}
 
+	@PreAuthorize("hasAnyAuthority('STUDENT_AFFAIRS_PERMISSION', 'ADMINISTRATOR_PERMISSION', 'STUDENT_PERMISSION')")
 	@RequestMapping(path = "/by-student/{id}", method = RequestMethod.GET)
-	public ResponseEntity<List<StudentYearEnrollmentDto>> getByStudentId(@PathVariable("id") Long id){
+	public ResponseEntity<List<StudentYearEnrollmentDto>> getByStudentId(@PathVariable("id") Long id, Authentication authentication) {
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		boolean isStaff = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("STUDENT_AFFAIRS_PERMISSION")
+						|| a.getAuthority().equals("ADMINISTRATOR_PERMISSION"));
+		if (!isStaff && !id.equals(userDetails.getId())) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
 		List<StudentYearEnrollmentDto> enrollments = service.findByStudentId(id).stream().map(mapper::toDto).toList();
 		return new ResponseEntity<List<StudentYearEnrollmentDto>>(enrollments, HttpStatus.OK);
-		}
+	}
 }

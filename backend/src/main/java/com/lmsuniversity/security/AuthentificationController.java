@@ -97,6 +97,8 @@ public class AuthentificationController {
         .email(signUpRequest.getEmail())
         .password(encoder.encode(signUpRequest.getPassword()))
         .username(signUpRequest.getUsername())
+        .firstName(signUpRequest.getFirstName())
+        .lastName(signUpRequest.getLastName())
         .permissions(Set.of(userRole))
         .build();
 

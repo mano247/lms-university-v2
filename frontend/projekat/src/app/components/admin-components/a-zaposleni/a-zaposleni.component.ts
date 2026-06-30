@@ -22,6 +22,9 @@ export class AZaposleniComponent implements OnInit {
   searchLast = '';
   searchEmail = '';
 
+  pageSize = 15;
+  currentPage = 0;
+
   showModal = false;
   editItem: any = {};
   deleteId: number | null = null;
@@ -55,6 +58,7 @@ export class AZaposleniComponent implements OnInit {
     this.searchLast = '';
     this.searchEmail = '';
     this.deleteId = null;
+    this.currentPage = 0;
     this.applyFilter();
   }
 
@@ -70,7 +74,12 @@ export class AZaposleniComponent implements OnInit {
       (!ln || (e.lastName ?? '').toLowerCase().includes(ln)) &&
       (!em || (e.email ?? '').toLowerCase().includes(em))
     );
+    this.currentPage = 0;
   }
+
+  get totalPages() { return Math.ceil(this.filtered.length / this.pageSize); }
+  get pagedItems() { return this.filtered.slice(this.currentPage * this.pageSize, (this.currentPage + 1) * this.pageSize); }
+  goToPage(p: number) { if (p >= 0 && p < this.totalPages) this.currentPage = p; }
 
   clearSearch() {
     this.searchFirst = '';

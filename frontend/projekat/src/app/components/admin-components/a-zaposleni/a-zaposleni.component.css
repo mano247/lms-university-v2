@@ -212,3 +212,37 @@
   .table-wrap { overflow-x: auto; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+
+/* ── Pagination ──────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0 8px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e4e2e6;
+  border-radius: 8px;
+  background: #fff;
+  color: #002444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.page-btn:hover:not(:disabled) { background: #f4f3f6; border-color: #c4c2c8; }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-btn .material-symbols-outlined { font-size: 20px; }
+
+.page-info {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  color: #545f72;
+}

@@ -39,16 +39,28 @@
           class="search-input"
           type="search"
           placeholder="Global search..."
-          aria-label="Search dashboard">
+          aria-label="Search dashboard"
+          [value]="headerSearch"
+          (input)="onHeaderSearch($event)">
       </div>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" aria-label="Notifications">
-        <span class="material-symbols-outlined">notifications</span>
-      </button>
-      <button class="icon-btn" aria-label="Settings">
-        <span class="material-symbols-outlined">settings</span>
-      </button>
+      <div class="header-profile">
+        <button class="header-avatar-btn" (click)="toggleProfileMenu($event)" [attr.aria-expanded]="profileMenuOpen" aria-label="Profile menu">
+          {{ teacherInitials }}
+        </button>
+        @if (profileMenuOpen) {
+          <div class="profile-dropdown" role="menu">
+            <div class="dropdown-name">{{ teacherName }}</div>
+            <div class="dropdown-role">Lecturer</div>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item" (click)="logout()" role="menuitem">
+              <span class="material-symbols-outlined">logout</span>
+              Sign out
+            </button>
+          </div>
+        }
+      </div>
     </div>
   </header>
 
